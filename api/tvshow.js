@@ -16,7 +16,6 @@ router.use(bodyParser.json());
 
 const sonarr = new sonarrService(settings.sonarr);
 
-
 // Returns all Shows in Sonarr
 router.get('/', async (req, res) => {
     try {
@@ -54,6 +53,17 @@ router.get('/:name/lookup', async (req, res) => {
     catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     };
+});
+
+// Download Queue
+router.get('/queue', async (req, res) => {
+    try {
+        const r = await sonarr.getShows();
+        if (!r) throw new Error('No Results Found');
+        res.status(200).send(r);
+    } catch (err) {
+        return res.status(500).send({ name: err.name, message: err.message });
+    }
 });
 
 // Adds a series to Sonarr

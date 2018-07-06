@@ -6,7 +6,7 @@ const tautulliService = require('../service/tautulliService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
-const tautulli = new tautullirService(settings.radarr);
+const tautulli = new tautulliService(settings.tautulli);
 
 
 // Server Library statistics
@@ -22,10 +22,11 @@ router.get('/library', async (req, res) => {
 
 router.get('/nowplaying', async (req, res) => {
     try {
-        const r = await sonarr.getMovies();
+        const r = await tautulli.getNowPlaying();
         if (!r) throw new Error('No Results Found');
-        res.status(200).send(r);
+        res.status(200).send(r.data);
     } catch (err) {
+        console.error(err);
         return res.status(500).send({ name: err.name, message: err.message });
     }
 });

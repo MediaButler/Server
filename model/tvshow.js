@@ -7,6 +7,7 @@ var TVShowSchema = new mongoose.Schema({
     tvRageId: String,
     imdbId: String,
     traktId: String,
+    sonarrId: String,
 
     // Naming
     title: String,
@@ -19,8 +20,7 @@ var TVShowSchema = new mongoose.Schema({
     year: Number,
     certification: String,
     genres: [String],
-    ratings: [String],
-    tags: [String],
+    rating: String,
     status: String,
     network: String,
     airTime: String,
@@ -29,11 +29,12 @@ var TVShowSchema = new mongoose.Schema({
     nextAirtime: Date,
     seasonCount: Number,
     episodeCount: Number,
-    images: [Object],
+    images: [{ type: String, url: String}],
+    monitoredSeasons: [Number],
+    unmonitoredSeasons: [Number],
 
     // Maintenance
     lastUpdated: { type: Date, default: Date.now },
-
 });
 mongoose.model('TVShow', TVShowSchema);
-module.exports = mongoose.model('User');
+module.exports = mongoose.model('TVShow');

@@ -1,0 +1,26 @@
+{
+    "tautulli": {
+        "url": "https://onemedia.club/tautulli",
+        "apikey": "f1249c9ecba548d01aee6a32734364d7"
+    },
+    "sonarr": {
+        "url": "https://onemedia.club/sonarr/",
+        "apikey": "9d40708cd6ea45ad857cf7f1a853eb4b",
+        "defaultProfile": "HD - 720",
+        "defaultRoot": "/mnt/media/TV"
+    },
+    "radarr": {
+        "url": "https://onemedia.club/radarr/",
+        "apikey": "29ad92751c8a4debba7f61e9fb098775",
+        "defaultProfile": "Disc",
+        "defaultRoot": "/mnt/media/FILM"
+    },
+    "organizr": {
+        "url": "https://onemedia.club/",
+        "apikey": "c97zrophn6lm9w8jygtn"
+    },
+    "plex": {
+        "url": "https://onemedia.club/"
+    },
+    "secret": "somethingSecret"
+}

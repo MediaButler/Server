@@ -1,72 +1,64 @@
 const host = process.env.HOST || '127.0.0.1';
 const port = process.env.PORT || 9876;
-var User = require('./user/user');
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://oauth:superSecretPassword@ds125680.mlab.com:25680/mbuser');
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://request:requestUser1@ds125680.mlab.com:25680/mbuser')
 const express = require('express');
 const app = express();
 const passport = require('passport');
-const DiscordStrategy = require('passport-discord').Strategy;
+const JWTStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 
-passport.use(new DiscordStrategy({
-    clientID: '446409909123284994',
-    clientSecret: 'T8LF4jKZLgJFYU0Qj7_4hR_z_buGfSSP',
-    callbackURL: 'http://127.0.0.1:9876/auth/discord/callback',
-    scope: ['identify', 'email', 'guilds'],
-}, (accessToken, refreshToken, profile, cb) => {
-    console.log(`Access Token: ${accessToken} - Refresh: ${refreshToken}`);
-    User.findOne({ discordId: profile.id }, (err, user) => {
-        if (err) return res.status(500).send("There was a problem adding the information to the database.");
-        if (!user) {
-            const u = User.create({ discordId: profile.id, username: profile.username, email: profile.email, guilds: profile.guilds });
-            user = u;
-        }
-        return cb(err, user);
-    });
-}));
+const plexService = require('./service/plexService');
+const settings = require('./settings.json');
+
+
+passport.use(new JWTStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
+},
+function (jwtPayload, cb) {
+    if (jwtPayload.ident != process.env.SERV_IDENT) return cb(new Error('Something fishy with token'));
+    const user = { 
+        username: jwtPayload.username,
+        ident: jwtPayload.ident,
+        token: jwtPayload.token,
+        owner: jwtPayload.owner
+    };
+    settings.plex.token = user.token;
+    const ps = new plexService(settings.plex)
+    ps.check().then((res) => {
+        return cb(null, user);
+    }).catch((err) => { return cb(new Error('Unable to authenticate to Plex')); })
+}
+));
 
 const ensureAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) { return next(null); }
     res.redirect('/error');
 }
 
-const expressLogger = require('express-logger');
-const expressSession = require('express-session');
 const bodyParser = require('body-parser');
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressSession({ secret: 'thissecretrocks' }));
 app.use(passport.initialize());
-app.use(passport.session());
+app.set('json spaces', 2);
 
-const authController = require('./auth/discord');
-app.use('/auth', authController);
 const tvShowController = require('./api/tvshow');
-app.use('/tvshow', tvShowController);
+app.use('/tvshow', passport.authenticate('jwt', {session: false}), tvShowController);
+const movieController = require('./api/movie');
+app.use('/movie', passport.authenticate('jwt', {session: false}), tvShowController);
+const statsController = require('./api/stats');
+app.use('/stats', passport.authenticate('jwt', {session: false}), statsController);
 const hooksController = require('./api/hooks');
-app.use('/hooks', hooksController);
+app.use('/hooks', passport.authenticate('jwt', {session: false}), hooksController);
+const requestController = require('./api/request');
+app.use('/request', passport.authenticate('jwt', {session: false}), requestController);
 
-
-passport.serializeUser = ((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((id, done) => {
-    User.find({ discordId: id }, function (err, user) {
-        done(err, user);
-    });
-});
-
-app.get('/',(req, res) => {
-    if (req.isAuthenticated()) { console.log(req.isAuthenticated()); res.send('Hello.'); }
-    else { console.log(req.isAuthenticated()); res.send('Hello World.'); }
-});
-
-app.get('/error',(req, res) => {
-    res.send('An error has occured.');
+app.get('/', (req, res) => {
+    if (req.user) { console.log(req); res.send('Hello.'); }
+    else { console.log(req); res.send('Hello World.'); }
 });
 
 app.listen(port, host,() => {
-    console.log("Listening on " + port);
+    console.log(`Listening on http://${host}:${port}`);
 });

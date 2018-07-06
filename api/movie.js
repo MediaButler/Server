@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const Movie = require('../model/movie');
+//const Movie = require('../model/movie');
 
 const settings = require('../settings.json');
-const sonarrService = require('../service/radarrService');
+const radarrService = require('../service/radarrService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
