@@ -1,3 +1,11 @@
+console.log("\n"
+    + "███╗   ███╗███████╗██████╗ ██╗ █████╗ ██████╗ ██╗   ██╗████████╗██╗     ███████╗██████╗  \n"
+    + "████╗ ████║██╔════╝██╔══██╗██║██╔══██╗██╔══██╗██║   ██║╚══██╔══╝██║     ██╔════╝██╔══██╗ \n"
+    + "██╔████╔██║█████╗  ██║  ██║██║███████║██████╔╝██║   ██║   ██║   ██║     █████╗  ██████╔╝ \n"
+    + "██║╚██╔╝██║██╔══╝  ██║  ██║██║██╔══██║██╔══██╗██║   ██║   ██║   ██║     ██╔══╝  ██╔══██╗ \n"
+    + "██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║██████╔╝╚██████╔╝   ██║   ███████╗███████╗██║  ██║ \n"
+    + "╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝ \n");
+
 const host = process.env.HOST || '127.0.0.1';
 const port = process.env.PORT || 9876;
 const mongoose = require('mongoose');
@@ -7,35 +15,24 @@ const app = express();
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+const jwt = require('jsonwebtoken');
 
 const plexService = require('./service/plexService');
 const settings = require('./settings.json');
 
-
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
-},
-function (jwtPayload, cb) {
+}, (jwtPayload, cb) => {
     if (jwtPayload.ident != process.env.SERV_IDENT) return cb(new Error('Something fishy with token'));
-    const user = { 
-        username: jwtPayload.username,
-        ident: jwtPayload.ident,
-        token: jwtPayload.token,
-        owner: jwtPayload.owner
-    };
-    settings.plex.token = user.token;
-    const ps = new plexService(settings.plex)
-    ps.check().then((res) => {
+    const user = { username: jwtPayload.username, ident: jwtPayload.ident, token: jwtPayload.token, owner: jwtPayload.owner };
+    const set = settings.plex;
+    set.token = user.token;
+    const ps = new plexService(set);
+    ps.check().then(() => {
         return cb(null, user);
-    }).catch((err) => { return cb(new Error('Unable to authenticate to Plex')); })
-}
-));
-
-const ensureAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) { return next(null); }
-    res.redirect('/error');
-}
+    }).catch((err) => { return cb(new Error('Unable to authenticate to Plex')); });
+}));
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
@@ -60,5 +57,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, host,() => {
-    console.log(`Listening on http://${host}:${port}`);
+    console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
 });

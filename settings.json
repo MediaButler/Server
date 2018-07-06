@@ -1,26 +1,40 @@
 {
+    "_database": "mongodb://localhost:27017",
+    "database": "mongodb://request:requestUser1@ds125680.mlab.com:25680/mbuser",
+    "ownerToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IlVURUVSVmhZS3czN3ZqenpFQnZBIiwiaWRlbnQiOiI5ZjY3NzYyZTMyMGU0NTZiYjI2YTJkZmRkMWE5Y2IxY2VkMTlhYTMxIiwidXNlcm5hbWUiOiJ2ZXJ0aWcwbmUiLCJvd25lciI6dHJ1ZSwiaWF0IjoxNTMwODM3Mjk3fQ.4M_YLwcK5ZO9bu_2fgvC3jXf3m6YF0nhZxbqF8wM5vM",
+    "secret": "somethingSecret",
+    "requests": {
+        "_comment": "autoApprove are for users that dont require approving before submitting, allowApprove are for users that are allowed to approve others requests",
+        "_comment_item_format": { "username": "username of user", "types": ["type", "of", "request", "to", "auto", "approve"]},
+        "autoApprove": [{ "username": "verttest", "types": ["tv", "movie", "books", "comics", "music"] }],
+        "allowApprove": []
+    },
     "tautulli": {
-        "url": "https://onemedia.club/tautulli",
+        "_comment": "Tautulli Server Configuration",
+        "url": "https://onemedia.club/tautulli/",
         "apikey": "f1249c9ecba548d01aee6a32734364d7"
     },
     "sonarr": {
+        "_comment": "Sonarr Server Configuration",
         "url": "https://onemedia.club/sonarr/",
         "apikey": "9d40708cd6ea45ad857cf7f1a853eb4b",
         "defaultProfile": "HD - 720",
         "defaultRoot": "/mnt/media/TV"
     },
     "radarr": {
+        "_comment": "Radarr Server Configuration",
         "url": "https://onemedia.club/radarr/",
         "apikey": "29ad92751c8a4debba7f61e9fb098775",
         "defaultProfile": "Disc",
         "defaultRoot": "/mnt/media/FILM"
     },
     "organizr": {
+        "_comment": "Organizr Server Configuration",
         "url": "https://onemedia.club/",
         "apikey": "c97zrophn6lm9w8jygtn"
     },
     "plex": {
+        "_comment": "Plex Server Configuration",
         "url": "https://onemedia.club/"
-    },
-    "secret": "somethingSecret"
+    }
 }

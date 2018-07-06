@@ -1,0 +1,38 @@
+---
+version: '2'
+networks:
+  mediabutler:
+    driver: bridge
+services:
+    mediabutler-api:
+        build: .
+        container_name: "mediabutler-api"
+        image: mediabutler/api
+        hostname: mediabutler-api
+        environment:
+            - OWNER_TOKEN=BIG_FUCKING_GIANT_JWT_TOKEN
+            - DB_URL=mongodb://mongodb:21017
+            - AUTH_SECRET=notSoSecret
+            - PLEX_URL=http://192.168.1.101:32400/
+        volumes:
+            - /home/${USER}/docker/mediabutler:/config:rw
+        networks:
+            - mediabutler
+        ports:
+            - 9876:9876
+        links:
+            - mongodb
+        depends_on:
+            - mongodb
+    mongodb:
+        image: mongo:latest
+        container_name: "mongodb"
+        hostname: mongodb
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+          - /home/${USER}/config/mediabutler/db:/data/db
+        networks:
+          - mediabutler
+        command: mongod --smallfiles --logpath=/dev/null # --quiet
