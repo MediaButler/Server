@@ -1,7 +1,7 @@
 {
+    "urlOverride": "http://127.0.0.1:9876/mediabutler/",
     "_database": "mongodb://localhost:27017",
     "database": "mongodb://request:requestUser1@ds125680.mlab.com:25680/mbuser",
-    "ownerToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IlVURUVSVmhZS3czN3ZqenpFQnZBIiwiaWRlbnQiOiI5ZjY3NzYyZTMyMGU0NTZiYjI2YTJkZmRkMWE5Y2IxY2VkMTlhYTMxIiwidXNlcm5hbWUiOiJ2ZXJ0aWcwbmUiLCJvd25lciI6dHJ1ZSwiaWF0IjoxNTMwODM3Mjk3fQ.4M_YLwcK5ZO9bu_2fgvC3jXf3m6YF0nhZxbqF8wM5vM",
     "secret": "somethingSecret",
     "requests": {
         "_comment": "autoApprove are for users that dont require approving before submitting, allowApprove are for users that are allowed to approve others requests",

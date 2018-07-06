@@ -6,18 +6,17 @@ const imdb = require('imdb-api');
 const TVDB = require('node-tvdb');
 const tvdb = new TVDB('88D2ED25A2539ECE');
 const settings = require('../settings.json');
-const radarrService = require('../service/radarrService');
-const sonarrService = require('../service/sonarrService');
+const requestService = require('../service/requestService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
 router.get('/', async (req, res) => {
     try {
-        Request.find({}, function (err, requests) {
-            if (err) return res.status(400).send({ name: 'Bad Request', message: 'No Requests to display' });
-            res.status(200).send(requests);
-        });
+        const rs = new requestService();
+        const r = await rs.getRequests();
+        if (!r) return res.status(404).send({ name: 'Not Found', message: 'No Requests to display' });
+        return res.status(200).send(r);
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -25,50 +24,34 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        Request.findById(req.params.id, function (err, request) {
-            if (err) return res.status(400).send({ name: 'Bad Request', message: 'Request does not exist' });
-            res.status(200).send(request);
-        });
+        const rs = new requestService();
+        const r = await rs.getRequest(req.params.id);
+        if (!r) return res.status(404).send({ name: 'Not Found', message: 'Request not found' });
+        return res.status(200).send(r);
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
 });
 
 router.post('/approve/:id', async (req, res) => {
-    if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
-    Request.findById(req.params.id, function (err, request) {
-        if (err) return res.status(400).send({ name: 'Bad Request', message: 'Request does not exist' });
+    const rs = new requestService();
+    const approvedList = settings.requests.allowApprove;
+    const originalRequest = rs.getRequest(req.params.id);
+    let t = false;
+    if (req.user.owner) t = true;
 
-        switch (request.type) {
-            case "movie":
-                const rs = new radarrService(settings.radarr);
-                const mv = {
-                    imdbId: request.imdbId,
-                    profile: (req.body.overrideProfile) ? req.body.overrideProfile : settings.radarr.defaultProfile,
-                    rootpath: (req.body.overrideRoot) ? req.body.overrideRoot : settings.radarr.defaultRoot
-                };
-                rs.addMovie(mv);
-                request.status = 1;
-            break;
-            case "tv":
-                const ss = new sonarrService(settings.sonarr);
-                const show = {
-                    tvdbId: request.tvdbId,
-                    profile: (req.body.overrideProfile) ? req.body.overrideProfile : settings.radarr.defaultProfile,
-                    rootpath: (req.body.overrideRoot) ? req.body.overrideRoot : settings.radarr.defaultRoot
-                };
-                ss.addShow(show);
-                request.status = 1;
-            break;
-            default:
-                return res.status(400).send({ name: 'Bad Request', message: 'Could not determine type'});
-            break;
+    if (!t) {
+        for (let i = 0; i < approvedList.length; i++) {
+            if (approvedList[i].username == req.user.username && approvedList[i].types.indexOf(originalRequest.type > -1)) t = true;
         }
+    }
 
-        request.save();
-        res.status(200).send(request);
-        console.log(`${new Date()} Request approved for ${request.title}`);
-    });
+    try {
+        if (!t) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+        const r = await rs.approveRequest(req.params.id, req.body.overrideProfile, req.body.overrideRoot);
+        console.log(`${new Date()} ${req.user.username} Request approved ${originalRequest.username}'s request for ${originalRequest.title}`);
+        return res.status(200).send(r);
+    } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
 });
 
 // {
