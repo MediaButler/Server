@@ -15,16 +15,16 @@ module.exports = class plexService {
             options: { 
                 identifier: 'df9e71a5-a6cd-488e-8730-aaa9195f7435', 
                 product: 'MediaButler',
-                version: 'Plex Server Version', 
+                version: 'v1.0', 
                 deviceName: 'DeviceName', 
-                device: 'SystemOS',
-                platformVersion: 'Client Version'
+                device: 'API',
+                platformVersion: 'v1.0'
             },
             hostname: details[2],
             port: usePort,
             https: useHttps,
             token: settings.token,
-        }
+        };
         this._api = new plexApi(opts);
     }
 
@@ -44,7 +44,7 @@ module.exports = class plexService {
 
     async killStream(id, reason) {
         try {
-            return await this._api.perform(`/status/sessions/terminate?sessionId=${id}&reason=${reason}`);
+            return await this._api.perform(`/status/sessions/terminate?sessionId=${id}&reason=${urlencode(reason)}`);
         } catch (err) { throw err; }
     }
 
