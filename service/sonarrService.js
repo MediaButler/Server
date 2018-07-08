@@ -96,11 +96,40 @@ module.exports = class sonarrService {
         catch (err) { throw err; }
     }
 
+    async getShowByTvdbId(id) {
+        try {
+            const allShows = await this.getShows();
+            const showsMap = Array(allShows.length);
+            allShows.map((x) => showsMap[x.tvdbId] = x);
+            return showsMap[id];
+        }
+        catch (err) { throw err; }
+    }
+
+    async searchShow(tvdbId) {
+        try {
+            const show = await this.getShowByTvdbId(tvdbId);
+            const result = await this._api.post('command', { name: 'SeriesSearch', seriesId: parseInt(show.tvdbId) });
+            return result;
+        }
+        catch (err) { throw err; }
+    }
+
     async getShow(id) {
         try {
             const result = await this._api.get(`series/${id}`);
             if (result.length === 0) throw new Error('No results');
             return result;
+        }
+        catch (err) { throw err; }
+    }
+
+    async getProfile(name) {
+        try {
+            const allProfiles = await this._api.get('profile');
+            let profileMap = Array(allProfiles.length);
+            allProfiles.map((x) => profileMap[x.name] = x);
+            return profileMap[name];
         }
         catch (err) { throw err; }
     }
@@ -135,6 +164,12 @@ module.exports = class sonarrService {
                 return true;
             }
         }
-        catch (err) { throw err; }
+        catch (err) { 
+            if (err.message == "NotFound") {
+                this.searchShow(show.tvdbId);
+                return true;
+            }
+            throw err; 
+        }
     }
 }

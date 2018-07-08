@@ -7,6 +7,7 @@ const TVDB = require('node-tvdb');
 const tvdb = new TVDB('88D2ED25A2539ECE');
 const settings = require('../settings.json');
 const requestService = require('../service/requestService');
+const notificationService = require('../service/notificationService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
@@ -36,7 +37,7 @@ router.get('/:id', async (req, res) => {
 router.post('/approve/:id', async (req, res) => {
     const rs = new requestService();
     const approvedList = settings.requests.allowApprove;
-    const originalRequest = rs.getRequest(req.params.id);
+    const originalRequest = await rs.getRequest(req.params.id);
     let t = false;
     if (req.user.owner) t = true;
 
@@ -45,10 +46,10 @@ router.post('/approve/:id', async (req, res) => {
             if (approvedList[i].username == req.user.username && approvedList[i].types.indexOf(originalRequest.type > -1)) t = true;
         }
     }
-
     try {
         if (!t) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
         const r = await rs.approveRequest(req.params.id, req.body.overrideProfile, req.body.overrideRoot);
+        if (notificationService) notificationService.emit('request', { id: request.id, who: 'System', for: request.username, title: request.title, mediaType: r.type, type: 'approve' });
         console.log(`${new Date()} ${req.user.username} Request approved ${originalRequest.username}'s request for ${originalRequest.title}`);
         return res.status(200).send(r);
     } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
@@ -60,7 +61,7 @@ router.post('/approve/:id', async (req, res) => {
 //     tvdbId: '',
 //     imdbId: '',
 //     musicBrainzId: '',
-//     goodReadsId: '',
+//     googleBooksId: '',
 //     comicVineId: '',
 // }
 router.post('/', async (req, res) => {
@@ -111,6 +112,7 @@ router.post('/', async (req, res) => {
     r.username = req.user.username;
     r.status = 0;
     r.save();
+    if (notificationService) notificationService.emit('request', { id: r.id, who: req.user.username, for: r.username, mediaType: r.type, title: r.title, type: 'add' });
     res.status(200).send(r);
     console.log(`${new Date().toTimeString()} ${r.username} added a request for ${r.title}`);
 });
@@ -122,7 +124,8 @@ router.delete('/:id', async (req, res) => {
     if (!r) return res.status(400).send({ name: 'Bad Request', message: 'Request does not exist' });
     Request.deleteOne({ '_id': req.params.id }).exec();
     res.status(200).send({ name: 'OK', message: 'Deleted' });
-    console.log(`${new Date().toTimeString()} deleted request for ${r.title}`)
+    console.log(`${new Date().toTimeString()} deleted request for ${r.title}`);
+    if (notificationService) notificationService.emit('request', { id: r.id, who: req.user.username, for: r.username, mediaType: r.type, title: r.title, type: 'delete' });
 });
 
 module.exports = router;

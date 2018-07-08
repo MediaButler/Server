@@ -33,6 +33,16 @@ module.exports = class radarrService {
         catch (err) { throw err; }
     }
 
+    async getProfile(name) {
+        try {
+            const allProfiles = await this._api.get('profile');
+            let profileMap = Array(allProfiles.length);
+            allProfiles.map((x) => profileMap[x.name] = x);
+            return profileMap[name];
+        }
+        catch (err) { throw err; }
+    }
+
     async lookupMovie(filter) {
         try {
             let qry;
@@ -55,6 +65,25 @@ module.exports = class radarrService {
         catch (err) { throw err; }
     }
 
+    async getMovieByimdbId(id) {
+        try {
+            const allMovies = await this.Movies();
+            const movieMap = Array(allMovies.length);
+            allMovies.map((x) => movieMap[x.imdbId] = x);
+            return movieMap[id];
+        }
+        catch (err) { throw err; }
+    }
+
+    async searchMovie(imdbId) {
+        try {
+            const movie = await this.getMovieByimdbId(imdbId);
+            const result = await this._api.post('command', { name: 'MoviesSearch', movieIds: [parseInt(movie.imdbId)] });
+            return result;
+        }
+        catch (err) { throw err; }
+    }
+
     async addMovie(movie) {
         try {
             if (!movie.imdbId) throw new Error('imdbId not set');
@@ -67,7 +96,7 @@ module.exports = class radarrService {
                 else throw new Error('Unable to determine profile');
             }
 
-            const getResult = await this.getMovie({ imdbId: show.imdbId, limit: 1 });
+            const getResult = await this.getMovie({ imdbId: movie.imdbId, limit: 1 });
             const data = {
                 'tmdbId': getResult.tmdbId,
                 'title': getResult.title,
@@ -82,6 +111,12 @@ module.exports = class radarrService {
             if (result.title == undefined || result.title == null) throw new Error('Failed to add');
             return true;
         }
-        catch (err) { throw err; }
+        catch (err) { 
+            if (err.message == "NotFound") {
+                this.searchMovie(movie.imdbId);
+                return true;
+            }
+            throw err; 
+         }
     }
 }

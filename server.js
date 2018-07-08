@@ -11,13 +11,18 @@ const port = process.env.PORT || 9876;
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
+const bodyParser = require('body-parser');
 
 const plexService = require('./service/plexService');
+const requestService = require('./service/requestService');
+
 const settings = require('./settings.json');
 
 mongoose.connect(settings.database);
@@ -36,7 +41,6 @@ passport.use(new JWTStrategy({
     }).catch((err) => { return cb(new Error('Unable to authenticate to Plex')); });
 }));
 
-const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
@@ -68,7 +72,31 @@ app.get('/version', (req, res) => {
     return res.status(200).send(v);
 });
 
+const notifyService = io
+  .of('/notify')
+  .on('connection', (socket) => {
+    socket.emit('event', {
+        that: 'only'
+      , '/notify': 'will get'
+    });
+    notifyService.emit('event', {
+        everyone: 'in'
+      , '/notify': 'will get'
+    });
+  });
 
-app.listen(port, host,() => {
+//   notifyService.use((socket, next) => {
+//     let header = socket.handshake.headers['authorization'];
+//     if (isValidJwt(header)) {
+//       return next();
+//     }
+//     return next(new Error('authentication error'));
+//   });
+
+
+const nService = require('./service/notificationService');
+server.listen(port, host,() => {
     console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
+    const rs = new requestService(true);
+    nService.agent = notifyService;
 });
