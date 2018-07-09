@@ -96,7 +96,7 @@ module.exports = class radarrService {
                 else throw new Error('Unable to determine profile');
             }
 
-            const getResult = await this.getMovie({ imdbId: movie.imdbId, limit: 1 });
+            const getResult = await this.lookupMovie({ imdbId: movie.imdbId, limit: 1 });
             const data = {
                 'tmdbId': getResult.tmdbId,
                 'title': getResult.title,

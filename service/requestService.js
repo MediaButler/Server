@@ -29,7 +29,7 @@ module.exports = class requestService {
             });
         }
         clearTimeout(this._approveTimer);
-        this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
+        this._approveTimer = setTimeout((() => { this.autoApprove(); }), (60 * 60) * 1000);
     }
 
 
@@ -97,7 +97,8 @@ module.exports = class requestService {
         } catch (err) { throw err; }
     }
 
-    async delRequest(id) {
-
+    async delRequest(id, confirmed = false) {
+        if (confirmed) return Request.deleteOne({ '_id': id }).exec();
+        else return false;
     }
 }

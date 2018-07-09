@@ -118,13 +118,14 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
+    const rs = new requestService();
     if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
     if (!req.body.confirmed) return res.status(400).send({ name: 'Bad Request', message: 'Please confirm deletion' });
-    const r = Request.findById(req.params.id).exec();
+    const r = await rs.getRequest(req.params.id);
     if (!r) return res.status(400).send({ name: 'Bad Request', message: 'Request does not exist' });
-    Request.deleteOne({ '_id': req.params.id }).exec();
+    const d = await rs.delRequest(req.params.id, true);
     res.status(200).send({ name: 'OK', message: 'Deleted' });
-    console.log(`${new Date().toTimeString()} deleted request for ${r.title}`);
+    console.log(`${new Date().toTimeString()} ${req.user.username} deleted request for ${r.title}`);
     if (notificationService) notificationService.emit('request', { id: r.id, who: req.user.username, for: r.username, mediaType: r.type, title: r.title, type: 'delete' });
 });
 
