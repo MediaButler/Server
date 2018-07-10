@@ -1,0 +1,5 @@
+image: node:4.2.2
+install_test:
+  script:
+   - npm install
+   - node server.js
