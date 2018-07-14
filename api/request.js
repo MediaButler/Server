@@ -49,7 +49,7 @@ router.post('/approve/:id', async (req, res) => {
     try {
         if (!t) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
         const r = await rs.approveRequest(req.params.id, req.body.overrideProfile, req.body.overrideRoot);
-        if (notificationService) notificationService.emit('request',  { id: r.id, who: req.user.username, for: r.username, request: r, title: r.title, type: 'approve' });
+        if (notificationService) notificationService.emit('request',  { who: req.user.username, for: r.username, request: r, title: r.title, type: 'approve' });
         console.log(`${new Date()} ${req.user.username} Request approved ${originalRequest.username}'s request for ${originalRequest.title}`);
         return res.status(200).send(r);
     } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
@@ -112,7 +112,7 @@ router.post('/', async (req, res) => {
     r.username = req.user.username;
     r.status = 0;
     r.save();
-    if (notificationService) notificationService.emit('request', { id: r.id, who: req.user.username, for: r.username, request: r, title: r.title, type: 'add' });
+    if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'add' });
     res.status(200).send(r);
     console.log(`${new Date().toTimeString()} ${r.username} added a request for ${r.title}`);
 });
@@ -126,7 +126,7 @@ router.delete('/:id', async (req, res) => {
     const d = await rs.delRequest(req.params.id, true);
     res.status(200).send({ name: 'OK', message: 'Deleted' });
     console.log(`${new Date().toTimeString()} ${req.user.username} deleted request for ${r.title}`);
-    if (notificationService) notificationService.emit('request', { id: r.id, who: req.user.username, for: r.username, request: r, title: r.title, type: 'delete' });
+    if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'delete' });
 });
 
 module.exports = router;
