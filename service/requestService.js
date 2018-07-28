@@ -17,7 +17,7 @@ module.exports = class requestService {
     async autoApprove() {
         console.log('checking for approvals');
         const pending = await this.getPendingRequests();
-        const autoApproveLength = (settings.request.autoApprove.length == 0) ? 0 : settings.requests.autoApprove.length - 1;
+        const autoApproveLength = (settings.requests.autoApprove.length == 0) ? 0 : settings.requests.autoApprove.length - 1;
         const approvedMap = Array(autoApproveLength);
         settings.requests.autoApprove.map((x) => approvedMap[x.username] = x);
         if (pending.length > 0) {
