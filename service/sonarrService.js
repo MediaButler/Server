@@ -172,4 +172,8 @@ module.exports = class sonarrService {
             throw err; 
         }
     }
+
+    async deleteShow(show) {
+        
+    }
 }

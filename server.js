@@ -19,34 +19,55 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
+const isDocker = require('is-docker');
+const fs = require('fs');
 
 const plexService = require('./service/plexService');
 const requestService = require('./service/requestService');
 
-const settings = require('./settings.json');
-let dbConnected = false;
+const settings;
+if (isDocker()) {
+    console.log('Running inside a Docker container');
+    try {
+        settings = require('/config/settings.json');
+    } catch (err) {
+        settings = require('./settings.defualt.json');
 
-const options = {
-    autoIndex: false, // Don't build indexes
-    reconnectTries: 30, // Retry up to 30 times
-    reconnectInterval: 500, // Reconnect every 500ms
-    poolSize: 10, // Maintain up to 10 socket connections
-    // If not connected, return errors immediately rather than waiting for reconnect
-    bufferMaxEntries: 0,
-    useNewUrlParser: true
-  }
-
-const connectWithRetry = () => {
-  console.log('MongoDB connection with retry')
-  mongoose.connect(process.env.DB_URL || settings.database, options).then(()=>{
-    console.log('MongoDB is connected')
-  }).catch(err=>{
-    console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
-    console.error(err);
-    setTimeout(connectWithRetry, 5000)
-  })
+        fs.writeFile("/config/settings.json", settings, (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            };
+            console.log("Settings created");
+        });
+    }
+} else {
+    try {
+        settings = require('./settings.json');
+    } catch (err) {
+        settings = require('./settings.defualt.json');
+        fs.writeFile("./settings.json", settings, (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            };
+            console.log("Settings created");
+        });
+    }
 }
 
+const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
+    poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }
+
+const connectWithRetry = () => {
+    console.log('Attempting to connect to database')
+    mongoose.connect(process.env.DB_URL || settings.database, options).then(() => {
+        console.log('Database is connected');
+    }).catch((err) => {
+        console.log('Database connection unsuccessful, will retry after 5 seconds.')
+        setTimeout(connectWithRetry, 5000);
+    });
+}
 connectWithRetry()
 
 
@@ -68,6 +89,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.set('json spaces', 2);
+app.set('base', '/mediabutler');
 
 const tvShowController = require('./api/tvshow');
 app.use('/tvshow', passport.authenticate('jwt', { session: false }), tvShowController);

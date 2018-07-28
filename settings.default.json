@@ -1,0 +1,36 @@
+{
+    "requests": {
+        "_comment": "autoApprove are for users that dont require approving before submitting, allowApprove are for users that are allowed to approve others requests",
+        "_comment_item_format": { "username": "username of user", "types": ["type", "of", "request", "to", "auto", "approve"]},
+        "autoApprove": [],
+        "allowApprove": []
+    },
+    "tautulli": {
+        "_comment": "Tautulli Server Configuration",
+        "url": false,
+        "apikey": false
+    },
+    "sonarr": {
+        "_comment": "Sonarr Server Configuration",
+        "url": false,
+        "apikey": false,
+        "defaultProfile": false,
+        "defaultRoot": false
+    },
+    "radarr": {
+        "_comment": "Radarr Server Configuration",
+        "url": false,
+        "apikey": false,
+        "defaultProfile": false,
+        "defaultRoot": false
+    },
+    "organizr": {
+        "_comment": "Organizr Server Configuration",
+        "url": false,
+        "apikey": false
+    },
+    "plex": {
+        "_comment": "Plex Server Configuration",
+        "url": false
+    }
+}

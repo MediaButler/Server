@@ -17,6 +17,7 @@
     "express-logger": "0.0.3",
     "express-session": "^1.15.6",
     "imdb-api": "^4.0.0",
+    "is-docker": "^1.1.0",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.1",
     "node-tvdb": "^4.1.0",
