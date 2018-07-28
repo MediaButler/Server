@@ -25,7 +25,7 @@ const fs = require('fs');
 const plexService = require('./service/plexService');
 const requestService = require('./service/requestService');
 
-const settings;
+let settings;
 if (isDocker()) {
     console.log('Running inside a Docker container');
     try {
