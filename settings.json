@@ -2,7 +2,6 @@
     "urlOverride": "http://127.0.0.1:9876/mediabutler/",
     "_database": "mongodb://localhost:27017",
     "database": "mongodb://request:requestUser1@ds125680.mlab.com:25680/mbuser",
-    "secret": "somethingSecret",
     "requests": {
         "_comment": "autoApprove are for users that dont require approving before submitting, allowApprove are for users that are allowed to approve others requests",
         "_comment_item_format": { "username": "username of user", "types": ["type", "of", "request", "to", "auto", "approve"]},

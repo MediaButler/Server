@@ -25,13 +25,13 @@ const requestService = require('./service/requestService');
 
 const settings = require('./settings.json');
 
-mongoose.connect(settings.database);
+mongoose.connect(process.env.DB_URL || settings.database, { useNewUrlParser: true });
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
 }, (jwtPayload, cb) => {
-    if (jwtPayload.ident != process.env.SERV_IDENT) return cb(new Error('Something fishy with token'));
+    if (jwtPayload.ident != process.env.PLEX_MACHINE_ID) return cb(new Error('Something fishy with token'));
     const user = { username: jwtPayload.username, ident: jwtPayload.ident, token: jwtPayload.token, owner: jwtPayload.owner };
     const set = settings.plex;
     set.token = user.token;
@@ -96,7 +96,7 @@ const notifyService = io
 
 const nService = require('./service/notificationService');
 server.listen(port, host,() => {
-    console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
+    console.log(`MediaButler API Server v1.0 -  http://127.0.0.1:${port}`);
     const rs = new requestService(true);
     nService.agent = notifyService;
 });
