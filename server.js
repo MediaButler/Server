@@ -31,10 +31,7 @@ if (isDocker()) {
         settings = require('./settings.default.json');
 
         fs.writeFileSync("/config/settings.json", JSON.stringify(settings, null, 2), (err) => {
-            if (err) {
-                console.error(err);
-                return;
-            };
+            if (err) return console.error(err);
             console.log("Settings created");
         });
     }
@@ -44,19 +41,14 @@ if (isDocker()) {
     } catch (err) {
         settings = require('./settings.default.json');
         fs.writeFileSync("./settings.json", JSON.stringify(settings, null, 2), (err) => {
-            if (err) {
-                console.error(err);
-                return;
-            };
+            if (err) return console.error(err);
             console.log("Settings created");
         });
     }
 }
 
-
 const plexService = require('./service/plexService');
 const requestService = require('./service/requestService');
-
 
 const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }
@@ -70,7 +62,7 @@ const connectWithRetry = () => {
         setTimeout(connectWithRetry, 5000);
     });
 }
-connectWithRetry()
+connectWithRetry();
 
 
 passport.use(new JWTStrategy({

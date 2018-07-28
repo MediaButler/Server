@@ -24,7 +24,6 @@ if (isDocker()) {
 
 const tautulli = new tautulliService(settings.tautulli);
 
-
 // Server Library statistics
 router.get('/library', async (req, res) => {
     try {

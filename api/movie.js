@@ -9,15 +9,11 @@ let settings;
 if (isDocker()) {
     try {
         settings = require('/config/settings.json');
-    } catch (err) {
-        throw err;
-    }
+    } catch (err) { throw err; }
 } else {
     try {
         settings = require('../settings.json');
-    } catch (err) {
-        throw err;
-    }
+    } catch (err) { throw err; }
 }
 
 const radarrService = require('../service/radarrService');
