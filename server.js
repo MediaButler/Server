@@ -22,18 +22,15 @@ const bodyParser = require('body-parser');
 const isDocker = require('is-docker');
 const fs = require('fs');
 
-const plexService = require('./service/plexService');
-const requestService = require('./service/requestService');
-
 let settings;
 if (isDocker()) {
     console.log('Running inside a Docker container');
     try {
         settings = require('/config/settings.json');
     } catch (err) {
-        settings = require('./settings.defualt.json');
+        settings = require('./settings.default.json');
 
-        fs.writeFile("/config/settings.json", settings, (err) => {
+        fs.writeFileSync("/config/settings.json", JSON.stringify(settings, null, 2), (err) => {
             if (err) {
                 console.error(err);
                 return;
@@ -45,8 +42,8 @@ if (isDocker()) {
     try {
         settings = require('./settings.json');
     } catch (err) {
-        settings = require('./settings.defualt.json');
-        fs.writeFile("./settings.json", settings, (err) => {
+        settings = require('./settings.default.json');
+        fs.writeFileSync("./settings.json", JSON.stringify(settings, null, 2), (err) => {
             if (err) {
                 console.error(err);
                 return;
@@ -55,6 +52,11 @@ if (isDocker()) {
         });
     }
 }
+
+
+const plexService = require('./service/plexService');
+const requestService = require('./service/requestService');
+
 
 const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }

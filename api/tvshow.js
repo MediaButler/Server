@@ -2,8 +2,24 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const TVShow = require('../model/tvshow');
+const isDocker = require('is-docker');
 
-const settings = require('../settings.json');
+let settings;
+if (isDocker()) {
+    console.log('Running inside a Docker container');
+    try {
+        settings = require('/config/settings.json');
+    } catch (err) {
+        throw err;
+    }
+} else {
+    try {
+        settings = require('../settings.json');
+    } catch (err) {
+        throw err;
+    }
+}
+
 const sonarrService = require('../service/sonarrService');
 
 router.use(bodyParser.urlencoded({ extended: true }));

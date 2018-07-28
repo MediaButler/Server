@@ -1,11 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const settings = require('../settings.json');
+const isDocker = require('is-docker');
 const tautulliService = require('../service/tautulliService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+
+let settings;
+if (isDocker()) {
+    console.log('Running inside a Docker container');
+    try {
+        settings = require('/config/settings.json');
+    } catch (err) {
+        throw err;
+    }
+} else {
+    try {
+        settings = require('../settings.json');
+    } catch (err) {
+        throw err;
+    }
+}
+
 const tautulli = new tautulliService(settings.tautulli);
 
 

@@ -5,12 +5,28 @@ const Request = require('../model/request');
 const imdb = require('imdb-api');
 const TVDB = require('node-tvdb');
 const tvdb = new TVDB('88D2ED25A2539ECE');
-const settings = require('../settings.json');
+const isDocker = require('is-docker');
 const requestService = require('../service/requestService');
 const notificationService = require('../service/notificationService');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+
+let settings;
+if (isDocker()) {
+    console.log('Running inside a Docker container');
+    try {
+        settings = require('/config/settings.json');
+    } catch (err) {
+        throw err;
+    }
+} else {
+    try {
+        settings = require('../settings.json');
+    } catch (err) {
+        throw err;
+    }
+}
 
 router.get('/', async (req, res) => {
     try {
