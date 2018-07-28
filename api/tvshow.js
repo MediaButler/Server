@@ -4,20 +4,9 @@ const bodyParser = require('body-parser');
 const TVShow = require('../model/tvshow');
 const isDocker = require('is-docker');
 
-let settings;
-if (isDocker()) {
-    try {
-        settings = require('/config/settings.json');
-    } catch (err) {
-        throw err;
-    }
-} else {
-    try {
-        settings = require('../settings.json');
-    } catch (err) {
-        throw err;
-    }
-}
+const settingsService = require('./settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
 
 const sonarrService = require('../service/sonarrService');
 

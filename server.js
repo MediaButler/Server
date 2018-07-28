@@ -19,38 +19,9 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
-const isDocker = require('is-docker');
-const fs = require('fs');
-
-let settings;
-if (isDocker()) {
-    console.log('Running inside a Docker container');
-    try {
-        settings = require('/config/settings.json');
-    } catch (err) {
-        settings = require('./settings.default.json');
-
-        fs.writeFileSync("/config/settings.json", JSON.stringify(settings, null, 2), (err) => {
-            if (err) return console.error(err);
-            console.log("Settings created");
-        });
-    }
-} else {
-    try {
-        settings = require('./settings.json');
-    } catch (err) {
-        settings = require('./settings.default.json');
-        fs.writeFileSync("./settings.json", JSON.stringify(settings, null, 2), (err) => {
-            if (err) return console.error(err);
-            console.log("Settings created");
-        });
-    }
-}
-
-if (!settings.tautulli.url || !settings.tautulli.apikey) die('Settings not configured. Tautulli unconfigured');
-if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
-if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
-if (!settings.plex.url) die('Settings not configured. Plex unconfigured');
+const settingsService = require('./settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
 
 
 const plexService = require('./service/plexService');

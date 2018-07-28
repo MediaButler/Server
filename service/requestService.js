@@ -3,24 +3,9 @@ const Request = require('../model/request');
 const sonarrService = require('./sonarrService');
 const radarrService = require('./radarrService');
 const notificationService = require('../service/notificationService');
-const isDocker = require('is-docker');
-
-
-let settings;
-if (isDocker()) {
-    console.log('Running inside a Docker container');
-    try {
-        settings = require('/config/settings.json');
-    } catch (err) {
-        throw err;
-    }
-} else {
-    try {
-        settings = require('../settings.json');
-    } catch (err) {
-        throw err;
-    }
-}
+const settingsService = require('./settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
 
 module.exports = class requestService {
     constructor(startup = false) {
