@@ -75,7 +75,7 @@ router.post('/', async (req, res) => {
                 if (tvdbGet.seriesName != t.title) return res.status(400).send({ name: 'Bad Request', message: 'Show title does not match ID' });
                 const aa = await Request.find({ tvdbId: t.tvdbId }).exec();
                 if (aa.length > 0) return res.status(400).send({ name: 'Bad Request', message: 'Request already exists' });
-            } catch {
+            } catch (err) {
                 return res.status(400).send({ name: 'Bad Request', message: 'Movie by imdbId does not exist.' });
             }
             break;
@@ -86,7 +86,7 @@ router.post('/', async (req, res) => {
                 if (imdbGet.title != t.title) return res.status(400).send({ name: 'Bad Request', message: 'Movie title does not match ID' });
                 const aa = await Request.find({ imdbId: t.imdbId }).exec();
                 if (aa.length > 0) return res.status(400).send({ name: 'Bad Request', message: 'Request already exists' });
-            } catch {
+            } catch (err) {
                 return res.status(400).send({ name: 'Bad Request', message: 'Movie by imdbId does not exist.' });
             }
             break;
