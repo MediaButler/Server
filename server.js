@@ -19,7 +19,7 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
-const settingsService = require('./settingsService');
+const settingsService = require('./service/settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
 

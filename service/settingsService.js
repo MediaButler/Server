@@ -6,23 +6,24 @@ module.exports = class settingsService {
         if (isDocker()) {
             this.settings = this._getSettings('/config/settings.json');
         } else {
-            this.settings = this._getSettings('./settings.json');
+            this.settings = this._getSettings('../settings.json');
         }
     }
 
-    async getSettings() {
+    getSettings() {
         return this.settings;
     }
 
-    async _getSettings(filePath) {
+    _getSettings(filePath) {
         try {
-            this.settings = require(filePath);
+            const settings = require(filePath);
             if (!settings.tautulli.url || !settings.tautulli.apikey) die('Settings not configured. Tautulli unconfigured');
             if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
             if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
             if (!settings.plex.url) die('Settings not configured. Plex unconfigured');
+            return settings;
         } catch (err) {
-            this.settings = require('./settings.default.json');
+            const settings = require('../settings.default.json');
             fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), (err) => {
                 if (err) return console.error(err);
             });

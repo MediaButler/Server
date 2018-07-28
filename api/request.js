@@ -5,16 +5,14 @@ const Request = require('../model/request');
 const imdb = require('imdb-api');
 const TVDB = require('node-tvdb');
 const tvdb = new TVDB('88D2ED25A2539ECE');
-const isDocker = require('is-docker');
 const requestService = require('../service/requestService');
 const notificationService = require('../service/notificationService');
+const settingsService = require('../service/settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
-
-const settingsService = require('./settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
 
 
 router.get('/', async (req, res) => {

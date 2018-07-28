@@ -7,7 +7,7 @@ const tautulliService = require('../service/tautulliService');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-const settingsService = require('./settingsService');
+const settingsService = require('../service/settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
 

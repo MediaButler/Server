@@ -5,16 +5,10 @@ const isDocker = require('is-docker');
 
 //const Movie = require('../model/movie');
 
-let settings;
-if (isDocker()) {
-    try {
-        settings = require('/config/settings.json');
-    } catch (err) { throw err; }
-} else {
-    try {
-        settings = require('../settings.json');
-    } catch (err) { throw err; }
-}
+const settingsService = require('../service/settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
+
 
 const radarrService = require('../service/radarrService');
 

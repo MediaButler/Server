@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const TVShow = require('../model/tvshow');
 const isDocker = require('is-docker');
 
-const settingsService = require('./settingsService');
+const settingsService = require('../service/settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
 
@@ -17,7 +17,6 @@ router.use(bodyParser.json());
 // POST - Adds TV Show
 // PUT - ???
 // DELETE - Delete's TV Show
-
 const sonarr = new sonarrService(settings.sonarr);
 
 // Returns all Shows in Sonarr
