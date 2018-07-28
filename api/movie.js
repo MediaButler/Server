@@ -7,7 +7,6 @@ const isDocker = require('is-docker');
 
 let settings;
 if (isDocker()) {
-    console.log('Running inside a Docker container');
     try {
         settings = require('/config/settings.json');
     } catch (err) {
