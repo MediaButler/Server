@@ -6,7 +6,7 @@ console.log("\n"
     + "██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║██████╔╝╚██████╔╝   ██║   ███████╗███████╗██║  ██║ \n"
     + "╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝ \n");
 
-const host = process.env.HOST || '127.0.0.1';
+const host = process.env.HOST || false;
 const port = process.env.PORT || 9876;
 const mongoose = require('mongoose');
 const express = require('express');
