@@ -58,7 +58,7 @@ router.get('/:name/lookup', async (req, res) => {
 // Download Queue
 router.get('/queue', async (req, res) => {
     try {
-        const r = await sonarr.getShows();
+        const r = await sonarr.getQueue();
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
     } catch (err) {
