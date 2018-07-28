@@ -1,7 +1,7 @@
 ---
 version: '2'
 networks:
-  mediabutler:
+  mb:
     driver: bridge
 services:
     mediabutler-api:
@@ -11,30 +11,28 @@ services:
         hostname: mediabutler-api
         environment:
             - PLEX_MACHINE_ID=9f67762e320e456bb26a2dfdd1a9cb1ced19aa31
-            - DB_URL=mongodb://root:passwordHere@mongodb:21017
+            - DB_URL=mongodb://mongo:21017/db
         volumes:
             - ${HOME}/docker/mediabutler:/config:rw
         networks:
-            - mediabutler
+            - mb
         ports:
             - 9876:9876
         links:
-            - mongodb
+            - mongo
         depends_on:
-            - mongodb
-    mongodb:
+            - mongo
+    mongo:
         image: mongo:latest
-        container_name: "mongodb"
-        hostname: mongodb
+        container_name: "mongo"
+        hostname: mongo
         environment:
           - MONGO_DATA_DIR=/data/db
           - MONGO_LOG_DIR=/dev/null
-          - MONGO_INITDB_ROOT_USERNAME=root
-          - MONGO_INITDB_ROOT_PASSWORD=passwordHere
+          - MONGO_URL=mongodb://mongo:21017/db
         volumes:
-          - ${HOME}/docker/mediabutler/db:/data/db
+          - ${HOME}/docker/mediabutler/db:/data/db:rw
+          - ${HOME}/docker/mediabutler/mongodb_internal:/home/mongodb:rw
         networks:
-          - mediabutler
-        ports:
-            - 27017:27017
-        command: mongod --smallfiles --logpath=/dev/null # --quiet
+          - mb
+        command: mongod --smallfiles # --logpath=/dev/null # --quiet

@@ -24,8 +24,31 @@ const plexService = require('./service/plexService');
 const requestService = require('./service/requestService');
 
 const settings = require('./settings.json');
+let dbConnected = false;
 
-mongoose.connect(process.env.DB_URL || settings.database, { useNewUrlParser: true });
+const options = {
+    autoIndex: false, // Don't build indexes
+    reconnectTries: 30, // Retry up to 30 times
+    reconnectInterval: 500, // Reconnect every 500ms
+    poolSize: 10, // Maintain up to 10 socket connections
+    // If not connected, return errors immediately rather than waiting for reconnect
+    bufferMaxEntries: 0,
+    useNewUrlParser: true
+  }
+
+const connectWithRetry = () => {
+  console.log('MongoDB connection with retry')
+  mongoose.connect(process.env.DB_URL || settings.database, options).then(()=>{
+    console.log('MongoDB is connected')
+  }).catch(err=>{
+    console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
+    console.error(err);
+    setTimeout(connectWithRetry, 5000)
+  })
+}
+
+connectWithRetry()
+
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
@@ -47,15 +70,15 @@ app.use(passport.initialize());
 app.set('json spaces', 2);
 
 const tvShowController = require('./api/tvshow');
-app.use('/tvshow', passport.authenticate('jwt', {session: false}), tvShowController);
+app.use('/tvshow', passport.authenticate('jwt', { session: false }), tvShowController);
 const movieController = require('./api/movie');
-app.use('/movie', passport.authenticate('jwt', {session: false}), movieController);
+app.use('/movie', passport.authenticate('jwt', { session: false }), movieController);
 const statsController = require('./api/stats');
-app.use('/stats', passport.authenticate('jwt', {session: false}), statsController);
+app.use('/stats', passport.authenticate('jwt', { session: false }), statsController);
 const hooksController = require('./api/hooks');
-app.use('/hooks', passport.authenticate('jwt', {session: false}), hooksController);
+app.use('/hooks', passport.authenticate('jwt', { session: false }), hooksController);
 const requestController = require('./api/request');
-app.use('/request', passport.authenticate('jwt', {session: false}), requestController);
+app.use('/request', passport.authenticate('jwt', { session: false }), requestController);
 
 app.get('/', (req, res) => {
     if (req.user) { console.log(req); res.send('Hello.'); }
@@ -73,17 +96,17 @@ app.get('/version', (req, res) => {
 });
 
 const notifyService = io
-  .of('/notify')
-  .on('connection', (socket) => {
-    socket.emit('event', {
-        that: 'only'
-      , '/notify': 'will get'
+    .of('/notify')
+    .on('connection', (socket) => {
+        socket.emit('event', {
+            that: 'only'
+            , '/notify': 'will get'
+        });
+        notifyService.emit('event', {
+            everyone: 'in'
+            , '/notify': 'will get'
+        });
     });
-    notifyService.emit('event', {
-        everyone: 'in'
-      , '/notify': 'will get'
-    });
-  });
 
 //   notifyService.use((socket, next) => {
 //     let header = socket.handshake.headers['authorization'];
@@ -95,7 +118,7 @@ const notifyService = io
 
 
 const nService = require('./service/notificationService');
-server.listen(port, host,() => {
+server.listen(port, host, () => {
     console.log(`MediaButler API Server v1.0 -  http://127.0.0.1:${port}`);
     const rs = new requestService(true);
     nService.agent = notifyService;
