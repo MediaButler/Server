@@ -17,18 +17,20 @@ module.exports = class settingsService {
     _getSettings(filePath) {
         try {
             const settings = require(filePath);
-            if (!settings.tautulli.url || !settings.tautulli.apikey) die('Settings not configured. Tautulli unconfigured');
-            if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
-            if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) die('Settings not configured. Sonarr unconfigured');
-            if (!settings.plex.url) die('Settings not configured. Plex unconfigured');
+            if (!settings.tautulli.url || !settings.tautulli.apikey) { console.log('Settings not configured. Tautulli unconfigured'); process.exit(1); }
+            if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); process.exit(1); }
+            if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); process.exit(1); }
+            if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); process.exit(1); } 
             return settings;
         } catch (err) {
-            console.error(err);
+
+            if (err.name == "SyntaxError") {  console.log('There was an error loading your settings.json, please go back and verify the file is correct'); process.exit(1); }
             const settings = require('../settings.default.json');
             fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), (err) => {
                 if (err) return console.error(err);
+                console.log('Settings file created. Please edit and restart.');
+                process.exit(1);    
             });
-            die('Settings file created. Please edit and restart.');
         }
     }
 }
