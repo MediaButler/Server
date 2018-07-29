@@ -109,7 +109,7 @@ module.exports = class sonarrService {
     async searchShow(tvdbId) {
         try {
             const show = await this.getShowByTvdbId(tvdbId);
-            const result = await this._api.post('command', { name: 'SeriesSearch', seriesId: parseInt(show.tvdbId) });
+            const result = await this._api.post('command', { name: 'SeriesSearch', seriesId: parseInt(tvdbId) });
             return result;
         }
         catch (err) { throw err; }
