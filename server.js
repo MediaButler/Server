@@ -89,7 +89,8 @@ app.get('/version', (req, res) => {
 });
 
 const notifyService = io
-    .of('/notify')
+    //.of('/notify')
+    .of('/mediabutler/notify')
     .on('connection', (socket) => {
         socket.emit('event', {
             that: 'only'

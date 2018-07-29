@@ -53,7 +53,7 @@ router.post('/approve/:id', async (req, res) => {
         if (!t) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
         const r = await rs.approveRequest(req.params.id, req.body.overrideProfile, req.body.overrideRoot);
         if (notificationService) notificationService.emit('request',  { who: req.user.username, for: r.username, request: r, title: r.title, type: 'approve' });
-        console.log(`${new Date()} ${req.user.username} Request approved ${originalRequest.username}'s request for ${originalRequest.title}`);
+        console.log(`${new Date()} ${req.user.username} approved ${originalRequest.username}'s request for ${originalRequest.title}`);
         return res.status(200).send(r);
     } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
 });
