@@ -23,7 +23,6 @@ module.exports = class settingsService {
             if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); process.exit(1); } 
             return settings;
         } catch (err) {
-
             if (err.name == "SyntaxError") {  console.log('There was an error loading your settings.json, please go back and verify the file is correct'); process.exit(1); }
             const settings = require('../settings.default.json');
             fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), (err) => {
