@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
     try {
         const rs = new requestService();
         const r = await rs.getRequests();
-        if (!r) return res.status(404).send({ name: 'Not Found', message: 'No Requests to display' });
+        if (!r) return res.status(200).send([]);
         return res.status(200).send(r);
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });

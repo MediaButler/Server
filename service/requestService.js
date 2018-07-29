@@ -104,4 +104,12 @@ module.exports = class requestService {
         if (confirmed) return Request.deleteOne({ '_id': id }).exec();
         else return false;
     }
+
+    async addApprover(username, types = []) {
+
+    }
+
+    async addAutoApprove(username, types = []) {
+        
+    }
 }
