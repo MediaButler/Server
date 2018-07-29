@@ -49,6 +49,7 @@ router.post('/approve/:id', async (req, res) => {
             if (approvedList[i].username == req.user.username && approvedList[i].types.indexOf(originalRequest.type > -1)) t = true;
         }
     }
+    console.log(t);
     try {
         if (!t) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
         const r = await rs.approveRequest(req.params.id, req.body.overrideProfile, req.body.overrideRoot);
