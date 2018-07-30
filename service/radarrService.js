@@ -37,7 +37,7 @@ module.exports = class radarrService {
         try {
             const allProfiles = await this._api.get('profile');
             let profileMap = Array(allProfiles.length);
-            allProfiles.map((x) => profileMap[x.name] = x);
+            allProfiles.map((x) => profileMap[x.name.toString()] = x);
             console.log(name);
             console.log(profileMap);
             console.log(profileMap[name]);

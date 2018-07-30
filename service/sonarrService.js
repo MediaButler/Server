@@ -160,6 +160,7 @@ module.exports = class sonarrService {
                     'rootFolderPath': show.rootPath || this._settings.rootPath
                 };
                 const result = await this._api.post('series', data);
+                console.log(result);
                 if (result.title == undefined || result.title == null) throw new Error('Failed to add');
                 return true;
             }

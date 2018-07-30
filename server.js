@@ -23,7 +23,6 @@ const settingsService = require('./service/settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
 
-
 const plexService = require('./service/plexService');
 const requestService = require('./service/requestService');
 
