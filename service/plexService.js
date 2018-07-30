@@ -37,7 +37,7 @@ module.exports = class plexService {
 
     async getNowPlaying() {
         try {
-            const res = await this._api.query('/status/sessions')
+            const res = await this._api.query('/status/sessions');
             return res;
         } catch (err) { throw err; }
     }
@@ -45,6 +45,12 @@ module.exports = class plexService {
     async killStream(id, reason) {
         try {
             return await this._api.perform(`/status/sessions/terminate?sessionId=${id}&reason=${urlencode(reason)}`);
+        } catch (err) { throw err; }
+    }
+
+    async getHistory() {
+        try {
+            const res = await this._api.query('/status/sessions/history/all');
         } catch (err) { throw err; }
     }
 

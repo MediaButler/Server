@@ -11,6 +11,7 @@ const settingsService = require('../service/settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
 
+const plexService = require('../service/plexService');
 
 const tautulli = new tautulliService(settings.tautulli);
 
@@ -28,6 +29,20 @@ router.get('/library', async (req, res) => {
 router.get('/nowplaying', async (req, res) => {
     try {
         const r = await tautulli.getNowPlaying();
+        if (!r) throw new Error('No Results Found');
+        res.status(200).send(r.data);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ name: err.name, message: err.message });
+    }
+});
+
+
+router.get('/history', async (req, res) => {
+    try {
+        settings.plex.token = req.user.authToken;
+        const plex = new plexService(settings.plex);
+        const r = await plex.getHistory();
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r.data);
     } catch (err) {
