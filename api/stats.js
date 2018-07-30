@@ -3,7 +3,7 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const isDocker = require('is-docker');
 const tautulliService = require('../service/tautulliService');
-
+const sonarrService = require('../service/sonarrService');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
@@ -13,6 +13,7 @@ const settings = ss.getSettings();
 
 const plexService = require('../service/plexService');
 
+const sonarr = new sonarrService(settings.sonarr);
 const tautulli = new tautulliService(settings.tautulli);
 
 // Server Library statistics
