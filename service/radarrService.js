@@ -39,6 +39,7 @@ module.exports = class radarrService {
             let profileMap = Array(allProfiles.length);
             allProfiles.map((x) => profileMap[x.name] = x);
             console.log(name);
+            console.log(profileMap);
             console.log(profileMap[name]);
             return profileMap[name];
         }
@@ -93,9 +94,7 @@ module.exports = class radarrService {
             if (!movie.rootPath) throw new Error('Root path not set');
 
             if (!movie.profileId) {
-                console.log(movie.profile);
                 const profile = await this.getProfile(movie.profile);
-                console.log(profile);
                 if (profile.id) movie.profileId = profile.id;
                 else throw new Error('Unable to determine profile');
             }
