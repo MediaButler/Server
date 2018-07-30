@@ -29,17 +29,16 @@ const requestService = require('./service/requestService');
 const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }
 
-const connectWithRetry = () => {
+const connectDatabase = () => {
     console.log('Attempting to connect to database')
     mongoose.connect(process.env.DB_URL || settings.database, options).then(() => {
         console.log('Database is connected');
     }).catch((err) => {
         console.log('Database connection unsuccessful, will retry after 5 seconds.')
-        setTimeout(connectWithRetry, 5000);
+        setTimeout(connectDatabase, 5000);
     });
 }
-connectWithRetry();
-
+connectDatabase();
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),

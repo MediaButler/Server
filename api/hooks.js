@@ -3,10 +3,11 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+const notificationService = require('../service/notificationService');
 
 router.post('/sonarr', (req, res) => {
     try {
-        console.log(req.body);
+        if (notificationService) notificationService.emit('tvshow',  req.body);
         return res.status(200);
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -15,7 +16,7 @@ router.post('/sonarr', (req, res) => {
 
 router.put('/sonarr', (req, res) => {
     try {
-        console.log(req.body);
+        if (notificationService) notificationService.emit('tvshow',  req.body);
         return res.status(200);
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
