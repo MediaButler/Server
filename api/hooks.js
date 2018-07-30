@@ -8,7 +8,7 @@ const notificationService = require('../service/notificationService');
 router.post('/sonarr', (req, res) => {
     try {
         if (notificationService) notificationService.emit('tvshow',  req.body);
-        return res.status(200);
+        return res.status(200).send('OK');;
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -17,7 +17,7 @@ router.post('/sonarr', (req, res) => {
 router.put('/sonarr', (req, res) => {
     try {
         if (notificationService) notificationService.emit('tvshow',  req.body);
-        return res.status(200);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -26,7 +26,7 @@ router.put('/sonarr', (req, res) => {
 router.post('/radarr', (req, res) => {
     try {
         console.log(req.body);
-        return res.status(200);
+        return res.status(200).send('OK');;
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
