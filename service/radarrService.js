@@ -78,7 +78,7 @@ module.exports = class radarrService {
     async searchMovie(imdbId) {
         try {
             const movie = await this.getMovieByimdbId(imdbId);
-            const result = await this._api.post('command', { name: 'MoviesSearch', movieIds: [parseInt(movie.imdbId)] });
+            const result = await this._api.post('command', { name: 'MoviesSearch', movieIds: [parseInt(imdbId)] });
             return result;
         }
         catch (err) { throw err; }
@@ -107,6 +107,7 @@ module.exports = class radarrService {
                 'rootFolderPath': movie.rootPath || this._settings.rootPath,
                 'year': getResult.year
             };
+            console.log(data);
             const result = await this._api.post('movie', data)
             if (result.title == undefined || result.title == null) throw new Error('Failed to add');
             return true;
