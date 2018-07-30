@@ -41,7 +41,7 @@ router.get('/nowplaying', async (req, res) => {
 
 router.get('/history', async (req, res) => {
     try {
-        settings.plex.token = req.user.authToken;
+        settings.plex.token = req.user.token;
         const plex = new plexService(settings.plex);
         const r = await plex.getHistory();
         if (!r) throw new Error('No Results Found');
