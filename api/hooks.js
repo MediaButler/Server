@@ -25,7 +25,7 @@ router.put('/sonarr', (req, res) => {
 
 router.post('/radarr', (req, res) => {
     try {
-        console.log(req.body);
+        if (notificationService) notificationService.emit('movie',  req.body);
         return res.status(200).send('OK');;
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -35,8 +35,8 @@ router.post('/radarr', (req, res) => {
 
 router.put('/radarr', (req, res) => {
     try {
-        console.log(req.body);
-        return res.status(200);
+        if (notificationService) notificationService.emit('movie',  req.body);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -44,8 +44,8 @@ router.put('/radarr', (req, res) => {
 
 router.post('/plex', (req, res) => {
     try {
-        console.log(req.body);
-        return res.status(200);
+        if (notificationService) notificationService.emit('plex',  req.body);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -53,8 +53,8 @@ router.post('/plex', (req, res) => {
 
 router.put('/plex', (req, res) => {
     try {
-        console.log(req.body);
-        return res.status(200);
+        if (notificationService) notificationService.emit('plex',  req.body);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -62,8 +62,8 @@ router.put('/plex', (req, res) => {
 
 router.post('/tautulli', (req, res) => {
     try {
-        console.log(req.body);
-        return res.status(200);
+        if (notificationService) notificationService.emit('tautulli',  req.body);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
@@ -71,8 +71,8 @@ router.post('/tautulli', (req, res) => {
 
 router.put('/tautulli', (req, res) => {
     try {
-        console.log(req.body);
-        return res.status(200);
+        if (notificationService) notificationService.emit('tautulli',  req.body);
+        return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
     }
