@@ -67,7 +67,7 @@ app.use('/movie', passport.authenticate('jwt', { session: false }), movieControl
 const statsController = require('./api/stats');
 app.use('/stats', passport.authenticate('jwt', { session: false }), statsController);
 const hooksController = require('./api/hooks');
-app.use('/hooks', passport.authenticate('jwt', { session: false }), hooksController);
+app.use('/hooks', hooksController);
 const requestController = require('./api/request');
 app.use('/request', passport.authenticate('jwt', { session: false }), requestController);
 
