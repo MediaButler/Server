@@ -22,10 +22,10 @@ module.exports = class settingsService {
     _getSettings(filePath) {
         try {
             const settings = require(filePath);
-            if (!settings.tautulli.url || !settings.tautulli.apikey) { console.log('Settings not configured. Tautulli unconfigured'); process.exit(1); }
-            if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); process.exit(1); }
-            if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); process.exit(1); }
-            if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); process.exit(1); }
+            if (!settings.tautulli.url || !settings.tautulli.apikey) { console.log('Settings not configured. Tautulli unconfigured'); console.log(settings.tautulli); process.exit(1); }
+            if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); console.log(settings.sonarr); process.exit(1); }
+            if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); console.log(settings.radarr); process.exit(1); }
+            if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); console.log(settings.plex); process.exit(1); }
             return settings;
         } catch (err) {
             if (err.name == "SyntaxError") { console.log('There was an error loading your settings.json, please go back and verify the file is correct'); process.exit(1); }
