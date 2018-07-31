@@ -6,6 +6,11 @@ router.use(bodyParser.json());
 var multer = require('multer');
 var upload = multer();
 const notificationService = require('../service/notificationService');
+const tautulliService = require('../service/tautulliService');
+const settingsService = require('../service/settingsService');
+const ss = new settingsService();
+const settings = ss.getSettings();
+const tautulli = new tautulliService(settings.tautulli);
 
 
 router.post('/sonarr', (req, res) => {
@@ -63,10 +68,13 @@ router.put('/plex', (req, res) => {
     }
 });
 
-router.post('/tautulli', (req, res) => {
+router.post('/tautulli', async (req, res) => {
     try {
-
-        if (notificationService) notificationService.emit('tautulli',  req.body);
+        // { action: 'resume', session_key: '671', rating_key: '165993' }
+        const stream_info = await tautulli.getStreamInfo(req.body.session_key);
+        const metadata = await tautulli.getMetadata(req.body.rating_key);
+        const data = { stream_info, metadata };
+        if (notificationService) notificationService.emit('tautulli',  data);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });

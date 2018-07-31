@@ -51,6 +51,22 @@ module.exports = class tautulliService {
         catch (err) { throw err; }
     }
 
+    async getStreamInfo(sessionKey) {
+        try {
+            const res = await this._api('get_stream_data', { session_key: sessionKey });
+            return res.data.response;
+        }
+        catch (err) { throw err; }
+    }
+
+    async getMetadata(ratingKey) {
+        try {
+            const res = await this._api('get_metadata', { rating_key: ratingKey });
+            return res.data.response;
+        }
+        catch (err) { throw err; }
+    }
+
     async _api(command, args) {
         try {
             let params = '&';
