@@ -8,7 +8,7 @@ module.exports = class tautulliService {
         if (settings.url.slice(-1) == '/') settings.url = settings.url.substring(0, settings.url.length - 1);
 
         const t = this.getNotifiers().then((tt) => {
-            const notifiers = t.data;
+            const notifiers = tt.data;
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.friendly_name] = x; });
             if (!notifMap['MediaButler API']) {
