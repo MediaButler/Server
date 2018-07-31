@@ -74,7 +74,10 @@ router.post('/tautulli', async (req, res) => {
         const nowPlaying = await tautulli.getNowPlaying();
         const sessionMap = Array(nowPlaying.data.sessions.length)
         nowPlaying.data.sessions.map((x) => { sessionMap[x.session_key] = x; });
-        if (notificationService) notificationService.emit('tautulli',  sessionMap[req.body.session_key]);
+        const action = req.body.action;
+        const data = sessionMap[req.body.session_key];
+        const result = { action, data };
+        if (notificationService) notificationService.emit('tautulli', result);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
