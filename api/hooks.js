@@ -3,6 +3,8 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+var multer = require('multer');
+var upload = multer();
 const notificationService = require('../service/notificationService');
 
 
@@ -43,7 +45,7 @@ router.put('/radarr', (req, res) => {
     }
 });
 
-router.post('/plex', (req, res) => {
+router.post('/plex', upload.single('thumb'), (req, res) => {
     try {
         console.log(req);
         if (notificationService) notificationService.emit('plex',  req.body.payload);
