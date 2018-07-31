@@ -71,8 +71,8 @@ router.put('/plex', (req, res) => {
 router.post('/tautulli', async (req, res) => {
     try {
         // { action: 'resume', session_key: '671', rating_key: '165993' }
+        const action = req.body.action;
         const stream_info_ = await tautulli.getStreamInfo(req.body.session_key);
-        const action = res.body.action;
         const stream_info = stream_info_.data;
         const metadata_ = await tautulli.getMetadata(req.body.rating_key);
         const metadata = metadata_.data;
