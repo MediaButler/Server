@@ -7,15 +7,17 @@ module.exports = class tautulliService {
         if (!settings.apikey) throw new Error('APIKey not set');
         if (settings.url.slice(-1) == '/') settings.url = settings.url.substring(0, settings.url.length - 1);
 
-        const t = await this.getNotifiers();
-        const notifiers = t.data;
-        const notifMap = new Array(notifiers.length);
-        notifiers.map((x) => { notifMap[x.friendly_name] = x; });
-        if (!notifMap['MediaButler API']) {
-            // Create notifier
-            console.log('MediaButler API hooks non-existant... got to create');
-        }
-        console.log(t);
+        const t = this.getNotifiers().then((tt) => {
+            const notifiers = t.data;
+            const notifMap = new Array(notifiers.length);
+            notifiers.map((x) => { notifMap[x.friendly_name] = x; });
+            if (!notifMap['MediaButler API']) {
+                // Create notifier
+                console.log('MediaButler API hooks non-existant... got to create')
+            }
+            console.log(t);
+
+        });
     }
 
     async getNowPlaying() {
@@ -92,7 +94,7 @@ module.exports = class tautulliService {
                     params += `${key}=${args[key]}&`;
                 }
             }
-            return await axios({method: 'GET', url: `${this._settings.url}/api/v2?apikey=${this._settings.apikey}&cmd=${command}${params}`});
+            return await axios({ method: 'GET', url: `${this._settings.url}/api/v2?apikey=${this._settings.apikey}&cmd=${command}${params}` });
         }
         catch (err) { throw err; }
     }
