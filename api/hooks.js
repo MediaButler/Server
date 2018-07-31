@@ -48,7 +48,7 @@ router.put('/radarr', (req, res) => {
 router.post('/plex', upload.single('thumb'), (req, res) => {
     try {
         console.log(req);
-        if (notificationService) notificationService.emit('plex',  req.body.payload);
+        if (notificationService) notificationService.emit('plex',  JSON.parse(req.body.payload);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
