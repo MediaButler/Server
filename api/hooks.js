@@ -5,6 +5,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 const notificationService = require('../service/notificationService');
 
+
 router.post('/sonarr', (req, res) => {
     try {
         if (notificationService) notificationService.emit('tvshow',  req.body);
@@ -44,7 +45,7 @@ router.put('/radarr', (req, res) => {
 
 router.post('/plex', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('plex',  req.body);
+        if (notificationService) notificationService.emit('plex',  req.body.payload);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -62,6 +63,7 @@ router.put('/plex', (req, res) => {
 
 router.post('/tautulli', (req, res) => {
     try {
+
         if (notificationService) notificationService.emit('tautulli',  req.body);
         return res.status(200).send('OK');
     } catch (err) {
