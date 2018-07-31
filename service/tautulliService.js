@@ -13,10 +13,9 @@ module.exports = class tautulliService {
             notifiers.map((x) => { notifMap[x.friendly_name] = x; });
             if (!notifMap['MediaButler API']) {
                 // Create notifier
-                console.log('MediaButler API hooks non-existant... got to create')
+                console.log('MediaButler API hooks non-existant... got to create');
             }
-            console.log(t);
-
+            console.log(tt);
         });
     }
 
