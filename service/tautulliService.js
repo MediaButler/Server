@@ -6,6 +6,9 @@ module.exports = class tautulliService {
         if (!settings.url) throw new Error('URL not set');
         if (!settings.apikey) throw new Error('APIKey not set');
         if (settings.url.slice(-1) == '/') settings.url = settings.url.substring(0, settings.url.length - 1);
+
+
+        console.log(this.getNotifiers());
     }
 
     async getNowPlaying() {
@@ -65,6 +68,13 @@ module.exports = class tautulliService {
             return res.data.response;
         }
         catch (err) { throw err; }
+    }
+
+    async getNotifiers() {
+        try {
+            const res = await this._api('get_notifiers');
+            return res.data;
+        } catch (err) { throw err; }
     }
 
     async _api(command, args) {
