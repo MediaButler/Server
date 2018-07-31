@@ -72,10 +72,11 @@ router.post('/tautulli', async (req, res) => {
     try {
         // { action: 'resume', session_key: '671', rating_key: '165993' }
         const stream_info_ = await tautulli.getStreamInfo(req.body.session_key);
+        const action = res.body.action;
         const stream_info = stream_info_.data;
         const metadata_ = await tautulli.getMetadata(req.body.rating_key);
         const metadata = metadata_.data;
-        const data = { stream_info, metadata };
+        const data = { action, stream_info, metadata };
         if (notificationService) notificationService.emit('tautulli',  data);
         return res.status(200).send('OK');
     } catch (err) {
