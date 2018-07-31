@@ -7,8 +7,15 @@ module.exports = class tautulliService {
         if (!settings.apikey) throw new Error('APIKey not set');
         if (settings.url.slice(-1) == '/') settings.url = settings.url.substring(0, settings.url.length - 1);
 
-
-        console.log(this.getNotifiers());
+        const t = await this.getNotifiers();
+        const notifiers = t.data;
+        const notifMap = new Array(notifiers.length);
+        notifiers.map((x) => { notifMap[x.friendly_name] = x; });
+        if (!notifMap['MediaButler API']) {
+            // Create notifier
+            console.log('MediaButler API hooks non-existant... got to create');
+        }
+        console.log(t);
     }
 
     async getNowPlaying() {
@@ -73,7 +80,7 @@ module.exports = class tautulliService {
     async getNotifiers() {
         try {
             const res = await this._api('get_notifiers');
-            return res.data;
+            return res.data.response;
         } catch (err) { throw err; }
     }
 
