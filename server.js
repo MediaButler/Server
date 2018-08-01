@@ -95,22 +95,14 @@ const notifyService = io
         const user = socket.request.user;
         userSockets[user.username] = [socket];
         console.log(userSockets);
-    }).use(ioJwtAuth.authenticate({
+    }).on('connection', socketioJwt.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
-        algorithm: 'HS256'
-      }, (payload, done) => {
-        if (payload.ident != process.env.PLEX_MACHINE_ID) return done('Token not for this API');
-        const user = { username: payload.username, ident: payload.ident, token: payload.token, owner: payload.owner };
-        const set = settings.plex;
-        set.token = user.token;
-        const ps = new plexService(set);
-        ps.check().then(() => {
-            console.log(`Authenticated user ${user.username} to the socket connection`);
-            return cb(null, user);
-        }).catch((err) => { return done('Unable to validate user'); });
-      }));
+        timeout: 15000 // 15 seconds to send the authentication message
+      })).on('authenticated', (socket) => {
+        //this socket is authenticated, we are good to handle more events from it.
+        console.log(socket.decoded_token);
+      });
     
-
 //   notifyService.use((socket, next) => {
 //     let header = socket.handshake.headers['authorization'];
 //     if (isValidJwt(header)) {
