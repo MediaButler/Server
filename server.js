@@ -95,7 +95,7 @@ const notifyService = io
         const user = socket.request.user;
         userSockets[user.username] = [socket];
         console.log(userSockets);
-    }).on('connection', ioJwt.authorize({
+    }).on('connection', ioJwtAuth.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
         timeout: 15000 // 15 seconds to send the authentication message
       })).on('authenticated', (socket) => {
