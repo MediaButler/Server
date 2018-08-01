@@ -95,7 +95,7 @@ module.exports = class tautulliService {
         try {
             const before = await this.getNotifiers();
             console.log(before);
-            const res = await this._api(add_notifier_config, { agent_id: 15 });
+            const res = await this._api('add_notifier_config', { agent_id: 15 });
             const after = await this.getNotifiers();
 
             after.forEach((item) => {
