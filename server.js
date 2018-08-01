@@ -94,8 +94,8 @@ const notifyService = io
         timeout: 15000 // 15 seconds to send the authentication message
       })).on('authenticated', (socket) => {
         const user = socket.decoded_token;
-        socket.emit('success', user);
-        userSockets[user.username] = [socket];
+        if (!userSockets[user.username]) userSockets[user.username] = [socket];
+        else userSockets[user.username].push(socket);
         console.log(userSockets);
       });
     
