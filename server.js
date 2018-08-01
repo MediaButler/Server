@@ -103,7 +103,8 @@ const notifyService = io
       }, (payload, done) => {
         if (payload.ident != process.env.PLEX_MACHINE_ID) return done(null, false, 'Token not for this API');
         console.log('hello');
-        const user = { username: payload.username, ident: jwtPayload.ident, token: payload.token, owner: payload.owner };
+        console.log(payload);
+        const user = { username: payload.username, ident: payload.ident, token: payload.token, owner: payload.owner };
         const set = settings.plex;
         set.token = user.token;
         const ps = new plexService(set);
