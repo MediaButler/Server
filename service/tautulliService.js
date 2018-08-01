@@ -18,6 +18,8 @@ module.exports = class tautulliService {
                 // { agent_name: 'scripts', agent_label: 'Script', friendly_name: 'MediaButler API' agent_id: 15, active: 1, id: 5 } ]
                 // Create notifier
                 console.log('MediaButler API hooks non-existant... got to create');
+                addScriptNotifier();
+
             }
             console.log(tt);
         });
@@ -87,6 +89,20 @@ module.exports = class tautulliService {
             const res = await this._api('get_notifiers');
             return res.data.response;
         } catch (err) { throw err; }
+    }
+
+    async addScriptNotifier() {
+        try {
+            const before = await this.getNotifiers();
+            console.log(before);
+            const res = await this._api(add_notifier_config, { agent_id: 15 });
+            const after = await this.getNotifiers();
+
+            after.forEach((item) => {
+                if (before.indexOf(item) == -1) return item;
+            });
+            return;
+        }
     }
 
     async _api(command, args) {
