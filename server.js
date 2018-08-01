@@ -90,6 +90,7 @@ const notifyService = io
     .of('/notify')
     //.of('/mediabutler/notify')
     .on('connection', (socket) => {
+        console.log('Authentication passed!');
         const user = socket.request.user;
         userSockets[user.username] = [socket];
         console.log(userSockets);
