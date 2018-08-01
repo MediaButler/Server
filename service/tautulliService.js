@@ -102,7 +102,7 @@ module.exports = class tautulliService {
                 if (before.indexOf(item) == -1) return item;
             });
             return;
-        }
+        } catch (err) { throw err; }
     }
 
     async _api(command, args) {
