@@ -1,16 +1,15 @@
 
 const Request = require('../model/request');
-const sonarrService = require('./sonarrService');
-const radarrService = require('./radarrService');
+const services = require('./services');
+const sonarrService = services.sonarrService;
+const radarrService = services.radarrService;
 const notificationService = require('../service/notificationService');
-const settingsService = require('./settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
+const settings = services.settings;
 
 module.exports = class requestService {
     constructor(startup = false) {
-        this.radarrService = new radarrService(settings.radarr);
-        this.sonarrService = new sonarrService(settings.sonarr);
+        this.radarrService = radarrService;
+        this.sonarrService = sonarrService;
         if (startup) this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
     }
 

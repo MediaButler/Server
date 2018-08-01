@@ -1,15 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const TVShow = require('../model/tvshow');
-const isDocker = require('is-docker');
-
-const settingsService = require('../service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
-
-const sonarrService = require('../service/sonarrService');
-
+const services = require('../service/services');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
@@ -17,7 +9,7 @@ router.use(bodyParser.json());
 // POST - Adds TV Show
 // PUT - ???
 // DELETE - Delete's TV Show
-const sonarr = new sonarrService(settings.sonarr);
+const sonarr = services.sonarrService;
 
 // Returns all Shows in Sonarr
 router.get('/', async (req, res) => {
@@ -73,7 +65,5 @@ router.get('/queue', async (req, res) => {
 router.post('/', (req, res) => {
     const t = req.body;
 });
-
-
 
 module.exports = router;

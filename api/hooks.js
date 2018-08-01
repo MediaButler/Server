@@ -6,11 +6,8 @@ router.use(bodyParser.json());
 var multer = require('multer');
 var upload = multer();
 const notificationService = require('../service/notificationService');
-const tautulliService = require('../service/tautulliService');
-const settingsService = require('../service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
-const tautulli = new tautulliService(settings.tautulli);
+const services = require('../service/services');
+const tautulli = services.tautulliService;
 
 
 router.post('/sonarr', (req, res) => {

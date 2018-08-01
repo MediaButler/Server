@@ -5,11 +5,10 @@ const Request = require('../model/request');
 const imdb = require('imdb-api');
 const TVDB = require('node-tvdb');
 const tvdb = new TVDB('88D2ED25A2539ECE');
-const requestService = require('../service/requestService');
+const services = require('../service/services');
+const requestService = services.requestService;
 const notificationService = require('../service/notificationService');
-const settingsService = require('../service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
+const settings = services.settings;
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
@@ -17,7 +16,7 @@ router.use(bodyParser.json());
 
 router.get('/', async (req, res) => {
     try {
-        const rs = new requestService();
+        const rs = requestService;
         const r = await rs.getRequests();
         if (!r) return res.status(200).send([]);
         return res.status(200).send(r);
@@ -28,7 +27,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const rs = new requestService();
+        const rs = requestService;
         const r = await rs.getRequest(req.params.id);
         if (!r) return res.status(404).send({ name: 'Not Found', message: 'Request not found' });
         return res.status(200).send(r);
@@ -38,7 +37,7 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/approve/:id', async (req, res) => {
-    const rs = new requestService();
+    const rs = requestService;
     const approvedList = settings.requests.allowApprove;
     const originalRequest = await rs.getRequest(req.params.id);
     let t = false;
@@ -121,7 +120,7 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-    const rs = new requestService();
+    const rs = services.requestService;
     if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
     if (!req.body.confirmed) return res.status(400).send({ name: 'Bad Request', message: 'Please confirm deletion' });
     const r = await rs.getRequest(req.params.id);

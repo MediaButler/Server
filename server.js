@@ -19,12 +19,10 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
-const settingsService = require('./service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
 
+const services = require('./service/services');
+const settings = services.settings;
 const plexService = require('./service/plexService');
-const requestService = require('./service/requestService');
 
 const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }
@@ -112,6 +110,5 @@ const notifyService = io
 const nService = require('./service/notificationService');
 server.listen(port, host, () => {
     console.log(`MediaButler API Server v1.0 -  http://127.0.0.1:${port}`);
-    const rs = new requestService(true);
     nService.agent = notifyService;
 });

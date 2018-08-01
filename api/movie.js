@@ -1,25 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
-const isDocker = require('is-docker');
-
+const services = require('../service/services');
 //const Movie = require('../model/movie');
-
-const settingsService = require('../service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
-
-
-const radarrService = require('../service/radarrService');
+const radarrService = services.radarrService;
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
-const radarr = new radarrService(settings.radarr);
 
 // Returns all Shows in Sonarr
 router.get('/', async (req, res) => {
     try {
-        const r = await sonarr.getMovies();
+        const r = await radarrService.getMovies();
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
     } catch (err) {
@@ -40,7 +32,7 @@ router.delete('/:id', async (req, res) => {
 // Performs a series lookup for adding
 router.get('/:name/lookup', async (req, res) => {
     try {
-        const r = await radarr.getMovie({ name: req.params.name })
+        const r = await radarrService.getMovie({ name: req.params.name })
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
     }

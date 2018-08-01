@@ -2,19 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const isDocker = require('is-docker');
-const tautulliService = require('../service/tautulliService');
-const sonarrService = require('../service/sonarrService');
+const services = require('../service/services');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
-
-const settingsService = require('../service/settingsService');
-const ss = new settingsService();
-const settings = ss.getSettings();
-
+const settings = services.settings;
 const plexService = require('../service/plexService');
 
-const sonarr = new sonarrService(settings.sonarr);
-const tautulli = new tautulliService(settings.tautulli);
+const sonarr = services.sonarrService;
+const tautulli = services.tautulliService;
 
 // Server Library statistics
 router.get('/library', async (req, res) => {

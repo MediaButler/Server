@@ -18,10 +18,8 @@ module.exports = class tautulliService {
                 // { agent_name: 'scripts', agent_label: 'Script', friendly_name: 'MediaButler API' agent_id: 15, active: 1, id: 5 } ]
                 // Create notifier
                 console.log('MediaButler API hooks non-existant... got to create');
-                this.addScriptNotifier();
-
+                //this.addScriptNotifier();
             }
-            console.log(tt);
         });
     }
 
@@ -94,15 +92,59 @@ module.exports = class tautulliService {
     async addScriptNotifier() {
         try {
             const before = await this.getNotifiers();
-            const beforeArr = before.data;
+            const beforeMap = new Array(before.data.length);
+            before.data.map((x) => { beforeMap[x.id] = x; });
             const res = await this._api('add_notifier_config', { agent_id: 15 });
             const after = await this.getNotifiers();
             const afterArr = after.data;
-
             afterArr.forEach((item) => {
-                if (beforeArr.indexOf(item) == -1) return item;
+                if (!Boolean(beforeMap[item.id])) {
+                    const data = {
+                        "agent_name": "scripts",
+                        "actions": {
+                            "on_intup": 0, "on_pause": 1, "on_pmsupdate": 0, "on_newdevice": 1, "on_concurrent": 1, "on_plexpyupdate": 0, "on_play": 1, "on_extdown": 0, "on_resume": 1, "on_intdown": 0, "on_created": 0, "on_stop": 1, "on_watched": 1, "on_extup": 0, "on_buffer": 1
+                        },
+                        "id": 5,
+                        "notify_text": {
+                            "on_intup": { "body": "", "subject": "" },
+                            "on_pause": { "body": "", "subject": "--action pause --key {session_key} --rating-key {rating_key}" },
+                            "on_pmsupdate": { "body": "", "subject": "" },
+                            "on_newdevice": { "body": "", "subject": "--action newdevice --key {session_key} --rating-key {rating_key}" },
+                            "on_concurrent": { "body": "", "subject": "" },
+                            "on_plexpyupdate": { "body": "", "subject": "" },
+                            "on_play": { "body": "", "subject": "--action play --key {session_key} --rating-key {rating_key}" },
+                            "on_extdown": { "body": "", "subject": "" },
+                            "on_resume": { "body": "", "subject": "--action resume --key {session_key} --rating-key {rating_key}" },
+                            "on_intdown": { "body": "", "subject": "" },
+                            "on_created": { "body": "", "subject": "" },
+                            "on_stop": { "body": "", "subject": "--action stop --key {session_key} --rating-key {rating_key}" },
+                            "on_watched": { "body": "", "subject": "--action watched --key {session_key} --rating-key {rating_key}" },
+                            "on_extup": { "body": "", "subject": "" },
+                            "on_buffer": { "body": "", "subject": "--action buffer --key {session_key} --rating-key {rating_key}" }
+                        },
+                        "custom_conditions": [{ "operator": "", "parameter": "", "value": "" }],
+                        "custom_conditions_logic": "",
+                        "config": { "script_folder": "/home/oxyg3n/tau_scripts", "timeout": 5, "script": "/home/oxyg3n/tau_scripts/send.py" },
+                        "config_options": [
+                            { "input_type": "help", "description": "<span class=\"inline-pre\">.sh, .pl, .cmd, .py, .pyw, .php, .rb, .bat, .ps1, .exe</span>", "label": "Supported File Types" },
+                            { "description": "Enter the full path to your script folder.", "input_type": "text", "refresh": true, "label": "Script Folder", "value": "/home/oxyg3n/tau_scripts", "name": "scripts_script_folder" },
+                            { "description": "Select the script file to run.", "input_type": "select", "value": "/home/oxyg3n/tau_scripts/send.py", "label": "Script File", "select_options": { "": "", "/home/oxyg3n/tau_scripts/send.py": "./send.py" }, "name": "scripts_script" },
+                            { "input_type": "number", "description": "The number of seconds to wait before killing the script. 0 to disable timeout.", "name": "scripts_timeout", "value": 5, "label": "Script Timeout" }
+                        ], "agent_id": 15, "agent_label": "Script", "friendly_name": "MediaButler API"
+                    };
+
+                    console.log('lets try posting');
+                    const t = axios({ method: 'POST', data, url: `${this._settings.url}/api/v2?apikey=${this._settings.apikey}&cmd=set_notifier_config&notifier_id=${item.id}&agent_id=15` }).then((res) => {
+                        console.log(res);
+                    }).catch((err) => { console.error(err); throw err; });
+                    console.log(t);
+                    // this._api('set_notifier_config', data).then((res) => {
+                    //     console.log(res);
+                    // });
+                }
+                //if (beforeArr.indexOf(item) == -1) console.log(item);
             });
-            return;
+            return false;
         } catch (err) { throw err; }
     }
 
