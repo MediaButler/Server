@@ -19,6 +19,8 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
+var ioJwtAuth = require('socketio-jwt-auth');
+
 
 const services = require('./service/services');
 const settings = services.settings;
@@ -49,7 +51,7 @@ passport.use(new JWTStrategy({
     const ps = new plexService(set);
     ps.check().then(() => {
         return cb(null, user);
-    }).catch((err) => { return cb(new Error('Unable to authenticate to Plex')); });
+    }).catch((err) => { return done(null, false, 'Unable to validate user'); });
 }));
 
 app.use(bodyParser.json());
@@ -96,7 +98,20 @@ const notifyService = io
             everyone: 'in'
             , '/notify': 'will get'
         });
-    });
+    }).use(ioJwtAuth.authenticate({
+        secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
+      }, (payload, done) => {
+
+        if (payload.ident != process.env.PLEX_MACHINE_ID) return cb(new Error('Something fishy with token'));
+        const user = { username: payload.username, ident: jwtPayload.ident, token: payload.token, owner: payload.owner };
+        const set = settings.plex;
+        set.token = user.token;
+        const ps = new plexService(set);
+        ps.check().then(() => {
+            return cb(null, user);
+        }).catch((err) => { return done(null, false, 'Unable to validate user'); });
+      }));
+      ;
 
 //   notifyService.use((socket, next) => {
 //     let header = socket.handshake.headers['authorization'];
