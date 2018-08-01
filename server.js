@@ -90,9 +90,10 @@ const notifyService = io
     .of('/notify')
     //.of('/mediabutler/notify')
     .on('connection', (socket) => {
-        socket.emit('success', socket.request.user);
+         console.log(socket.decoded_token);
+        socket.emit('success', socket.decoded_token);
         console.log('Authentication passed!');
-        const user = socket.request.user;
+        const user = socket.decoded_token;
         userSockets[user.username] = [socket];
         console.log(userSockets);
     }).on('connection', ioJwtAuth.authorize({
