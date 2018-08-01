@@ -89,17 +89,12 @@ const userSockets = {};
 const notifyService = io
     .of('/notify')
     //.of('/mediabutler/notify')
-    .on('connection', (socket) => {
-         console.log(socket.decoded_token);
-        socket.emit('success', socket.decoded_token);
-        console.log('Authentication passed!');
-        const user = socket.decoded_token;
-        userSockets[user.username] = [socket];
-        console.log(userSockets);
-    }).on('connection', ioJwtAuth.authorize({
+    .on('connection', ioJwtAuth.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
         timeout: 15000 // 15 seconds to send the authentication message
       })).on('authenticated', (socket) => {
+        const user = socket.decoded_token;
+        userSockets[user.username] = [socket];
         //this socket is authenticated, we are good to handle more events from it.
         console.log(socket.decoded_token);
       });
