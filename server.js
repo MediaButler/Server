@@ -85,19 +85,14 @@ app.get('/version', (req, res) => {
     };
     return res.status(200).send(v);
 });
-
+const userSockets = {};
 const notifyService = io
     .of('/notify')
     //.of('/mediabutler/notify')
     .on('connection', (socket) => {
-        socket.emit('event', {
-            that: 'only'
-            , '/notify': 'will get'
-        });
-        notifyService.emit('event', {
-            everyone: 'in'
-            , '/notify': 'will get'
-        });
+        const user = socket.request.user;
+        userSockets[user.username] = socket;
+        console.log(userSockets);
     }).use(ioJwtAuth.authenticate({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
       }, (payload, done) => {
