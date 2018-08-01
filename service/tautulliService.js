@@ -94,12 +94,13 @@ module.exports = class tautulliService {
     async addScriptNotifier() {
         try {
             const before = await this.getNotifiers();
-            console.log(before);
+            const beforeArr = before.data;
             const res = await this._api('add_notifier_config', { agent_id: 15 });
             const after = await this.getNotifiers();
+            const afterArr = after.data;
 
-            after.forEach((item) => {
-                if (before.indexOf(item) == -1) return item;
+            afterArr.forEach((item) => {
+                if (beforeArr.indexOf(item) == -1) return item;
             });
             return;
         } catch (err) { throw err; }
