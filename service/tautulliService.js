@@ -18,7 +18,7 @@ module.exports = class tautulliService {
                 // { agent_name: 'scripts', agent_label: 'Script', friendly_name: 'MediaButler API' agent_id: 15, active: 1, id: 5 } ]
                 // Create notifier
                 console.log('MediaButler API hooks non-existant... got to create');
-                addScriptNotifier();
+                this.addScriptNotifier();
 
             }
             console.log(tt);
