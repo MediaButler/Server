@@ -91,7 +91,7 @@ const notifyService = io
     //.of('/mediabutler/notify')
     .on('connection', (socket) => {
         const user = socket.request.user;
-        userSockets[user.username] = socket;
+        userSockets[user.username] = [socket];
         console.log(userSockets);
     }).use(ioJwtAuth.authenticate({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
