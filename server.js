@@ -99,7 +99,6 @@ const notifyService = io
       }, (payload, done) => {
         if (payload.ident != process.env.PLEX_MACHINE_ID) return done(null, false, 'Token not for this API');
         console.log('hello');
-        console.log(payload);
         const user = { username: payload.username, ident: payload.ident, token: payload.token, owner: payload.owner };
         const set = settings.plex;
         set.token = user.token;
@@ -107,6 +106,7 @@ const notifyService = io
         console.log('set up plex');
         ps.check().then(() => {
             console.log('yep all good');
+            console.log(user);
             return cb(null, user);
         }).catch((err) => { return done(null, false, 'Unable to validate user'); });
       }));
