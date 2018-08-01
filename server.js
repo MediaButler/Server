@@ -19,7 +19,7 @@ const ExtractJWT = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
-var ioJwtAuth = require('socketio-jwt-auth');
+var ioJwtAuth = require('socketio-jwt');
 
 
 const services = require('./service/services');
@@ -95,7 +95,7 @@ const notifyService = io
         const user = socket.request.user;
         userSockets[user.username] = [socket];
         console.log(userSockets);
-    }).on('connection', socketioJwt.authorize({
+    }).on('connection', ioJwt.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
         timeout: 15000 // 15 seconds to send the authentication message
       })).on('authenticated', (socket) => {
