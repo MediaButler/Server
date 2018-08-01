@@ -101,7 +101,7 @@ const notifyService = io
     }).use(ioJwtAuth.authenticate({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi'
       }, (payload, done) => {
-        if (payload.ident != process.env.PLEX_MACHINE_ID) return done(null, false, 'Token not for this API'););
+        if (payload.ident != process.env.PLEX_MACHINE_ID) return done(null, false, 'Token not for this API');
         console.log('hello');
         const user = { username: payload.username, ident: jwtPayload.ident, token: payload.token, owner: payload.owner };
         const set = settings.plex;
