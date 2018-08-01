@@ -71,13 +71,17 @@ router.put('/plex', (req, res) => {
 router.post('/tautulli', async (req, res) => {
     try {
         // { action: 'resume', session_key: '671', rating_key: '165993' }
+        console.log('Received tautulli notification');
         const nowPlaying = await tautulli.getNowPlaying();
-        const sessionMap = Array(nowPlaying.data.sessions.length)
+        const sessionMap = Array(nowPlaying.data.sessions.length);
+        console.log('Mapping');
         nowPlaying.data.sessions.map((x) => { sessionMap[x.session_key] = x; });
         const action = req.body.action;
         const data = sessionMap[req.body.session_key];
         const result = { action, data };
+        console.log('Attempting to post notification');
         if (notificationService) notificationService.emit('tautulli', result);
+        console.log('done');
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });

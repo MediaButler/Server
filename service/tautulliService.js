@@ -12,6 +12,10 @@ module.exports = class tautulliService {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.friendly_name] = x; });
             if (!notifMap['MediaButler API']) {
+                // Agent ID: 15
+                // [ { agent_name: 'slack', agent_label: 'Slack', friendly_name: '', agent_id: 14, active: 0, id: 1 }, 
+                // { agent_name: 'discord', agent_label: 'Discord', friendly_name: '', agent_id: 20, active: 1, id: 2 }, 
+                // { agent_name: 'scripts', agent_label: 'Script', friendly_name: 'MediaButler API' agent_id: 15, active: 1, id: 5 } ]
                 // Create notifier
                 console.log('MediaButler API hooks non-existant... got to create');
             }
