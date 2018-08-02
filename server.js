@@ -26,8 +26,10 @@ const services = require('./service/services');
 const settings = services.settings;
 const plexService = require('./service/plexService');
 
-const options = { autoIndex: false, reconnectTries: 30, reconnectInterval: 500, 
-    poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true }
+const options = {
+    autoIndex: false, reconnectTries: 30, reconnectInterval: 500,
+    poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true
+}
 
 const connectDatabase = () => {
     console.log('Attempting to connect to database')
@@ -92,13 +94,19 @@ const notifyService = io
     .on('connection', ioJwtAuth.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
         timeout: 15000 // 15 seconds to send the authentication message
-      })).on('authenticated', (socket) => {
+    })).on('authenticated', (socket) => {
         const user = socket.decoded_token;
         if (!userSockets[user.username]) userSockets[user.username] = [socket];
         else userSockets[user.username].push(socket);
-        console.log(userSockets);
-      });
-    
+        console.log(`User ${user.username} connected and authenticated with ${userSockets[user.username].length} connections`)
+        socket.once('disconnect', () => {
+            const idx = userSockets[user.username].indexOf(socket);
+            userSockets[user.username].splice(idx, 1);
+            console.log(`User ${user.username} disconnected. Now has ${userSockets[user.username].length} connections`);
+        });
+
+    });
+
 //   notifyService.use((socket, next) => {
 //     let header = socket.handshake.headers['authorization'];
 //     if (isValidJwt(header)) {
