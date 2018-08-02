@@ -1,6 +1,8 @@
 const axios = require('axios');
 const host = require('ip').address('public');
-
+const FormData = require('form-data');
+const path = require('path');
+console.log(path.join(__dirname, '../'));
 module.exports = class tautulliService {
     constructor(settings) {
         this._settings = settings;
@@ -91,6 +93,13 @@ module.exports = class tautulliService {
     }
 
     async addScriptNotifier() {
+        const getFormData = (object) => {
+            const formData = new FormData();
+            Object.keys(object).forEach(key => formData.append(key, encodeURIComponent(object[key])));
+            console.log(formData);
+            return formData;
+        }
+        
         try {
             const before = await this.getNotifiers();
             const beforeMap = new Array(before.data.length);
@@ -101,20 +110,20 @@ module.exports = class tautulliService {
             afterArr.forEach((item) => {
                 if (!Boolean(beforeMap[item.id])) {
                     const data = {
-                        notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURIComponent('/home/oxyg3n/tau_scripts'), scripts_script: encodeURIComponent('/home/oxyg3n/tau_scripts/send.py'), scripts_timeout: 5, 
-                        friendly_name: encodeURIComponent('MediaButler API'), on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
-                        on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: encodeURIComponent('[{"operator":"","parameter":"","value":""}]'),
-                        custom_conditions_logic: '', on_play_subject: encodeURIComponent(`--action play --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`), 
-                        on_stop_subject: encodeURIComponent(`--action stop --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_pause_subject: encodeURIComponent(`--action pause --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`), 
-                        on_resume_subject: encodeURIComponent(`--action resume --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_watched_subject: encodeURIComponent(`--action watched --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`), 
-                        on_buffer_subject: encodeURIComponent(`--action buffer --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_concurrent_subject: '', on_newdevice_subject: encodeURIComponent(`--action newdevice --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`), 
-                        on_created_subject: '', on_intdown_subject: '', on_intup_subject: '', on_extdown_subject: '', on_extup_subject: '', on_pmsupdate_subject: '', on_plexpyupdate_subject: '', test_script: '', test_script_args: ''
+                        notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURI(path.join(__dirname, '../')), scripts_script: encodeURI(path.join(__dirname, '../', 'tautulli.py'), scripts_timeout: 5,
+                        friendly_name: encodeURI("MediaButler API"), on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
+                        on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
+                        on_play_subject: encodeURI(`--action play --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_stop_subject: encodeURI(`--action stop --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_pause_subject: encodeURI(`--action pause --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_resume_subject: encodeURI(`--action resume --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_watched_subject: encodeURI(`--action watched --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_buffer_subject: encodeURI(`--action buffer --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_concurrent_subject: '', on_newdevice_subject: encodeURI(`--action newdevice --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
                     };
-                    console.log('lets try posting');
-                    const t = axios({ method: 'POST', data, url: `${this._settings.url}/api/v2?apikey=${this._settings.apikey}&cmd=set_notifier_config` }).then((res) => {
+
+                    console.log(getFormData(data));
+                    const t = this._api('set_notifier_config', data).then((res) => {
                         console.log(res);
                     }).catch((err) => { console.error(err); throw err; });
                 }
