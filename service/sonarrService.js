@@ -1,5 +1,6 @@
 const SonarrAPI = require('sonarr-api');
 const TVShow = require('../model/tvshow');
+const host = require('ip').address('public');
 
 module.exports = class sonarrService {
     constructor(settings) {
@@ -16,8 +17,17 @@ module.exports = class sonarrService {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.name] = x; });
             if (!notifMap['MediaButler API']) {
-                console.log('Hook inside Sonarr required for MediaButler isn\'t present.... Adding');
+                console.log('[Sonarr] Hook missing.... Adding');
                 this.addWebhookNotifier();
+            } else {
+                const n = notifMap['MediaButler API'];
+                if (n.fields[0].value != `http://${host}:${process.env.PORT || 9876}/hooks/sonarr`) {
+                    console.log('[Sonarr] Current Webhook is incorrect. Deleting');
+                    this._api.delete(`notification/${n.id}`).then(() => {
+                        console.log('[Sonarr] Adding new Webhook');
+                        this.addWebhookNotifier();
+                    })
+                }
             }
         });
     }

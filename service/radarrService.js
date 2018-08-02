@@ -16,10 +16,17 @@ module.exports = class radarrService {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.name] = x; });
             if (!notifMap['MediaButler API']) {
-                console.log('Hook inside Radarr required for MediaButler isn\'t present.... Adding');
+                console.log('[Radarr] Hook missing.... Adding');
                 this.addWebhookNotifier();
             } else {
-                // Check URL is correct, if not, add it.
+                const n = notifMap['MediaButler API'];
+                if (n.fields[0].value != `http://${host}:${process.env.PORT || 9876}/hooks/sonarr`) {
+                    console.log('[Radarr] Current Webhook is incorrect. Deleting');
+                    this._api.delete(`notification/${n.id}`).then(() => {
+                        console.log('[Radarr] Adding new Webhook');
+                        this.addWebhookNotifier();
+                    })
+                }
             }
         });
     }
