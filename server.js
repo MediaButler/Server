@@ -107,9 +107,9 @@ const notifyService = io
 //     return next(new Error('authentication error'));
 //   });
 
-
+const ip = require('ip').address('public');
 const nService = require('./service/notificationService');
 server.listen(port, host, () => {
-    console.log(`MediaButler API Server v1.0 -  http://127.0.0.1:${port}`);
+    console.log(`MediaButler API Server v1.0 -  http://${ip}:${port}`);
     nService.agent = notifyService;
 });

@@ -1,4 +1,5 @@
 const SonarrAPI = require('sonarr-api');
+const host = require('ip').address('public');
 
 module.exports = class radarrService {
     constructor(settings) {
@@ -11,6 +12,30 @@ module.exports = class radarrService {
         if (details[1] == 'https') { useSsl = true; port = 443; }
         if (details[3] !== undefined) port = details[3];
         this._api = new SonarrAPI({ hostname: details[2], apiKey: settings.apikey, port: port, urlBase: `${details[4]}`, ssl: useSsl });
+        const t = this.getNotifiers().then((notifiers) => {
+            const notifMap = new Array(notifiers.length);
+            notifiers.map((x) => { notifMap[x.name] = x; });
+            if (!notifMap['MediaButler API']) {
+                console.log('Hook inside Radarr required for MediaButler isn\'t present.... Adding');
+                this.addWebhookNotifier();
+            } else {
+                // Check URL is correct, if not, add it.
+            }
+        });
+    }
+
+    async getNotifiers() {
+        return await this._api.get('notification');
+    }
+
+    async addWebhookNotifier() {
+        const data = {"onGrab":true,"onDownload":true,"onUpgrade":true,"onRename":true,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,
+        "tags":[],"name":"MediaButler API","fields":[{"order":0,"name":"Url","label":"URL","type":"url","advanced":false,"value":`http://${host}:${process.env.PORT || 9876}/hooks/radarr`},
+        {"order":1,"name":"Method","label":"Method","helpText":"Which HTTP method to use submit to the Webservice","value":2,"type":"select","advanced":false,"selectOptions":[{"value":2,"name":"POST"},
+        {"value":1,"name":"PUT"}]},{"order":2,"name":"Username","label":"Username","type":"textbox","advanced":false},{"order":3,"name":"Password","label":"Password","type":"password","advanced":false}],
+        "implementationName":"Webhook","implementation":"Webhook","configContract":"WebhookSettings","infoLink":"https://github.com/Radarr/Radarr/wiki/Supported-Notifications#webhook","presets":[]};
+        const r = await this._api.post('notification', data);
+        return r;
     }
 
     async getCalendar() {
