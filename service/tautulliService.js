@@ -2,7 +2,6 @@ const axios = require('axios');
 const host = require('ip').address('public');
 const FormData = require('form-data');
 const path = require('path');
-console.log(path.join(__dirname, '../'));
 module.exports = class tautulliService {
     constructor(settings) {
         this._settings = settings;
@@ -15,12 +14,7 @@ module.exports = class tautulliService {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.friendly_name] = x; });
             if (!notifMap['MediaButler API']) {
-                // Agent ID: 15
-                // [ { agent_name: 'slack', agent_label: 'Slack', friendly_name: '', agent_id: 14, active: 0, id: 1 }, 
-                // { agent_name: 'discord', agent_label: 'Discord', friendly_name: '', agent_id: 20, active: 1, id: 2 }, 
-                // { agent_name: 'scripts', agent_label: 'Script', friendly_name: 'MediaButler API' agent_id: 15, active: 1, id: 5 } ]
-                // Create notifier
-                console.log('MediaButler API hooks non-existant... got to create');
+                console.log('[Tautulli] Hook missing.... Adding');
                 this.addScriptNotifier();
             }
         });
@@ -96,7 +90,6 @@ module.exports = class tautulliService {
         const getFormData = (object) => {
             const formData = new FormData();
             Object.keys(object).forEach(key => formData.append(key, encodeURIComponent(object[key])));
-            console.log(formData);
             return formData;
         }
         
@@ -105,6 +98,7 @@ module.exports = class tautulliService {
             const beforeMap = new Array(before.data.length);
             before.data.map((x) => { beforeMap[x.id] = x; });
             const res = await this._api('add_notifier_config', { agent_id: 15 });
+            console.log('[Tautulli] Adding new Webhook');
             const after = await this.getNotifiers();
             const afterArr = after.data;
             afterArr.forEach((item) => {
@@ -121,10 +115,8 @@ module.exports = class tautulliService {
                         on_buffer_subject: encodeURI(`--action buffer --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
                         on_concurrent_subject: '', on_newdevice_subject: encodeURI(`--action newdevice --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
                     };
-
-                    console.log(getFormData(data));
                     const t = this._api('set_notifier_config', data).then((res) => {
-                        console.log(res);
+                        console.log('[Tautulli] Setting Webhook');
                     }).catch((err) => { console.error(err); throw err; });
                 }
             });
