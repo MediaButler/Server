@@ -137,7 +137,7 @@ router.get('/autoapprove/:username', async (req, res) => {
     if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
     const approveMap = new Array(settings.request.autoApprove.length);
     settings.request.autoApprove.map((x) => { approveMap[x.username] = x; });
-    if (!approveMap[req.params.user]) res.status(404).send([ name: 'NotFound', message: 'Query returned no results' ]);
+    if (!approveMap[req.params.user]) res.status(404).send({ name: 'NotFound', message: 'Query returned no results' });
     return res.status(200).send(approveMap[req.params.username]);
 });
 
@@ -192,7 +192,7 @@ router.get('/allowapprove/:username', async (req, res) => {
     if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
     const approveMap = new Array(settings.request.allowApprove.length);
     settings.request.allowApprove.map((x) => { approveMap[x.username] = x; });
-    if (!approveMap[req.params.user]) res.status(404).send([ name: 'NotFound', message: 'Query returned no results' ]);
+    if (!approveMap[req.params.user]) res.status(404).send({ name: 'NotFound', message: 'Query returned no results' });
     return res.status(200).send(approveMap[req.params.username]);
 });
 
