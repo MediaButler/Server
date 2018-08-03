@@ -26,7 +26,7 @@ module.exports = class radarrService {
                         console.log('[Radarr] Adding new Webhook');
                         this.addWebhookNotifier();
                     })
-                }
+                } else { console.log('[Sonarr] Hook already setup, skipping'); }
             }
         });
     }

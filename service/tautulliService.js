@@ -16,6 +16,8 @@ module.exports = class tautulliService {
             if (!notifMap['MediaButler API']) {
                 console.log('[Tautulli] Hook missing.... Adding');
                 this.addScriptNotifier();
+            } else {
+                console.log('[Tautulli] Hook already setup, skipping');
             }
         });
     }

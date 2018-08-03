@@ -131,4 +131,51 @@ router.delete('/:id', async (req, res) => {
     if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'delete' });
 });
 
+
+
+
+router.get('/autoapprove', async (req, res) => {
+    if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+    return res.status(200).send(settings.request.autoApprove);
+});
+router.post('/autoapprove', async (req, res) => {
+    if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+    const approveMap = new Array(settings.request.autoApprove.length);
+    settings.request.autoApprove.map((x) => { approveMap[x.username] = x; });
+    if (approveMap[request.body.username]) return res.status(400).send({ name: 'Bad Request', message: 'Username already exists' });
+    const newAutoApprove = { username: req.body.username, types: req.body.types.split(',') };
+    settings.request.autoApprove.push(newAutoApprove);
+    return status(200).send(newAutoApprove);
+});
+router.put('/autoapprove', async (req, res) => {
+    if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+    let shouldReplace = true;
+    const approveMap = new Array(settings.request.autoApprove.length);
+    settings.request.autoApprove.map((x) => { approveMap[x.username] = x; });
+    const idx = settings.request.indexOf(approveMap[req.body.username])
+    if (!req.body.replace) shouldReplace = false;
+    const alltypes = new Array(approveMap[req.body.username].types.length + req.body.types.split(',').length);
+    alltypes.push(approveMap[req.body.username].types);
+    alltypes.push(req.body.types.split(','));
+    if (shouldReplace) {
+        const newAutoApprove = { username: req.body.username, types: req.body.types.split(',') };
+        settings.request.autoApprove.splice(idx, 1);
+        settings.request.autoApprove.push(newAutoApprove);
+        return res.status(200).send(newAutoApprove);
+    } else {
+        const newAutoApprove = { username: req.body.username, types: alltypes };
+        settings.request.autoApprove.splice(idx, 1);
+        settings.request.autoApprove.push(newAutoApprove);
+        return res.status(200).send(newAutoApprove);
+    }
+});
+router.delete('/autoapprove/:username', async (req, res) => {
+    if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+    const approveMap = new Array(settings.request.autoApprove.length);
+    settings.request.autoApprove.map((x) => { approveMap[x.username] = x; });
+    const idx = settings.request.indexOf(approveMap[req.params.username])
+    settings.request.autoApprove.splice(idx, 1);
+    return res.status(200).send({ name: 'OK', message: 'Deleted' });
+});
+
 module.exports = router;

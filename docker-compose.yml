@@ -10,8 +10,21 @@ services:
         image: mediabutler-api:latest
         hostname: mediabutler-api
         environment:
-            - PLEX_MACHINE_ID=9f67762e320e456bb26a2dfdd1a9cb1ced19aa31
-            - DB_URL=mongodb://mongo:27017/mediabutler
+            - "DB_URL=mongodb://mongo:27017/mediabutler"
+            - "PLEX_MACHINE_ID=PLEX_MACHINE_ID_HERE"
+            - "PLEX_URL=http://192.168.1.103:32400/"
+            - "TAUTULLI_URL=http://192.168.1.103:8181/tautulli/"
+            - "TAUTULLI_KEY="
+            - "SONARR_URL=http://192.168.1.103:8686/sonarr/"
+            - "SONARR_KEY="
+            - "SONARR_PROFILE_NAME="
+            - "SONARR_ROOT_PATH="
+            - "RADARR_URL=https://192.168.1.103:7878/radarr/"
+            - "RADARR_KEY="
+            - "RADARR_PROFILE_NAME="
+            - "RADARR_ROOT_PATH="
+            - "ORGANIZR_URL=https://onemedia.club/"
+            - "ORGANIZR_KEY="
         volumes:
             - ${HOME}/docker/mediabutler:/config:rw
         networks:
@@ -27,11 +40,18 @@ services:
         container_name: "mongo"
         hostname: mongo
         environment:
-          - MONGO_DATA_DIR=/data/db
-          - MONGO_LOG_DIR=/dev/null
-          - MONGO_URL=mongodb://mongo:27017/
+            - MONGO_DATA_DIR=/data/db
+            - MONGO_LOG_DIR=/dev/null
+            - MONGO_URL=mongodb://mongo:27017/
         volumes:
-          - ${HOME}/docker/mediabutler/db:/data/db:rw
+            - ${HOME}/docker/mediabutler/db:/data/db:rw
         networks:
-          - mb
+            - mb
         command: mongod --smallfiles --bind_ip_all
+    mediabutler-discord:
+        container_name: "mediabutler-discord"
+        image: vertig0ne/mediabutler-api:bot-latest
+        environment:
+            - TOKEN=DISCORD_TOKEN_HERE
+        volumes:
+            - ${HOME}/docker/mediabutler/bot:/config:rw

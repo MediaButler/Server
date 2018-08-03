@@ -2,6 +2,13 @@
 // Only one exists
 const settingsService = require('./settingsService');
 const ss = new settingsService();
+setTimeout(() =>{
+  tautulli = new tautulliService(settings.tautulli);
+  sonarr = new sonarrService(settings.sonarr);
+  radarr = new radarrService(settings.radarr);
+  request = new requestService();
+  //rules = new rulesService();
+}, 2000);
 const settings = ss.getSettings();
 const tautulliService = require('./tautulliService');
 const sonarrService = require('./sonarrService');
@@ -9,11 +16,11 @@ const radarrService = require('./radarrService');
 const requestService = require('./requestService');
 //const rulesService = require('./rulesService');
 
-const tautulli = new tautulliService(settings.tautulli);
-const sonarr = new sonarrService(settings.sonarr);
-const radarr = new radarrService(settings.radarr);
-const request = new requestService();
-//let rules = new rulesService();
+let tautulli;
+let sonarr;
+let radarr;
+let request;
+//let rules;
 
 module.exports = class settingsService {
   static get tautulliService() {

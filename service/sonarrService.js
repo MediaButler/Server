@@ -27,7 +27,7 @@ module.exports = class sonarrService {
                         console.log('[Sonarr] Adding new Webhook');
                         this.addWebhookNotifier();
                     })
-                }
+                } else { console.log('[Sonarr] Hook already setup, skipping'); }
             }
         });
     }
