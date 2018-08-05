@@ -5,9 +5,8 @@ networks:
     driver: bridge
 services:
     mediabutler-api:
-        build: .
         container_name: "mediabutler-api"
-        image: mediabutler-api:latest
+        image: vertig0ne/mediabutler-api:latest
         hostname: mediabutler-api
         environment:
             - "DB_URL=mongodb://mongo:27017/mediabutler"

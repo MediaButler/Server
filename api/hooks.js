@@ -7,12 +7,12 @@ var multer = require('multer');
 var upload = multer();
 const notificationService = require('../service/notificationService');
 const services = require('../service/services');
-const tautulli = services.tautulliService;
 
+let previousPlaying = false;
 
 router.post('/sonarr', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('tvshow',  req.body);
+        if (notificationService) notificationService.emit('tvshow', req.body);
         return res.status(200).send('OK');;
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -21,7 +21,7 @@ router.post('/sonarr', (req, res) => {
 
 router.put('/sonarr', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('tvshow',  req.body);
+        if (notificationService) notificationService.emit('tvshow', req.body);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -30,7 +30,7 @@ router.put('/sonarr', (req, res) => {
 
 router.post('/radarr', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('movie',  req.body);
+        if (notificationService) notificationService.emit('movie', req.body);
         return res.status(200).send('OK');;
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -40,7 +40,7 @@ router.post('/radarr', (req, res) => {
 
 router.put('/radarr', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('movie',  req.body);
+        if (notificationService) notificationService.emit('movie', req.body);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -49,7 +49,7 @@ router.put('/radarr', (req, res) => {
 
 router.post('/plex', upload.single('thumb'), (req, res) => {
     try {
-        if (notificationService) notificationService.emit('plex',  JSON.parse(req.body.payload));
+        if (notificationService) notificationService.emit('plex', JSON.parse(req.body.payload));
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -58,7 +58,7 @@ router.post('/plex', upload.single('thumb'), (req, res) => {
 
 router.put('/plex', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('plex',  req.body);
+        if (notificationService) notificationService.emit('plex', req.body);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -67,18 +67,25 @@ router.put('/plex', (req, res) => {
 
 router.post('/tautulli', async (req, res) => {
     try {
+        const tautulli = services.tautulliService;
         // { action: 'resume', session_key: '671', rating_key: '165993' }
-        console.log('Received tautulli notification');
         const nowPlaying = await tautulli.getNowPlaying();
-        const sessionMap = Array(nowPlaying.data.sessions.length);
-        console.log('Mapping');
+        let previousPlayingMap = false
+        if (previousPlaying) {
+            console.log(`There was ${previousPlaying.data.stream_count} streams... mapping`);
+            previousPlayingMap = new Array(previousPlaying.data.stream_count);
+            previousPlaying.data.sessions.map((x) => { previousPlayingMap[x.session_key] = x; });
+        }
+        previousPlaying = nowPlaying;
+        const sessionMap = Array(nowPlaying.data.stream_count);
+        console.log(`There are currently ${nowPlaying.data.stream_count} streams... mapping`)
         nowPlaying.data.sessions.map((x) => { sessionMap[x.session_key] = x; });
         const action = req.body.action;
-        const data = sessionMap[req.body.session_key];
+        let data = sessionMap[req.body.session_key];
+        if (req.body.action == 'stop') data = previousPlayingMap[req.body.session_key];
         const result = { action, data };
         console.log('Attempting to post notification');
         if (notificationService) notificationService.emit('tautulli', result);
-        console.log('done');
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });
@@ -87,7 +94,7 @@ router.post('/tautulli', async (req, res) => {
 
 router.put('/tautulli', (req, res) => {
     try {
-        if (notificationService) notificationService.emit('tautulli',  req.body);
+        if (notificationService) notificationService.emit('tautulli', req.body);
         return res.status(200).send('OK');
     } catch (err) {
         return res.status(500).send({ name: err.name, message: err.message });

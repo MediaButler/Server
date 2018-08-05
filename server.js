@@ -89,8 +89,7 @@ app.get('/version', (req, res) => {
 });
 const userSockets = {};
 const notifyService = io
-    .of('/notify')
-    //.of('/mediabutler/notify')
+    //.of('/notify')
     .on('connection', ioJwtAuth.authorize({
         secret: 'djfkhsjkfhdkfhsdjklrhltheamcthiltmheilucmhteischtismheisumhcteroiesmhcitumhi',
         timeout: 15000 // 15 seconds to send the authentication message
@@ -106,14 +105,6 @@ const notifyService = io
         });
 
     });
-
-//   notifyService.use((socket, next) => {
-//     let header = socket.handshake.headers['authorization'];
-//     if (isValidJwt(header)) {
-//       return next();
-//     }
-//     return next(new Error('authentication error'));
-//   });
 
 const ip = require('ip').address('public');
 const nService = require('./service/notificationService');

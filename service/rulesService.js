@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Rule = require('../model/rule');
+const services = require('./services');
 
 module.exports = class rulesService {
     constructor() {
@@ -11,6 +12,16 @@ module.exports = class rulesService {
         // read dir for files
         // instanciate objects
         // save into map
+
+        fs.readdir('../rules', async (rules) => {
+            rules.foreach(async (rule) => {
+                if (rule == 'base.js') return;
+                const rule_load = require(`../rules/${rule}`);
+
+                this._rules.set(rule_load.id, rule_load);
+            });
+        });
+
     }
 
     async addRule(username, ruleId, argument) {
