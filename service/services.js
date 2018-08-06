@@ -39,6 +39,10 @@ module.exports = class settingsService {
     return request;
   }
 
+  static get settingsService() {
+    return ss;
+  }
+
   static get settings() {
       return settings;
   }

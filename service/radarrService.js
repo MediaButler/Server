@@ -28,7 +28,7 @@ module.exports = class radarrService {
                     })
                 } else { console.log('[Radarr] Hook already setup, skipping'); }
             }
-        });
+        }).catch((err) => { console.log('[Radarr] Unable to query for notifiers'); });
     }
 
     async getNotifiers() {

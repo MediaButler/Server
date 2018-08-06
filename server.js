@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, { resource: 'notify' });
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
@@ -53,7 +53,7 @@ passport.use(new JWTStrategy({
     const ps = new plexService(set);
     ps.check().then(() => {
         return cb(null, user);
-    }).catch((err) => { return done(null, false, 'Unable to validate user'); });
+    }).catch((err) => { return cb(null, false, 'Unable to validate user'); });
 }));
 
 app.use(bodyParser.json());

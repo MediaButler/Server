@@ -26,10 +26,10 @@ module.exports = class sonarrService {
                     this._api.delete(`notification/${n.id}`).then(() => {
                         console.log('[Sonarr] Adding new Webhook');
                         this.addWebhookNotifier();
-                    })
+                    });
                 } else { console.log('[Sonarr] Hook already setup, skipping'); }
             }
-        });
+        }).catch((err) => { console.log('[Sonarr] Unable to query for notifiers'); });
     }
 
     async getNotifiers() {

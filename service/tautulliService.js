@@ -16,10 +16,8 @@ module.exports = class tautulliService {
             if (!notifMap['MediaButler API']) {
                 console.log('[Tautulli] Hook missing.... Adding');
                 this.addScriptNotifier();
-            } else {
-                console.log('[Tautulli] Hook already setup, skipping');
-            }
-        });
+            } else { console.log('[Tautulli] Hook already setup, skipping'); }
+        }).catch((err) => { console.log('[Tautulli] Unable to query for notifiers'); });
     }
 
     async getNowPlaying() {
@@ -106,7 +104,7 @@ module.exports = class tautulliService {
             afterArr.forEach((item) => {
                 if (!Boolean(beforeMap[item.id])) {
                     const data = {
-                        notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURI(path.join(__dirname, '../')), scripts_script: encodeURI(path.join(__dirname, '../', 'tautulli.py')), scripts_timeout: 5,
+                        notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURI(path.join(__dirname, '../')), scripts_script: encodeURI(path.join(__dirname, '../', 'mediabutler.py')), scripts_timeout: 5,
                         friendly_name: encodeURI("MediaButler API"), on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
                         on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
                         on_play_subject: encodeURI(`--action play --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),

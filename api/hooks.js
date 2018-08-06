@@ -72,19 +72,16 @@ router.post('/tautulli', async (req, res) => {
         const nowPlaying = await tautulli.getNowPlaying();
         let previousPlayingMap = false
         if (previousPlaying) {
-            console.log(`There was ${previousPlaying.data.stream_count} streams... mapping`);
             previousPlayingMap = new Array(previousPlaying.data.stream_count);
             previousPlaying.data.sessions.map((x) => { previousPlayingMap[x.session_key] = x; });
         }
         previousPlaying = nowPlaying;
         const sessionMap = Array(nowPlaying.data.stream_count);
-        console.log(`There are currently ${nowPlaying.data.stream_count} streams... mapping`)
         nowPlaying.data.sessions.map((x) => { sessionMap[x.session_key] = x; });
         const action = req.body.action;
         let data = sessionMap[req.body.session_key];
         if (req.body.action == 'stop') data = previousPlayingMap[req.body.session_key];
         const result = { action, data };
-        console.log('Attempting to post notification');
         if (notificationService) notificationService.emit('tautulli', result);
         return res.status(200).send('OK');
     } catch (err) {

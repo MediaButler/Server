@@ -1,27 +1,29 @@
 const isDocker = require('is-docker');
 const fs = require('fs');
 const defaultSettings = require('../settings.default.json');
+const path = require('path');
 
 module.exports = class settingsService {
     constructor() {
-        if (isDocker()) this.settings = this._getSettings('/config/settings.json');
-        else this.settings = this._getSettings('../settings.json');
+        if (isDocker()) this.filePath = path.join('/', 'config', 'settings.json');
+        else this.filePath = path.join('..', 'settings.json');
+        this.settings = this._getSettings();
     }
 
     getSettings() {
         return this.settings;
     }
 
-    _saveSettings(filePath, settings) {
-        fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), () => {
+    _saveSettings(settings) {
+        fs.writeFileSync(this.filePath, JSON.stringify(settings, null, 2), () => {
             this.settings = settings;
             return settings;
         });
     }
 
-    _makeSettings(filePath) {
+    _makeSettings() {
         console.log('attempting to make settings');
-        if (fs.existsSync(filePath)) throw new Error('Settings already exists');
+        if (fs.existsSync(this.filePath)) throw new Error('Settings already exists');
         const settings = defaultSettings;
         if (process.env.TAUTULLI_URL) settings.tautulli.url = process.env.TAUTULLI_URL;
         if (process.env.TAUTULLI_KEY) settings.tautulli.apikey = process.env.TAUTULLI_KEY;
@@ -37,16 +39,16 @@ module.exports = class settingsService {
         if (process.env.PLEX_MACHINE_ID) settings.plex.machineId = process.env.PLEX_MACHINE_ID;
         if (process.env.ORGANIZR_URL) settings.organizr.url = process.env.ORGANIZR_URL;
         if (process.env.ORGANIZR_KEY) settings.organizr.apikey = process.env.ORGANIZR_KEY;
-        fs.writeFileSync(filePath, JSON.stringify(settings, null, 2), () => {
+        fs.writeFileSync(this.filePath, JSON.stringify(settings, null, 2), () => {
             this.settings = settings;
             return settings;
         });
     }
 
-    _getSettings(filePath) {
+    _getSettings() {
         try {
             console.log(`trying to get settings from file`);
-            const settings = require(filePath);
+            const settings = require(this.filePath);
             if ((!settings.tautulli.url && process.env.TAUTULLI_URL) || settings.tautulli.url != process.env.TAUTULLI_URL) settings.tautulli.url = process.env.TAUTULLI_URL;
             if ((!settings.tautulli.apikey && process.env.TAUTULLI_KEY) || settings.tautulli.apikey != process.env.TAUTULLI_KEY) settings.tautulli.apikey = process.env.TAUTULLI_KEY;
             if ((!settings.sonarr.url && process.env.SONARR_URL) || settings.sonarr.url != process.env.SONARR_URL) settings.sonarr.url = process.env.SONARR_URL;
@@ -63,13 +65,13 @@ module.exports = class settingsService {
             if (!settings.sonarr.url || !settings.sonarr.apikey || !settings.sonarr.defaultProfile || !settings.sonarr.defaultRoot) { console.log('Settings not configured. Sonarr unconfigured'); console.log(settings.sonarr); process.exit(1); }
             if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) { console.log('Settings not configured. Radarr unconfigured'); console.log(settings.radarr); process.exit(1); }
             if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); console.log(settings.plex); process.exit(1); }
-            this._saveSettings(filePath, settings);
+            this._saveSettings(settings);
             return settings;
         } catch (err) {
             if (err.name == "SyntaxError") { console.log('There was an error loading your settings.json, please go back and verify the file is correct'); process.exit(1); }
             // Check if all necessary envrionment variables are available
             console.error(err.message);
-            this.settings = this._makeSettings(filePath);
+            this.settings = this._makeSettings(this.filePath);
             return this.settings;
         }
     }
