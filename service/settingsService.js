@@ -25,6 +25,7 @@ module.exports = class settingsService {
         console.log('attempting to make settings');
         if (fs.existsSync(this.filePath)) throw new Error('Settings already exists');
         const settings = defaultSettings;
+        if (process.env.URL) settings.urlOverride = process.env.URL;
         if (process.env.TAUTULLI_URL) settings.tautulli.url = process.env.TAUTULLI_URL;
         if (process.env.TAUTULLI_KEY) settings.tautulli.apikey = process.env.TAUTULLI_KEY;
         if (process.env.SONARR_URL) settings.sonarr.url = process.env.SONARR_URL;
@@ -49,6 +50,7 @@ module.exports = class settingsService {
         try {
             console.log(`trying to get settings from file`);
             const settings = require(this.filePath);
+            if (process.env.URL) settings.urlOverride = process.env.URL;
             if ((!settings.tautulli.url && process.env.TAUTULLI_URL) || settings.tautulli.url != process.env.TAUTULLI_URL) settings.tautulli.url = process.env.TAUTULLI_URL;
             if ((!settings.tautulli.apikey && process.env.TAUTULLI_KEY) || settings.tautulli.apikey != process.env.TAUTULLI_KEY) settings.tautulli.apikey = process.env.TAUTULLI_KEY;
             if ((!settings.sonarr.url && process.env.SONARR_URL) || settings.sonarr.url != process.env.SONARR_URL) settings.sonarr.url = process.env.SONARR_URL;
@@ -66,6 +68,7 @@ module.exports = class settingsService {
             if (!settings.radarr.url || !settings.radarr.apikey || !settings.radarr.defaultProfile || !settings.radarr.defaultRoot) { console.log('Settings not configured. Radarr unconfigured'); console.log(settings.radarr); process.exit(1); }
             if (!settings.plex.url) { console.log('Settings not configured. Plex unconfigured'); console.log(settings.plex); process.exit(1); }
             this._saveSettings(settings);
+            this.settings = settings;
             return settings;
         } catch (err) {
             if (err.name == "SyntaxError") { console.log('There was an error loading your settings.json, please go back and verify the file is correct'); process.exit(1); }

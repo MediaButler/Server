@@ -9,6 +9,7 @@ services:
         image: vertig0ne/mediabutler-api:latest
         hostname: mediabutler-api
         environment:
+            - "URL=https://onemedia.club/mediabutler/"
             - "DB_URL=mongodb://mongo:27017/mediabutler"
             - "PLEX_MACHINE_ID=PLEX_MACHINE_ID_HERE"
             - "PLEX_URL=http://192.168.1.103:32400/"

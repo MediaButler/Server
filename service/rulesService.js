@@ -1,38 +1,38 @@
 const fs = require('fs');
 const Rule = require('../model/rule');
 const services = require('./services');
+const rules = new Map();
 
 module.exports = class rulesService {
     constructor() {
-        this._rules = new Map();
-        // Load rules
+        this._load();
     }
 
     async _load() {
-        // read dir for files
-        // instanciate objects
-        // save into map
-
-        fs.readdir('../rules', async (rules) => {
-            rules.foreach(async (rule) => {
-                if (rule == 'base.js') return;
-                const rule_load = require(`../rules/${rule}`);
-
-                this._rules.set(rule_load.id, rule_load);
-            });
+        const dir = await fs.readdirSync(`${process.cwd()}/rules`);
+        dir.forEach(element => {
+            if (element == 'base.js') return;
+            const rule_load = require(`../rules/${element}`);
+            const rule = new rule_load();
+            rules.set(`${rule.info.id}`, rule);
         });
-
     }
 
     async addRule(username, ruleId, argument) {
-        const rule = await this._rules.get(ruleId);
+        const rule = await rules.get(ruleId);
         let newRule = new Rule({ username, ruleId, argument });
         newRule.save();
         return newRule;
     }
 
     async deleteRule(username, ruleId) {
+        return await Rule.deleteOne({ username, ruleId }).exec();
+    }
 
+    getAllRules() {
+        const allRules = new Array(rules.size - 1);
+        Array.from(rules.values()).forEach((x) => { allRules.push(x.info); });
+        return allRules;
     }
 
     async getRules(username) {
@@ -40,17 +40,18 @@ module.exports = class rulesService {
     }
 
     async validate(stream) {
-        const ruleSet = await getRules(stream.username);
+        const ruleSet = await this.getRules(stream.username);
         let shouldKillStream = false;
         let killStreamReason = false;
-        foreach (rule in ruleSet) {
-            const r = this._rules.get(rule.ruleId);
+        ruleSet.forEach((rule) => {
+            const r = rules.get(rule.ruleId);
             if (r.validate(stream, rule.argument)) {
                 shouldKillStream = true;
                 killStreamReason = r.info.reason;
             }
-        }
+        });
         if (shouldKillStream && killStreamReason) {
+            console.log(`Should kill stream with reason: ${killStreamReason}`);
             // Kill stream with reason
         }
     }

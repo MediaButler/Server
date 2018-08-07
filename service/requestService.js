@@ -1,24 +1,22 @@
 
 const Request = require('../model/request');
 const services = require('./services');
-const sonarrService = services.sonarrService;
-const radarrService = services.radarrService;
 const notificationService = require('../service/notificationService');
-const settings = services.settings;
 
 module.exports = class requestService {
-    constructor(startup = false) {
-        this.radarrService = radarrService;
+    constructor(settings, sonarrService, radarrService, startup = false) {
+        this.settings = settings;
         this.sonarrService = sonarrService;
+        this.radarrService = radarrService;
         if (startup) this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
     }
 
     async autoApprove() {
         console.log('checking for approvals');
         const pending = await this.getPendingRequests();
-        const autoApproveLength = (settings.requests.autoApprove.length == 0) ? 0 : settings.requests.autoApprove.length - 1;
+        const autoApproveLength = (this.settings.requests.autoApprove.length == 0) ? 0 : this.settings.requests.autoApprove.length - 1;
         const approvedMap = Array(autoApproveLength);
-        settings.requests.autoApprove.map((x) => approvedMap[x.username] = x);
+        this.settings.requests.autoApprove.map((x) => approvedMap[x.username] = x);
         if (pending.length > 0) {
             pending.forEach((request) => {
                 if (approvedMap[request.username]) {
@@ -72,8 +70,8 @@ module.exports = class requestService {
                     try {
                         const mv = {
                             imdbId: r.imdbId,
-                            profile: (oProfile != 'null') ? settings.radarr.defaultProfile : oProfile,
-                            rootPath: (oRoot != 'null') ? settings.radarr.defaultRoot : oRoot
+                            profile: (oProfile != 'null') ? this.settings.radarr.defaultProfile : oProfile,
+                            rootPath: (oRoot != 'null') ? this.settings.radarr.defaultRoot : oRoot
                         };
                         this.radarrService.addMovie(mv);
                         r.status = 1;
@@ -83,8 +81,8 @@ module.exports = class requestService {
                     try {
                         const show = {
                             tvdbId: r.tvdbId,
-                            profile: (oProfile != 'null') ? settings.sonarr.defaultProfile : oProfile,
-                            rootPath: (oRoot != 'null') ? settings.sonarr.defaultRoot : oRoot
+                            profile: (oProfile != 'null') ? this.settings.sonarr.defaultProfile : oProfile,
+                            rootPath: (oRoot != 'null') ? this.settings.sonarr.defaultRoot : oRoot
                         };
                         this.sonarrService.addShow(show);
                         r.status = 1;

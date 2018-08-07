@@ -81,6 +81,10 @@ router.post('/tautulli', async (req, res) => {
         const action = req.body.action;
         let data = sessionMap[req.body.session_key];
         if (req.body.action == 'stop') data = previousPlayingMap[req.body.session_key];
+        if (req.body.action == 'play') {
+            const rulesService = services.rulesService;
+            rulesService.validate(sessionMap[req.body.session_key]);
+        }
         const result = { action, data };
         if (notificationService) notificationService.emit('tautulli', result);
         return res.status(200).send('OK');

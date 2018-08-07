@@ -15,7 +15,7 @@ router.use(bodyParser.json());
 
 router.get('/', async (req, res) => {
     try {
-        const rs = requestService;
+        const rs = services.requestService;
         const r = await rs.getRequests();
         if (!r) return res.status(200).send([]);
         return res.status(200).send(r);

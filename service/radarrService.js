@@ -5,6 +5,8 @@ module.exports = class radarrService {
     constructor(settings) {
         if (!settings) throw new Error('Settings not provided');
         this._settings = settings;
+        const services = require('./services');
+        const settingsService = services.settingsService;
         const regex = /(?:([A-Za-z]+):)?(?:\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?/g;
         const details = regex.exec(settings.url);
         let useSsl = false;
@@ -12,15 +14,18 @@ module.exports = class radarrService {
         if (details[1] == 'https') { useSsl = true; port = 443; }
         if (details[3] !== undefined) port = details[3];
         this._api = new SonarrAPI({ hostname: details[2], apiKey: settings.apikey, port: port, urlBase: `${details[4]}`, ssl: useSsl });
+        const allSettings = settingsService.getSettings();
         const t = this.getNotifiers().then((notifiers) => {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.name] = x; });
             if (!notifMap['MediaButler API']) {
+                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/radarr` : `http://${host}:${process.env.PORT || 9876}/hooks/radarr`;
                 console.log('[Radarr] Hook missing.... Adding');
                 this.addWebhookNotifier();
             } else {
                 const n = notifMap['MediaButler API'];
-                if (n.fields[0].value != `http://${host}:${process.env.PORT || 9876}/hooks/radarr`) {
+                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/radarr` : `http://${host}:${process.env.PORT || 9876}/hooks/radarr`;
+                if (n.fields[0].value != this.notificatinUrl) {
                     console.log('[Radarr] Current Webhook is incorrect. Deleting');
                     this._api.delete(`notification/${n.id}`).then(() => {
                         console.log('[Radarr] Adding new Webhook');
@@ -37,7 +42,7 @@ module.exports = class radarrService {
 
     async addWebhookNotifier() {
         const data = {"onGrab":true,"onDownload":true,"onUpgrade":true,"onRename":true,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,
-        "tags":[],"name":"MediaButler API","fields":[{"order":0,"name":"Url","label":"URL","type":"url","advanced":false,"value":`http://${host}:${process.env.PORT || 9876}/hooks/radarr`},
+        "tags":[],"name":"MediaButler API","fields":[{"order":0,"name":"Url","label":"URL","type":"url","advanced":false,"value": this.notificatinUrl},
         {"order":1,"name":"Method","label":"Method","helpText":"Which HTTP method to use submit to the Webservice","value":2,"type":"select","advanced":false,"selectOptions":[{"value":2,"name":"POST"},
         {"value":1,"name":"PUT"}]},{"order":2,"name":"Username","label":"Username","type":"textbox","advanced":false},{"order":3,"name":"Password","label":"Password","type":"password","advanced":false}],
         "implementationName":"Webhook","implementation":"Webhook","configContract":"WebhookSettings","infoLink":"https://github.com/Radarr/Radarr/wiki/Supported-Notifications#webhook","presets":[]};

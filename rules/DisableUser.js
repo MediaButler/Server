@@ -1,6 +1,6 @@
 const baseRule = require('./base');
 
-module.exports = class notAllowedRule extends baseRule {
+module.exports = class disableUserRule extends baseRule {
     constructor() {
         const info = {
             id: '5771bac5-9530-4aea-804c-0b13e088722e',

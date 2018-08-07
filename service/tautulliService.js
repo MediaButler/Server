@@ -94,6 +94,8 @@ module.exports = class tautulliService {
         }
         
         try {
+            const services = require('./services');
+            this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/tautulli` : `http://${host}:${process.env.PORT || 9876}/hooks/tautulli`;
             const before = await this.getNotifiers();
             const beforeMap = new Array(before.data.length);
             before.data.map((x) => { beforeMap[x.id] = x; });
@@ -107,13 +109,13 @@ module.exports = class tautulliService {
                         notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURI(path.join(__dirname, '../')), scripts_script: encodeURI(path.join(__dirname, '../', 'mediabutler.py')), scripts_timeout: 5,
                         friendly_name: encodeURI("MediaButler API"), on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
                         on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
-                        on_play_subject: encodeURI(`--action play --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_stop_subject: encodeURI(`--action stop --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_pause_subject: encodeURI(`--action pause --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_resume_subject: encodeURI(`--action resume --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_watched_subject: encodeURI(`--action watched --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_buffer_subject: encodeURI(`--action buffer --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
-                        on_concurrent_subject: '', on_newdevice_subject: encodeURI(`--action newdevice --key {session_key} --rating-key {rating_key} --url http://${process.env.HOST || host}:${process.env.PORT || 9876}/hooks/tautulli`),
+                        on_play_subject: encodeURI(`--action play --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_stop_subject: encodeURI(`--action stop --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_pause_subject: encodeURI(`--action pause --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_resume_subject: encodeURI(`--action resume --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_watched_subject: encodeURI(`--action watched --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_buffer_subject: encodeURI(`--action buffer --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_concurrent_subject: '', on_newdevice_subject: encodeURI(`--action newdevice --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
                     };
                     const t = this._api('set_notifier_config', data).then((res) => {
                         console.log('[Tautulli] Setting Webhook');
