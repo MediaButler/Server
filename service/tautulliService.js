@@ -1,7 +1,9 @@
 const axios = require('axios');
 const host = require('ip').address('public');
 const FormData = require('form-data');
-const path = require('path');
+const fs = require('fs');
+const jtfd = require('json-to-form-data');
+
 module.exports = class tautulliService {
     constructor(settings) {
         this._settings = settings;
@@ -9,15 +11,15 @@ module.exports = class tautulliService {
         if (!settings.apikey) throw new Error('APIKey not set');
         if (settings.url.slice(-1) == '/') settings.url = settings.url.substring(0, settings.url.length - 1);
 
-        const t = this.getNotifiers().then((tt) => {
-            const notifiers = tt.data;
-            const notifMap = new Array(notifiers.length);
-            notifiers.map((x) => { notifMap[x.friendly_name] = x; });
-            if (!notifMap['MediaButler API']) {
-                console.log('[Tautulli] Hook missing.... Adding');
-                this.addScriptNotifier();
-            } else { console.log('[Tautulli] Hook already setup, skipping'); }
-        }).catch((err) => { console.log('[Tautulli] Unable to query for notifiers'); });
+        // this.getNotifiers().then((t) => {
+        //     console.log(t);
+        //     const notifMap = new Array(t.data.length);
+        //     t.data.map((x) => { notifMap[x.friendly_name] = x; });
+        //     if (!notifMap['MediaButler API']) {
+        //         this.addScriptNotifier();
+        //     }
+        // });
+
     }
 
     async getNowPlaying() {
@@ -87,37 +89,27 @@ module.exports = class tautulliService {
     }
 
     async addScriptNotifier() {
-        const getFormData = (object) => {
-            const formData = new FormData();
-            Object.keys(object).forEach(key => formData.append(key, encodeURIComponent(object[key])));
-            return formData;
-        }
-        
         try {
+            const sendObj = await fs.readFileSync(`${process.cwd()}/tautulli.txt`, 'utf8');
             const services = require('./services');
             this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/tautulli` : `http://${host}:${process.env.PORT || 9876}/hooks/tautulli`;
             const before = await this.getNotifiers();
             const beforeMap = new Array(before.data.length);
             before.data.map((x) => { beforeMap[x.id] = x; });
-            const res = await this._api('add_notifier_config', { agent_id: 15 });
+            const res = await this._api('add_notifier_config', { agent_id: 25 });
             console.log('[Tautulli] Adding new Webhook');
             const after = await this.getNotifiers();
             const afterArr = after.data;
             afterArr.forEach((item) => {
                 if (!Boolean(beforeMap[item.id])) {
                     const data = {
-                        notifier_id: item.id, agent_id: 15, scripts_script_folder: encodeURI(path.join(__dirname, '../')), scripts_script: encodeURI(path.join(__dirname, '../', 'mediabutler.py')), scripts_timeout: 5,
-                        friendly_name: encodeURI("MediaButler API"), on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
+                        notifier_id: item.id, agent_id: 25, webhook_hook: this.notificatinUrl, webhook_method: "POST",
+                        friendly_name: "MediaButler API", on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
                         on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
-                        on_play_subject: encodeURI(`--action play --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_stop_subject: encodeURI(`--action stop --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_pause_subject: encodeURI(`--action pause --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_resume_subject: encodeURI(`--action resume --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_watched_subject: encodeURI(`--action watched --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_buffer_subject: encodeURI(`--action buffer --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
-                        on_concurrent_subject: '', on_newdevice_subject: encodeURI(`--action newdevice --key {session_key} --rating-key {rating_key} --url ${this.notificatinUrl}`),
+                        on_play_body: sendObj, on_stop_body: sendObj, on_pause_body: sendObj, on_resume_body: sendObj,
+                        on_watched_body: sendObj, on_buffer_body: sendObj, on_concurrent_body: sendObj, on_newdevice_body: sendObj,
                     };
-                    const t = this._api('set_notifier_config', data).then((res) => {
+                    const t = this._post('set_notifier_config', data).then((res) => {
                         console.log('[Tautulli] Setting Webhook');
                     }).catch((err) => { console.error(err); throw err; });
                 }
@@ -138,4 +130,12 @@ module.exports = class tautulliService {
         }
         catch (err) { throw err; }
     }
+
+    async _post(command, data) {
+        try {
+            return await axios({ method: 'POST', url: `${this._settings.url}/api/v2?apikey=${this._settings.apikey}&cmd=${command}`, data: jtfd(data) });
+        }
+        catch (err) { throw err; }
+    }
+
 }

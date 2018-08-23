@@ -1,6 +1,7 @@
 const SonarrAPI = require('sonarr-api');
 const TVShow = require('../model/tvshow');
 const host = require('ip').address('public');
+const url = require('url');
 
 module.exports = class sonarrService {
     constructor(settings) {
@@ -9,14 +10,14 @@ module.exports = class sonarrService {
 
         if (!settings) throw new Error('Settings not provided');
         this._settings = settings;
-        const regex = /(?:([A-Za-z]+):)?(?:\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?/g;
-        const details = regex.exec(settings.url);
-        let useSsl = false;
-        let port = 80;
-        if (details[1] == 'https') { useSsl = true; port = 443; }
-        if (details[3] !== undefined) port = details[3];
-        this._api = new SonarrAPI({ hostname: details[2], apiKey: settings.apikey, port: port, urlBase: `${details[4]}`, ssl: useSsl });
-        const allSettings = settingsService.getSettings();
+        const sonarrUrl = url.parse(settings.url);
+        console.log(sonarrUrl);
+        let port;
+        if (sonarrUrl.port == null) {
+            if (sonarrUrl.protocol == 'https:') port = 443;
+            if (sonarrUrl.protocol == 'http:') port = 80;
+        }
+        this._api = new SonarrAPI({ hostname: sonarrUrl.hostname, apiKey: settings.apikey, port: sonarrUrl.port || port, urlBase: sonarrUrl.path, ssl: Boolean((sonarrUrl.protocol == 'https:')) });
         const t = this.getNotifiers().then((notifiers) => {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.name] = x; });
@@ -35,7 +36,7 @@ module.exports = class sonarrService {
                     });
                 } else { console.log('[Sonarr] Hook already setup, skipping'); }
             }
-        }).catch((err) => { console.error(err); console.log('[Sonarr] Unable to query for notifiers'); });
+        }).catch((err) => { console.error(err); console.log('[Sonarr] Unable to connect'); });
     }
 
     async getNotifiers() {
@@ -65,6 +66,13 @@ module.exports = class sonarrService {
             return result;
         }
         catch (err) { throw err; }
+    }
+
+    async getHistory() {
+        try {
+            const history = await this._api.get('/history');
+            return history;
+        } catch (err) { throw err; }
     }
 
     async lookupShow(filter) {
@@ -144,8 +152,7 @@ module.exports = class sonarrService {
             const showsMap = Array(allShows.length);
             allShows.map((x) => showsMap[x.tvdbId] = x);
             return showsMap[id];
-        }
-        catch (err) { throw err; }
+        } catch (err) { throw err; }
     }
 
     async searchShow(tvdbId) {

@@ -1,20 +1,19 @@
 const SonarrAPI = require('sonarr-api');
 const host = require('ip').address('public');
+const url = require('url');
 
 module.exports = class radarrService {
     constructor(settings) {
         if (!settings) throw new Error('Settings not provided');
         this._settings = settings;
         const services = require('./services');
-        const settingsService = services.settingsService;
-        const regex = /(?:([A-Za-z]+):)?(?:\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?/g;
-        const details = regex.exec(settings.url);
-        let useSsl = false;
-        let port = 80;
-        if (details[1] == 'https') { useSsl = true; port = 443; }
-        if (details[3] !== undefined) port = details[3];
-        this._api = new SonarrAPI({ hostname: details[2], apiKey: settings.apikey, port: port, urlBase: `${details[4]}`, ssl: useSsl });
-        const allSettings = settingsService.getSettings();
+        const radarrUrl = url.parse(settings.url);
+        let port;
+        if (radarrUrl.port == null) {
+            if (radarrUrl.protocol == 'https:') port = 443;
+            if (radarrUrl.protocol == 'http:') port = 80;
+        }
+        this._api = new SonarrAPI({ hostname: radarrUrl.hostname, apiKey: settings.apikey, port: port || radarrUrl.port, urlBase: radarrUrl.path, ssl: Boolean((radarrUrl.protocol == 'https:')) });
         const t = this.getNotifiers().then((notifiers) => {
             const notifMap = new Array(notifiers.length);
             notifiers.map((x) => { notifMap[x.name] = x; });

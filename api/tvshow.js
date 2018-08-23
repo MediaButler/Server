@@ -9,11 +9,11 @@ router.use(bodyParser.json());
 // POST - Adds TV Show
 // PUT - ???
 // DELETE - Delete's TV Show
-const sonarr = services.sonarrService;
 
 // Returns all Shows in Sonarr
 router.get('/', async (req, res) => {
     try {
+        const sonarr = services.sonarrService;
         const r = await sonarr.getShows();
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
@@ -25,6 +25,7 @@ router.get('/', async (req, res) => {
 // Returns a specific Show in Sonarr
 router.get('/:id', async (req, res) => {
     try {
+        const sonarr = services.sonarrService;
         const r = await sonarr.getShow(req.params.id);
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
@@ -41,6 +42,7 @@ router.delete('/:id', async (req, res) => {
 // Performs a series lookup for adding
 router.get('/:name/lookup', async (req, res) => {
     try {
+        const sonarr = services.sonarrService;
         const r = await sonarr.lookupShow({ name: req.params.name })
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
@@ -53,6 +55,7 @@ router.get('/:name/lookup', async (req, res) => {
 // Download Queue
 router.get('/queue', async (req, res) => {
     try {
+        const sonarr = services.sonarrService;
         const r = await sonarr.getQueue();
         if (!r) throw new Error('No Results Found');
         res.status(200).send(r);
