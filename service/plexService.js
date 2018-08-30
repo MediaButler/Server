@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 module.exports = class plexService {
     constructor(settings, startup = false) {
         if (!settings.url) throw new Error('URL is not set');
-        if (!settings.token) throw new Error('Token not provided');
+        //if (!settings.token) throw new Error('Token not provided');
         const plexUrl = url.parse(settings.url);
         let port;
         if (plexUrl.port == null) {
@@ -44,6 +44,13 @@ module.exports = class plexService {
             if (np.MediaContainer.Metadata) np.MediaContainer.Metadata.map((x) => { nowPlaying[x.sessionKey] = x; });
             //console.log(nowPlaying[sessionKey]);
         }
+    }
+
+    async getIdentity() {
+        try {
+            const res = await this._api.query('/identity')
+            return res;
+        } catch (err) { return false; }
     }
 
     async check() {

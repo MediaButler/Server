@@ -14,34 +14,23 @@ module.exports = class radarrService {
             if (radarrUrl.protocol == 'http:') port = 80;
         }
         this._api = new SonarrAPI({ hostname: radarrUrl.hostname, apiKey: settings.apikey, port: port || radarrUrl.port, urlBase: radarrUrl.path, ssl: Boolean((radarrUrl.protocol == 'https:')) });
-        const t = this.getNotifiers().then((notifiers) => {
-            const notifMap = new Array(notifiers.length);
-            notifiers.map((x) => { notifMap[x.name] = x; });
-            if (!notifMap['MediaButler API']) {
-                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/radarr` : `http://${host}:${process.env.PORT || 9876}/hooks/radarr`;
-                console.log('[Radarr] Hook missing.... Adding');
-                this.addWebhookNotifier();
-            } else {
-                const n = notifMap['MediaButler API'];
-                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/radarr` : `http://${host}:${process.env.PORT || 9876}/hooks/radarr`;
-                if (n.fields[0].value != this.notificatinUrl) {
-                    console.log('[Radarr] Current Webhook is incorrect. Deleting');
-                    this._api.delete(`notification/${n.id}`).then(() => {
-                        console.log('[Radarr] Adding new Webhook');
-                        this.addWebhookNotifier();
-                    })
-                } else { console.log('[Radarr] Hook already setup, skipping'); }
-            }
-        }).catch((err) => { console.log('[Radarr] Unable to query for notifiers'); });
+    }
+
+    async checkSettings() {
+        try {
+            const a = await this.getProfile(this._settings.defaultProfile);
+            const b = await this.getRootPath(this._settings.defaultRoot);
+            return (a && b);
+        } catch (err) { throw err; }
     }
 
     async getNotifiers() {
         return await this._api.get('notification');
     }
 
-    async addWebhookNotifier() {
+    async addWebhookNotifier(notificationUrl) {
         const data = {"onGrab":true,"onDownload":true,"onUpgrade":true,"onRename":true,"supportsOnGrab":true,"supportsOnDownload":true,"supportsOnUpgrade":true,"supportsOnRename":true,
-        "tags":[],"name":"MediaButler API","fields":[{"order":0,"name":"Url","label":"URL","type":"url","advanced":false,"value": this.notificatinUrl},
+        "tags":[],"name":"MediaButler API","fields":[{"order":0,"name":"Url","label":"URL","type":"url","advanced":false,"value": notificationUrl},
         {"order":1,"name":"Method","label":"Method","helpText":"Which HTTP method to use submit to the Webservice","value":2,"type":"select","advanced":false,"selectOptions":[{"value":2,"name":"POST"},
         {"value":1,"name":"PUT"}]},{"order":2,"name":"Username","label":"Username","type":"textbox","advanced":false},{"order":3,"name":"Password","label":"Password","type":"password","advanced":false}],
         "implementationName":"Webhook","implementation":"Webhook","configContract":"WebhookSettings","infoLink":"https://github.com/Radarr/Radarr/wiki/Supported-Notifications#webhook","presets":[]};
@@ -77,6 +66,20 @@ module.exports = class radarrService {
             return profileMap[name];
         }
         catch (err) { throw err; }
+    }
+
+    async getRootPath(path) {
+        try {
+            const allPaths = await this._api.get('rootfolder');
+            let pathMap;
+            if (typeof(allPaths) == 'object') {
+                return allPaths;
+            } else {
+                let pathMap = Array(allPaths.length);
+                allPaths.map((x) => pathMap[x.path] = x);
+                return pathMap[path];
+            }
+        } catch (err) { throw err; }
     }
 
     async lookupMovie(filter) {

@@ -1,6 +1,5 @@
 const SonarrAPI = require('sonarr-api');
 const TVShow = require('../model/tvshow');
-const host = require('ip').address('public');
 const url = require('url');
 
 module.exports = class sonarrService {
@@ -11,42 +10,30 @@ module.exports = class sonarrService {
         if (!settings) throw new Error('Settings not provided');
         this._settings = settings;
         const sonarrUrl = url.parse(settings.url);
-        console.log(sonarrUrl);
         let port;
         if (sonarrUrl.port == null) {
             if (sonarrUrl.protocol == 'https:') port = 443;
             if (sonarrUrl.protocol == 'http:') port = 80;
         }
         this._api = new SonarrAPI({ hostname: sonarrUrl.hostname, apiKey: settings.apikey, port: sonarrUrl.port || port, urlBase: sonarrUrl.path, ssl: Boolean((sonarrUrl.protocol == 'https:')) });
-        const t = this.getNotifiers().then((notifiers) => {
-            const notifMap = new Array(notifiers.length);
-            notifiers.map((x) => { notifMap[x.name] = x; });
-            if (!notifMap['MediaButler API']) {
-                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/sonarr` : `http://${host}:${process.env.PORT || 9876}/hooks/sonarr`;
-                console.log('[Sonarr] Hook missing.... Adding');
-                this.addWebhookNotifier();
-            } else {
-                const n = notifMap['MediaButler API'];
-                this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/sonarr` : `http://${host}:${process.env.PORT || 9876}/hooks/sonarr`;
-                if (n.fields[0].value != this.notificatinUrl) {
-                    console.log('[Sonarr] Current Webhook is incorrect. Deleting');
-                    this._api.delete(`notification/${n.id}`).then(() => {
-                        console.log('[Sonarr] Adding new Webhook');
-                        this.addWebhookNotifier();
-                    });
-                } else { console.log('[Sonarr] Hook already setup, skipping'); }
-            }
-        }).catch((err) => { console.error(err); console.log('[Sonarr] Unable to connect'); });
+    }
+
+    async checkSettings() {
+        try {
+            const a = await this.getProfile(this._settings.defaultProfile);
+            const b = await this.getRootPath(this._settings.defaultRoot);
+            return (a && b);
+        } catch (err) { throw err; }
     }
 
     async getNotifiers() {
         return await this._api.get('notification');
     }
 
-    async addWebhookNotifier() {
+    async addWebhookNotifier(notificationUrl) {
         const data = {
             "onGrab": true, "onDownload": true, "onUpgrade": true, "onRename": true, "supportsOnGrab": true, "supportsOnDownload": true, "supportsOnUpgrade": true, "supportsOnRename": true, "tags": [],
-            "name": "MediaButler API", "fields": [{ "order": 0, "name": "Url", "label": "URL", "type": "url", "advanced": false, "value": this.notificatinUrl }, {
+            "name": "MediaButler API", "fields": [{ "order": 0, "name": "Url", "label": "URL", "type": "url", "advanced": false, "value": notificationUrl }, {
                 "order": 1, "name": "Method",
                 "label": "Method", "helpText": "Which HTTP method to use submit to the Webservice", "value": 1, "type": "select", "advanced": false, "selectOptions": [{ "value": 1, "name": "POST" }, { "value": 2, "name": "PUT" }]
             },
@@ -179,9 +166,23 @@ module.exports = class sonarrService {
             let profileMap = Array(allProfiles.length);
             allProfiles.map((x) => profileMap[x.name] = x);
             return profileMap[name];
-        }
-        catch (err) { throw err; }
+        } catch (err) { throw err; }
     }
+
+    async getRootPath(path) {
+        try {
+            const allPaths = await this._api.get('rootfolder');
+            let pathMap;
+            if (typeof(allPaths) == 'object') {
+                return allPaths;
+            } else {
+                let pathMap = Array(allPaths.length);
+                allPaths.map((x) => pathMap[x.path] = x);
+                return pathMap[path];
+            }
+        } catch (err) { throw err; }
+    }
+
 
     async addShow(show) {
         try {

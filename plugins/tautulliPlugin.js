@@ -1,35 +1,38 @@
 const express = require('express');
 const basePlugin = require('./base');
 const services = require('../service/services');
+const tautulliService = require('../service/tautulliService');
 
 module.exports = class tautulliPlugin extends basePlugin {
-    constructor() {
+    constructor(app) {
         const info = {
             'name': 'tautulli',
-            'requires': {
-                'services': ['tautulliService', 'notificationService', 'rulesService'],
-            }
         };
-        super(info);
+        super(info, app);
     }
 
     async startup() {
-        // Designed for creation and enabling.
-        this.previousPlaying = false;
-        this.tautulliService = services.tautulliService;
-        this.notificationService = require('../service/notificationService');
         try {
+            this.previousPlaying = false;
+            this.tautulliService = new tautulliService(this.settings);
+            services.tautulliService = this.tautulliService;
+            this.notificationService = require('../service/notificationService');    
             const t = await this.tautulliService.getNotifiers();
             const notifMap = new Array(t.data.length);
+            const notificationUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/tautulli` : `http://${host}:${process.env.PORT || 9876}/hooks/tautulli`;
             t.data.map((x) => { notifMap[x.friendly_name] = x; });
             if (!notifMap['MediaButler API']) {
-                this.tautulliService.addScriptNotifier();
+                await this.tautulliService.addScriptNotifier(notificationUrl);
+                this.enabled = true;
             } else {
-                // Verify url is correct
-                console.log('Tautulli Plugin Setup');
+                const id = notifMap['MediaButler API'].id;
+                const data = await this.tautulliService.getNotifierConfig(id);
+                if (data.config_options[0].value != notificationUrl) {
+                    this.tautulliService.setNotifierConfig(id, notificationUrl);
+                }
                 this.enabled = true;
             }
-        } catch (err) { throw err; }
+        } catch (err) { this.enabled = false; }
         return;
     }
 
@@ -45,7 +48,6 @@ module.exports = class tautulliPlugin extends basePlugin {
             }
         });
         router.get('/library', async (req, res) => {
-
         });
         return router;
     }
@@ -69,23 +71,52 @@ module.exports = class tautulliPlugin extends basePlugin {
     }
 
     async configure(settings) {
-        // Verify all layers of settings are correct. Include query to service. Then call super. Else return false
+        this.settings = settings;
         const router = express.Router();
-        router.post('/', async (req, res) => { });
-        router.put('/', async (req, res) => { });
+        router.post('/', async (req, res) => {
+            try {
+                if (!req.user.owner) throw new Error('Unauthorized');
+                if (!req.body.url) throw new Error('No url Provided');
+                if (!req.body.apikey) throw new Error('No apikey Provided');
+                const tempSettings = { url: req.body.url, apikey: req.body.apikey }
+                const t = new tautulliService(tempSettings);
+                const r = await t.checkSettings();
+                if (r) {
+                    const t = await super.saveSettings(tempSettings);
+                    this.settings = tempSettings;
+                    await this.startup();
+                    return res.status(200).send({ message: 'success', settings: tempSettings });
+                } else return res.status(400).send({ name: 'Error', message: 'Unable to connect' });
+            } catch (err) { return res.status(400).send(err); }
+        });
+        router.put('/', async (req, res) => {
+            try {
+                if (!req.user.owner) throw new Error('Unauthorized');
+                if (!req.body.url) throw new Error('No url Provided');
+                if (!req.body.apikey) throw new Error('No apikey Provided');
+                const tempSettings = { url: req.body.url, apikey: req.body.apikey }
+                const t = new tautulliService(tempSettings);
+                const r = await t.checkSettings();
+                if (r) return res.status(200).send({ message: 'success', settings: tempSettings });
+                else return res.status(400).send({ name: 'Error', message: 'Unable to connect' });
+            } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
+        });
         router.get('/', async (req, res) => {
-            const data = {
-                schema: [{
-                    name: 'url',
-                    tyoe: 'url'
-                }, 
-                { 
-                    name: 'apikey', 
-                    type: 'string' 
-                }],
-                settings
-            }
-            res.status(200).send(data);
+            try {
+                if (!req.user.owner) throw new Error('Unauthorized');
+                const data = {
+                    schema: [{
+                        name: 'url',
+                        type: 'url'
+                    },
+                    {
+                        name: 'apikey',
+                        type: 'secure-string'
+                    }],
+                    settings
+                }
+                return res.status(200).send(data);
+            } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
         });
         return router;
     }

@@ -30,7 +30,7 @@ module.exports = class rulesService {
     }
 
     getAllRules() {
-        const allRules = new Array(rules.size - 1);
+        const allRules = new Array();
         Array.from(rules.values()).forEach((x) => { allRules.push(x.info); });
         return allRules;
     }

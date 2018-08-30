@@ -22,6 +22,20 @@ module.exports = class tautulliService {
 
     }
 
+    async getNotifierConfig(notifierId) {
+        try {
+            const res = await this._api('get_notifier_config', { notifier_id: notifierId });
+            return res.data.response.data;
+        } catch (err) { throw err; }
+    }
+
+    async checkSettings() {
+        try {
+            const res = await this._api('get_activity', {});
+            return Boolean(res.data.response.result === 'success');
+        } catch (err) { throw err; }
+    }
+
     async getNowPlaying() {
         try {
             const res = await this._api('get_activity', {});
@@ -88,31 +102,31 @@ module.exports = class tautulliService {
         } catch (err) { throw err; }
     }
 
-    async addScriptNotifier() {
+    async setNotifierConfig(id, notificationUrl) {
+        try {
+            const data = {
+                notifier_id: id, agent_id: 25, webhook_hook: notificationUrl, webhook_method: "POST",
+                friendly_name: "MediaButler API", on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
+                on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
+                on_play_body: sendObj, on_stop_body: sendObj, on_pause_body: sendObj, on_resume_body: sendObj,
+                on_watched_body: sendObj, on_buffer_body: sendObj, on_concurrent_body: sendObj, on_newdevice_body: sendObj,
+            };
+            const t = await this._post('set_notifier_config', data);
+            return t;
+        } catch (err) { throw err; }
+    }
+
+    async addScriptNotifier(notificationUrl) {
         try {
             const sendObj = await fs.readFileSync(`${process.cwd()}/tautulli.txt`, 'utf8');
-            const services = require('./services');
-            this.notificatinUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/tautulli` : `http://${host}:${process.env.PORT || 9876}/hooks/tautulli`;
             const before = await this.getNotifiers();
             const beforeMap = new Array(before.data.length);
             before.data.map((x) => { beforeMap[x.id] = x; });
             const res = await this._api('add_notifier_config', { agent_id: 25 });
-            console.log('[Tautulli] Adding new Webhook');
             const after = await this.getNotifiers();
             const afterArr = after.data;
             afterArr.forEach((item) => {
-                if (!Boolean(beforeMap[item.id])) {
-                    const data = {
-                        notifier_id: item.id, agent_id: 25, webhook_hook: this.notificatinUrl, webhook_method: "POST",
-                        friendly_name: "MediaButler API", on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
-                        on_intup: 0, on_extdown: 0, on_extup: 0, on_pmsupdate: 0, on_plexpyupdate: 0, parameter: '', custom_conditions: "%5B%7B%22operator%22%3A%22%22%2C%22parameter%22%3A%22%22%2C%22value%22%3A%22%22%7D%5D",
-                        on_play_body: sendObj, on_stop_body: sendObj, on_pause_body: sendObj, on_resume_body: sendObj,
-                        on_watched_body: sendObj, on_buffer_body: sendObj, on_concurrent_body: sendObj, on_newdevice_body: sendObj,
-                    };
-                    const t = this._post('set_notifier_config', data).then((res) => {
-                        console.log('[Tautulli] Setting Webhook');
-                    }).catch((err) => { console.error(err); throw err; });
-                }
+                if (!Boolean(beforeMap[item.id])) this.setNotifierConfig(item.id, notificationUrl);
             });
             return false;
         } catch (err) { throw err; }

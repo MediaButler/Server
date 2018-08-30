@@ -6,7 +6,8 @@ console.log("\n"
     + "██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║██████╔╝╚██████╔╝   ██║   ███████╗███████╗██║  ██║ \n"
     + "╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝ \n");
 
-const host = process.env.HOST || false;
+const ip = require('ip').address('public');
+const host = process.env.HOST || ip;
 const port = process.env.PORT || 9876;
 const mongoose = require('mongoose');
 const express = require('express');
@@ -16,25 +17,21 @@ const io = require('socket.io')(server, { path: '/socket.io' });
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
-const jwt = require('jsonwebtoken');
 const os = require('os');
 const bodyParser = require('body-parser');
 var ioJwtAuth = require('socketio-jwt');
 const fs = require('fs');
-const ip = require('ip').address('public');
-
 const services = require('./service/services');
 const settings = services.settings;
 const plexService = require('./service/plexService');
-
-const options = {
+const databaseOptions = {
     autoIndex: false, reconnectTries: 30, reconnectInterval: 500,
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true
 }
 
 const connectDatabase = () => {
     console.log('Attempting to connect to database')
-    mongoose.connect(process.env.DB_URL || settings.database, options).then(() => {
+    mongoose.connect(process.env.DB_URL || settings.database, databaseOptions).then(() => {
         console.log('Database is connected');
     }).catch((err) => {
         console.log('Database connection unsuccessful, will retry after 5 seconds.')
@@ -56,10 +53,22 @@ passport.use(new JWTStrategy({
         if (jwtPayload.owner && !settings.plex.token) {
             settings.plex.token = jwtPayload.token;
             services.settingsService._saveSettings(settings);
+            services.adminPlexService = ps;
         }
         return cb(null, user);
     }).catch((err) => { return cb(null, false, 'Unable to validate user'); });
 }));
+
+app.use((err, req, res, next) => {
+    return res.status(500).send(err);
+});
+app.use((req, res, next) => {
+    res.append('Access-Control-Allow-Origin', ['*']);
+    res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.append('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.append('Access-Control-Allow-Credentials', 'true');
+    next();
+});
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }));
@@ -67,9 +76,9 @@ app.use(passport.initialize());
 app.set('json spaces', 2);
 app.set('base', '/mediabutler/');
 
-const pluginMap = new Map();
+const plugins = new Map();
 
-async function asyncForEach(array, callback) {
+const asyncForEach = async (array, callback) => {
     for (let index = 0; index < array.length; index++) {
         await callback(array[index], index, array)
     }
@@ -82,46 +91,44 @@ const loadPlugins = async () => {
     asyncForEach(dir, async (file) => {
         if (file == 'base.js') return;
         const p = require(`./plugins/${file}`);
-        const plugin = new p();
+        const plugin = new p(app);
+        const configure = await plugin.configure(eval(`settings.${plugin.info.name}`));
+        app.use(`/configure/${plugin.info.name}`, passport.authenticate('jwt', { session: false }), configure);
         console.log(`Attempting to load ${plugin.info.name} plugin`);
-        pluginMap.set(plugin.info.name, plugin);
-        const s = await plugin.startup();
-        if (plugin.enabled) {
-            if (typeof (plugin.hook) == 'function') { 
-                const hook = await plugin.hook(); 
-                if (hook) app.use(`/hooks/${plugin.info.name}`, hook);
-             }
-            const api = await plugin.api();
-            app.use(`/${plugin.info.name}`, passport.authenticate('jwt', { session: false }), api);
-            const configure =  await plugin.configure(eval(`settings.${plugin.info.name}`));
-            app.use(`/configure/${plugin.info.name}`, passport.authenticate('jwt', { session: false }), configure);
-            console.log(`Sucessfully loadad ${plugin.info.name} plugin`);
-        } else {
-            console.log(`Plugin ${plugin.info.name} is improperly configured. Not enabling`);
+        if (typeof (plugin.hook) == 'function') {
+            const hook = await plugin.hook();
+            if (hook) app.use(`/hooks/${plugin.info.name}`, hook);
         }
+        const s = await plugin.startup();
+        const api = await plugin.api();
+        app.use(`/${plugin.info.name}`, passport.authenticate('jwt', { session: false }), api);
+        plugins.set(plugin.info.name, plugin);
+        if (plugin.enabled) console.log(`Sucessfully loadad ${plugin.info.name} plugin`);
+        else console.log(`Plugin ${plugin.info.name} is improperly configured. Not enabling`);
     });
 }
 
+const pluginStatus = (req, res, next) => {
+    const plugin = req.path.split('/')[1];
+    const p = plugins.get(plugin);
+    if (plugin == 'hooks' || plugin == 'configure' || plugin == 'version' || plugin == undefined) return next();
+    if (p.enabled) next();
+    else res.status(400).send({ name: 'NotEnabled', message: 'Plugin is not enabled' }).end();
+}
+app.use(pluginStatus);
+
 setTimeout(() => {
     loadPlugins();
-}, 10000);
-
-const tvShowController = require('./api/tvshow');
-app.use('/tvshow', passport.authenticate('jwt', { session: false }), tvShowController);
-const movieController = require('./api/movie');
-app.use('/movie', passport.authenticate('jwt', { session: false }), movieController);
-const statsController = require('./api/stats');
-app.use('/stats', passport.authenticate('jwt', { session: false }), statsController);
-const hooksController = require('./api/hooks');
-app.use('/hooks', hooksController);
-const requestController = require('./api/request');
-app.use('/request', passport.authenticate('jwt', { session: false }), requestController);
-const rulesController = require('./api/rules');
-app.use('/rules', passport.authenticate('jwt', { session: false }), rulesController);
-
+}, 3000);
 
 app.get('/', (req, res) => {
-    console.log(req); res.send('Hello World.');
+    console.log(req); 
+    res.send('Hello World.');
+});
+
+app.post('/system/restart', (req, res) => {
+    loadPlugins();
+    return res.status(200);
 });
 
 app.get('/version', (req, res) => {
@@ -130,10 +137,10 @@ app.get('/version', (req, res) => {
         systemOS: os.platform(),
         uptime: os.uptime(),
         url: (settings.urlOverride) ? settings.urlOverride : `http://${ip}:${port}/`,
-        plugins: Array.from(pluginMap.keys())
+        plugins: Array.from(plugins.keys())
     };
     return res.status(200).send(v);
-});
+});  
 
 const notifyService = io
     .on('connection', ioJwtAuth.authorize({
@@ -149,6 +156,7 @@ const notifyService = io
             if (user.owner && !settings.plex.token) {
                 settings.plex.token = user.token;
                 services.settingsService._saveSettings(settings);
+                services.adminPlexService = ps;
             }
             if (!nService.sockets[user.username]) nService.sockets[user.username] = [socket];
             else nService.sockets[user.username].push(socket);
@@ -158,7 +166,7 @@ const notifyService = io
                 nService.sockets[user.username].splice(idx, 1);
                 console.log(`User ${user.username} disconnected. Now has ${nService.sockets[user.username].length} connections`);
             });
-        }).catch((err) => { socket.emit('unauthorized'); sokcet.disconnect(); });
+        }).catch((err) => { socket.emit('unauthorized'); socket.disconnect(); });
     });
 
 const nService = require('./service/notificationService');

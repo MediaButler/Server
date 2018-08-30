@@ -1,45 +1,45 @@
-// Sends and receives notifictions
-// Only one exists
 const settingsService = require('./settingsService');
 const ss = new settingsService();
 const settings = ss.getSettings();
-const tautulliService = require('./tautulliService');
-const sonarrService = require('./sonarrService');
-const radarrService = require('./radarrService');
-const requestService = require('./requestService');
-const rulesService = require('./rulesService');
-const plexService = require('./plexService');
-let tautulli;
-let sonarr;
-let radarr;
-let request;
-let rules;
-let adminPlex;
-
-setTimeout(() => {
-  adminPlex = new plexService(settings.plex, true);
-  tautulli = new tautulliService(settings.tautulli);
-  sonarr = new sonarrService(settings.sonarr);
-  radarr = new radarrService(settings.radarr);
-  request = new requestService(settings, sonarr, radarr, true);
-  rules = new rulesService();
-}, 2000);
+const notificationService = require('../service/notificationService');
+let tautulli = false;
+let sonarr = false;
+let radarr = false;
+let request = false;
+let rules = false;
+let adminPlex = false;
 
 module.exports = class settingsService {
   static get tautulliService() {
     return tautulli;
   }
 
+  static set tautulliService(data) {
+    tautulli = data;
+  }
+
   static get sonarrService() {
     return sonarr;
+  }
+
+  static set sonarrService(data) {
+    sonarr = data;
   }
 
   static get radarrService() {
     return radarr;
   }
 
+  static set radarrService(data) {
+    radarr = data;
+  }
+
   static get requestService() {
     return request;
+  }
+
+  static set requestService(data) {
+    request = data;
   }
 
   static get settingsService() {
@@ -50,8 +50,20 @@ module.exports = class settingsService {
     return adminPlex;
   }
 
+  static set adminPlexService(data) {
+    adminPlex = data;
+  }
+
   static get rulesService() {
     return rules;
+  }
+
+  static set rulesService(data) {
+    rules = data;
+  }
+
+  static get notificationService() {
+    return notificationService;
   }
 
   static get settings() {

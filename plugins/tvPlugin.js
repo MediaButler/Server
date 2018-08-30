@@ -2,11 +2,11 @@ const express = require('express');
 const basePlugin = require('./base');
 
 module.exports = class tvPlugin extends basePlugin {
-    constructor() {
+    constructor(app) {
         const info = {
             'name': 'tv',
         };
-        super(info);
+        super(info, app);
     }
 
     async startup() {
@@ -15,6 +15,11 @@ module.exports = class tvPlugin extends basePlugin {
 
     async api() {
         const router = express.Router();
+        router.get('/', async (req, res) => { 
+            try {
+                if (!req.params.query) throw new Error('No Query provided');
+            } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
+        });
         return router;
     }
 
@@ -31,7 +36,14 @@ module.exports = class tvPlugin extends basePlugin {
         const router = express.Router();
         router.post('/', async (req, res) => { });
         router.put('/', async (req, res) => { });
-        router.get('/', async (req, res) => { });
+        router.get('/', async (req, res) => {
+            if (!req.user.owner) throw new Error('Unauthorized');
+            const data = {
+                schema: [],
+                settings: {}
+            }
+            return res.status(200).send(data);
+         });
         return router;
     }
 }
