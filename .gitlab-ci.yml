@@ -14,7 +14,6 @@ build_docker:
   - docker info
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
-    - docker push vertig0ne/mediabutler-api:latest
 build_npm:
   image: node:4.2.2
   stage: build
