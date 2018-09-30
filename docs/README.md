@@ -41,6 +41,17 @@ You will need:
 
 ### Docker Installation
 
+#### Native Docker
+
+    docker create \ 
+        --name=mongo
+        
+    docker create \
+        --name=mediabutler
+        -v ${HOME}/docker/mediabutler:/config:rw
+        -p 9876:9876
+
+#### Docker Compose
     ---
     version: '2'
     networks:
@@ -89,6 +100,7 @@ This project couldn't have been completed without a ton of blood sweat and tears
  - Radarr development team. You guys took Sonarr and made it something special for Movies and oh my how special it is.
  - The entire Plex team. Without Plex, MediaButer wouldnt exist. It's plain and simple.
  - Organizr "inner circle". Friendly advice, put up with all our complaining, but understood the quest we were on and wanted to help in every which way. Much love to all of you.
- - Ombi team. For showing there is a need for extra services, and also showing that a system needs tighter integrations all over
+ - Ombi team. For showing there is a need for extra services, and also showing that a system needs tighter integrations all over.
+ - The JDM_WAAAT community. For being that distraction every single time it was necessary
  - All Alpha and Beta testers. It's been a bumpy road but we thank you for your support in making sure we bring out good working code for everyone to use.
  - and Finally.... YOU. The end-user. We can only hope you enjoy the fruits of our labour and hopefully we can continue to make MediaButler the application we all want it to be!
