@@ -19,19 +19,20 @@ build_npm:
   stage: build
   script:
     - npm install
-    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - npm run ci-publish || true
 test_docker:
   stage: test
   script:
     - echo "Should have tested Docker"
 test_npm:
+  image: node:4.2.2
   stage: test
   script:
     - echo "Should have run npm test"
 deploy_npm:
   stage: deploy
+  image: node:4.2.2
   script:
+    - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - npm run ci-publish || true
 deploy_docker:
