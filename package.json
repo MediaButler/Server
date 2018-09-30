@@ -1,6 +1,6 @@
 {
   "name": "mediabutler-api",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "API interface for MediaButler",
   "main": "server.js",
   "scripts": {
