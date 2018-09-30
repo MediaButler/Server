@@ -1,10 +1,12 @@
-image: node:4.2.2
-install:
-  script:
-   - npm install
-docker:
-  before_script:
+image: docker:stable
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+services:
+  - docker:dind
+before_script:
   - docker info
+build:
+  stage: build
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
-    - docker push vertig0ne/mediabutler-api:latest
