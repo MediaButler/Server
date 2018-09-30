@@ -18,3 +18,5 @@ build_npm:
   stage: build_npm
   script:
     - npm install
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm publish
