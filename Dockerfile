@@ -14,7 +14,7 @@ RUN apk add --no-cache build-base \
         nodejs-npm \
         su-exec \
         python \
-        nodejs \
+        nodejs-current \
         openssl \
         ca-certificates \
     && cd /app \

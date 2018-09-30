@@ -4,7 +4,10 @@ const settings = ss.getSettings();
 const notificationService = require('../service/notificationService');
 let tautulli = false;
 let sonarr = false;
+let sonarr4k = false;
 let radarr = false;
+let radarr3d = false;
+let radarr4k = false;
 let request = false;
 let rules = false;
 let adminPlex = false;
@@ -26,6 +29,14 @@ module.exports = class settingsService {
     sonarr = data;
   }
 
+  static get sonarr4kService() {
+    return sonarr4k;
+  }
+
+  static set sonarr4kService(data) {
+    sonarr4k = data;
+  }
+
   static get radarrService() {
     return radarr;
   }
@@ -33,6 +44,23 @@ module.exports = class settingsService {
   static set radarrService(data) {
     radarr = data;
   }
+
+  static get radarr3dService() {
+    return radarr3d;
+  }
+
+  static set radarr3dService(data) {
+    radarr3d = data;
+  }
+
+  static get radarr4kService() {
+    return radarr4k;
+  }
+
+  static set radarr4kService(data) {
+    radarr4k = data;
+  }
+
 
   static get requestService() {
     return request;

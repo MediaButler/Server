@@ -2,6 +2,7 @@ const express = require('express');
 const basePlugin = require('./base');
 const services = require('../service/services');
 const tautulliService = require('../service/tautulliService');
+const host = require('ip').address('public');
 
 module.exports = class tautulliPlugin extends basePlugin {
     constructor(app) {
@@ -16,7 +17,7 @@ module.exports = class tautulliPlugin extends basePlugin {
             this.previousPlaying = false;
             this.tautulliService = new tautulliService(this.settings);
             services.tautulliService = this.tautulliService;
-            this.notificationService = require('../service/notificationService');    
+            this.notificationService = require('../service/notificationService');
             const t = await this.tautulliService.getNotifiers();
             const notifMap = new Array(t.data.length);
             const notificationUrl = (services.settings.urlOverride) ? `${services.settings.urlOverride}hooks/tautulli` : `http://${host}:${process.env.PORT || 9876}/hooks/tautulli`;
@@ -32,7 +33,7 @@ module.exports = class tautulliPlugin extends basePlugin {
                 }
                 this.enabled = true;
             }
-        } catch (err) { this.enabled = false; }
+        } catch (err) { console.error(err); this.enabled = false; }
         return;
     }
 
@@ -41,13 +42,33 @@ module.exports = class tautulliPlugin extends basePlugin {
         router.get('/activity', async (req, res) => {
             try {
                 const r = await this.tautulliService.getNowPlaying();
-                if (!r) throw new Error('No Results Found');
-                res.status(200).send(r);
+                if (!req.user.owner) {
+                    r.data.sessions.forEach((session) => {
+                        if (session.username != req.user.username) {
+                            session.user_id = 0;
+                            session.username = "Plex User";
+                            session.ip_address = "0.0.0.0";
+                            session.user = "Plex User";
+                            session.email = "Plex User";
+                            session.friendly_name = "Plex User";
+                            session.user_thumb = "";
+                            session.ip_address_public = "0.0.0.0";
+                        }
+                    });
+                }
+                return res.status(200).send(r);
+            } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
+        });
+        router.get('/library', async (req, res) => {
+            try {
+                const r = await this.tautulliService.getLibraryStats();
+                return res.status(200).send(r);
             } catch (err) {
                 return res.status(500).send({ name: err.name, message: err.message });
             }
         });
-        router.get('/library', async (req, res) => {
+        router.get('/history', async (req, res) => {
+
         });
         return router;
     }
@@ -86,8 +107,8 @@ module.exports = class tautulliPlugin extends basePlugin {
                     this.settings = tempSettings;
                     await this.startup();
                     return res.status(200).send({ message: 'success', settings: tempSettings });
-                } else return res.status(400).send({ name: 'Error', message: 'Unable to connect' });
-            } catch (err) { return res.status(400).send(err); }
+                } else return res.status(400).send({ name: 'error', message: 'Unable to connect' });
+            } catch (err) { return res.status(400).send({ name: 'error', message: 'Unable to connect' }); }
         });
         router.put('/', async (req, res) => {
             try {
@@ -98,8 +119,8 @@ module.exports = class tautulliPlugin extends basePlugin {
                 const t = new tautulliService(tempSettings);
                 const r = await t.checkSettings();
                 if (r) return res.status(200).send({ message: 'success', settings: tempSettings });
-                else return res.status(400).send({ name: 'Error', message: 'Unable to connect' });
-            } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
+                else return res.status(400).send({ name: 'error', message: 'Unable to connect' });
+            } catch (err) { return res.status(400).send({ name: 'error', message: 'Unable to connect' }); }
         });
         router.get('/', async (req, res) => {
             try {

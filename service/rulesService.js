@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Rule = require('../model/rule');
+const path = require('path');
 const services = require('./services');
 const rules = new Map();
 
@@ -9,10 +10,10 @@ module.exports = class rulesService {
     }
 
     async _load() {
-        const dir = await fs.readdirSync(`${process.cwd()}/rules`);
+        const dir = await fs.readdirSync(path.join(__dirname, '../', 'rules'));
         dir.forEach(element => {
             if (element == 'base.js') return;
-            const rule_load = require(`../rules/${element}`);
+            const rule_load = require(path.join(__dirname, '../', 'rules', element));
             const rule = new rule_load();
             rules.set(`${rule.info.id}`, rule);
         });

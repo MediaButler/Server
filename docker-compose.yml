@@ -1,34 +1,25 @@
 ---
 version: '2'
 networks:
-  mb:
-    driver: bridge
+    backend:
+        driver: bridge
+    general:
+        driver: bridge
 services:
     mediabutler-api:
         container_name: "mediabutler-api"
         image: vertig0ne/mediabutler-api:latest
         hostname: mediabutler-api
         environment:
-            - "URL=https://onemedia.club/mediabutler/"
+            - "URL=https://example.com/mediabutler/"
             - "DB_URL=mongodb://mongo:27017/mediabutler"
             - "PLEX_MACHINE_ID=PLEX_MACHINE_ID_HERE"
-            - "PLEX_URL=http://192.168.1.103:32400/"
-            - "TAUTULLI_URL=http://192.168.1.103:8181/tautulli/"
-            - "TAUTULLI_KEY="
-            - "SONARR_URL=http://192.168.1.103:8686/sonarr/"
-            - "SONARR_KEY="
-            - "SONARR_PROFILE_NAME="
-            - "SONARR_ROOT_PATH="
-            - "RADARR_URL=https://192.168.1.103:7878/radarr/"
-            - "RADARR_KEY="
-            - "RADARR_PROFILE_NAME="
-            - "RADARR_ROOT_PATH="
-            - "ORGANIZR_URL=https://onemedia.club/"
-            - "ORGANIZR_KEY="
+            - "PLEX_URL=http://192.168.1.100:32400/"
         volumes:
-            - ${HOME}/docker/mediabutler:/config:rw
+            - ${HOME}/docker/mediabutler/api:/config:rw
         networks:
-            - mb
+            - general
+            - backend
         ports:
             - 9876:9876
         links:
@@ -44,14 +35,20 @@ services:
             - MONGO_LOG_DIR=/dev/null
             - MONGO_URL=mongodb://mongo:27017/
         volumes:
-            - ${HOME}/docker/mediabutler/db:/data/db:rw
+            - ${HOME}/docker/mediabutler/mongodb:/data/db:rw
         networks:
-            - mb
+            - backend
         command: mongod --smallfiles --bind_ip_all
-    mediabutler-discord:
-        container_name: "mediabutler-discord"
-        image: vertig0ne/mediabutler-api:bot-latest
-        environment:
-            - TOKEN=DISCORD_TOKEN_HERE
+    influx:
+        image: influxdb:latest
+        container_name: influx
+        hostname: influx
+        envrionment:
+            - SOMETHTING=here
+        ports:
+            - 8086:8086
         volumes:
-            - ${HOME}/docker/mediabutler/bot:/config:rw
+            - ${HOME}/docker/mediabutler/influxdb:/var/lib/influxdb
+        networks:
+            - backend
+        command: influxdb

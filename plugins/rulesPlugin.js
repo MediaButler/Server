@@ -41,7 +41,6 @@ module.exports = class rulesPlugin extends basePlugin {
         // Adds a rule to username
         router.post('/:username', async (req, res) => {
             try {
-                
                 if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
                 if (!req.body.ruleId) return res.status(401).send({ name: 'Bad Request', message: 'RuleId not provided' });
                 const r = await services.rulesService.addRule(req.params.username, req.body.ruleId, req.body.argument || null);
@@ -52,7 +51,8 @@ module.exports = class rulesPlugin extends basePlugin {
         // Updates a rule to username
         router.put('/:username', async (req, res) => {
             try {
-                
+                if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+
                 return res.status(200).send(r);
             } catch (err) {
                 return res.status(500).send({ name: err.name, message: err.message });
@@ -60,10 +60,12 @@ module.exports = class rulesPlugin extends basePlugin {
         });
 
         // Deletes a rule from username
-        router.delete('/:username', async (req, res) => {
+        router.delete('/:username/:id', async (req, res) => {
             try {
-                
-                return res.status(200).send(r);
+                if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+                const r = await services.rulesService.getRules(req.params.username);
+                const d = await services.rulesService.deleteRule(req.params.username, req.params.id);
+                return res.status(200).send({ name: 'OK', message: 'Deleted' });
             } catch (err) {
                 return res.status(500).send({ name: err.name, message: err.message });
             }

@@ -4,20 +4,19 @@ const services = require('../service/services');
 const sonarrService = require('../service/sonarrService');
 const host = require('ip').address('public');
 
-module.exports = class sonarrPlugin extends basePlugin {
+module.exports = class sonarr4KPlugin extends basePlugin {
     constructor(app) {
         const info = {
-            'name': 'sonarr',
+            'name': 'sonarr4k',
             'requestTarget': true,
         };
         super(info, app);
     }
-
     async startup() {
         try {
-            const settings = services.settings;  
-            this.service = new sonarrService(this.settings);;  
-            services.sonarrService = this.service;
+            const settings = services.settings;
+            this.service = new sonarrService(this.settings);  
+            services.sonarr4kService = this.service;
             const notifiers = await this.service.getNotifiers();
             const notificationUrl = (settings.urlOverride) ? `${settings.urlOverride}hooks/${this.info.name}/` : `http://${host}:${process.env.PORT || 9876}/hooks/${this.info.name}/`;
             const notifMap = Array(notifiers.length);
@@ -25,12 +24,14 @@ module.exports = class sonarrPlugin extends basePlugin {
             if (!notifMap['MediaButler API']) {
                 const t = await this.service.addWebhookNotifier(notificationUrl);
                 if (t) this.enabled = true;
+                return;
             } else {
                 const n = notifMap['MediaButler API'];
                 if (n.fields[0].value != notificationUrl) {
                     const d = await this.service._api.delete(`notification/${n.id}`);
                     const t = await this.service.addWebhookNotifier(notificationUrl);
                     if (t) this.enabled = true;
+                    return;
                 } else { this.enabled = true; }
             }
         } catch (err) { console.error(err); this.enabled = false; }
@@ -113,13 +114,13 @@ module.exports = class sonarrPlugin extends basePlugin {
         const router = express.Router();
         router.post('/', async (req, res) => {
             try {
-                services.notificationService.emit('sonarr', req.body);
+                services.notificationService.emit('sonarr4k', req.body);
                 return res.status(200).send('OK');;
             } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
         });
         router.put('/', async (req, res) => {
             try {
-                services.notificationService.emit('sonarr', req.body);
+                services.notificationService.emit('sonarr4k', req.body);
                 return res.status(200).send('OK');;
             } catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
         });
@@ -131,8 +132,7 @@ module.exports = class sonarrPlugin extends basePlugin {
     }
 
     async configure(settings) {
-        this.settings = settings;
-        // Verify all layers of settings are correct. Include query to service. Then call super. Else return false
+        this.settings = (settings) ? settings : { url: '', apikey: '', defaultProfile: '', defaultRoot: '' };
         const router = express.Router();
         router.post('/', async (req, res) => {
             try {
@@ -156,8 +156,8 @@ module.exports = class sonarrPlugin extends basePlugin {
         router.put('/', async (req, res) => {
             try {
                 if (!req.user.owner) throw new Error('Unauthorized');
-                if (!req.body.url) throw new Error('`url` Not Provided');
-                if (!req.body.apikey) throw new Error('`apikey` Not Provided');
+                if (!req.body.url) throw new Error('url Not Provided');
+                if (!req.body.apikey) throw new Error('apikey Not Provided');
                 if (!req.body.defaultProfile) throw new Error('defaultProfile Not Provided');
                 if (!req.body.defaultRoot) throw new Error('defaultRoot Not Provided');
                 const tempSettings = { url: req.body.url, apikey: req.body.apikey, defaultProfile: req.body.defaultProfile, defaultRoot: req.body.defaultRoot };
@@ -187,7 +187,7 @@ module.exports = class sonarrPlugin extends basePlugin {
                         name: 'defaultRoot',
                         type: 'string'
                     }],
-                    settings
+                    settings: this.settings
                 }
                 return res.status(200).send(data);
             } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }

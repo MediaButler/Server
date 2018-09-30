@@ -3,6 +3,7 @@ const host = require('ip').address('public');
 const FormData = require('form-data');
 const fs = require('fs');
 const jtfd = require('json-to-form-data');
+const path = require('path');
 
 module.exports = class tautulliService {
     constructor(settings) {
@@ -57,6 +58,13 @@ module.exports = class tautulliService {
         catch (err) { throw err; }
     }
 
+    async getLibraryStats() {
+        try {
+            const r = await this._api('get_libraries', {});
+            return r.data.response;
+        } catch (err) { throw err; }
+    }
+
     async getUserStats(user) {
         try {
             const r = await this._getUserId(user);
@@ -104,6 +112,7 @@ module.exports = class tautulliService {
 
     async setNotifierConfig(id, notificationUrl) {
         try {
+            const sendObj = await fs.readFileSync(path.join(__dirname, '../', 'tautulli.txt'), 'utf8');
             const data = {
                 notifier_id: id, agent_id: 25, webhook_hook: notificationUrl, webhook_method: "POST",
                 friendly_name: "MediaButler API", on_play: 1, on_stop: 1, on_pause: 1, on_resume: 1, on_watched: 1, on_buffer: 1, on_concurrent: 1, on_newdevice: 1, on_created: 0, on_intdown: 0,
@@ -118,7 +127,7 @@ module.exports = class tautulliService {
 
     async addScriptNotifier(notificationUrl) {
         try {
-            const sendObj = await fs.readFileSync(`${process.cwd()}/tautulli.txt`, 'utf8');
+            const sendObj = await fs.readFileSync(path.join(__dirname, '../', 'tautulli.txt'), 'utf8');
             const before = await this.getNotifiers();
             const beforeMap = new Array(before.data.length);
             before.data.map((x) => { beforeMap[x.id] = x; });

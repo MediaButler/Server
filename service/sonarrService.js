@@ -4,9 +4,6 @@ const url = require('url');
 
 module.exports = class sonarrService {
     constructor(settings) {
-        const services = require('./services');
-        const settingsService = services.settingsService;
-
         if (!settings) throw new Error('Settings not provided');
         this._settings = settings;
         const sonarrUrl = url.parse(settings.url);
@@ -16,12 +13,21 @@ module.exports = class sonarrService {
             if (sonarrUrl.protocol == 'http:') port = 80;
         }
         this._api = new SonarrAPI({ hostname: sonarrUrl.hostname, apiKey: settings.apikey, port: sonarrUrl.port || port, urlBase: sonarrUrl.path, ssl: Boolean((sonarrUrl.protocol == 'https:')) });
+        this._cacheTimer = setTimeout((() => { this.purgeCacheTimer(); }), (60 * 60) * 1000);
+    }
+
+    async purgeCacheTimer() {
+        this.cache = false;
+        clearTimeout(this._cacheTimer);
+        this._cacheTimer = setTimeout((() => { this.purgeCacheTimer(); }), (120 * 60) * 1000);
     }
 
     async checkSettings() {
         try {
             const a = await this.getProfile(this._settings.defaultProfile);
             const b = await this.getRootPath(this._settings.defaultRoot);
+            if (!a) throw Error('Profile Not Found');
+            if (!b) throw Error('Rootpath Not Found')
             return (a && b);
         } catch (err) { throw err; }
     }
@@ -117,8 +123,11 @@ module.exports = class sonarrService {
 
     async getShows() {
         try {
-            const result = await this._api.get('series', {});
+            let result = [];
+            if (!this.cache) result = await this._api.get('series', {});
+            else result = this.cache;
             if (result.length === 0) throw new Error('No results');
+            this.cache = result;
             return result;
         }
         catch (err) { throw err; }
@@ -151,6 +160,13 @@ module.exports = class sonarrService {
         catch (err) { throw err; }
     }
 
+    async getSystemStatus() {
+        try {
+            const status = await this._api.get('system/status', {});
+            return status;
+        } catch (err) { throw err; }
+    }
+
     async getShow(id) {
         try {
             const result = await this._api.get(`series/${id}`);
@@ -173,7 +189,7 @@ module.exports = class sonarrService {
         try {
             const allPaths = await this._api.get('rootfolder');
             let pathMap;
-            if (typeof(allPaths) == 'object') {
+            if (typeof (allPaths) == 'object') {
                 return allPaths;
             } else {
                 let pathMap = Array(allPaths.length);
@@ -186,37 +202,44 @@ module.exports = class sonarrService {
 
     async addShow(show) {
         try {
+            console.log(show);
             if (!show.tvdbId) throw new Error('tvdbId not set');
             if (!show.profile && !show.profileId) throw new Error('Profile not set');
             if (!show.rootPath) throw new Error('Root path not set');
 
             if (!show.profileId) {
-                const profile = await this.getProfile(show.profile);
-                if (profile.id) show.profileId = profile.id;
-                else throw new Error('Unable to determine profile');
+                try {
+                    console.log(show.profile);
+                    const profile = await this.getProfile(show.profile);
+                    if (profile && profile.id) show.profileId = profile.id;
+                    else throw new Error('Unable to determine profile');
+                } catch (err) { throw new Error('Unable to determine profile'); }
             }
 
-            const getResult = await this.getShow({ tvdbId: show.tvdbId, limit: 1 });
+            const getResult = await this.lookupShow({ tvdbId: show.tvdbId, limit: 1 });
             if (getResult) {
                 const data = {
-                    'tvdbId': getResult.tvdbId,
-                    'title': getResult.title,
+                    'tvdbId': getResult[0].tvdbId,
+                    'title': getResult[0].title,
                     'qualityProfileId': show.profileId,
-                    'titleSlug': getResult.titleSlug,
-                    'images': getResult.images,
-                    'seasons': getResult.seasons,
+                    'titleSlug': getResult[0].titleSlug,
+                    'images': getResult[0].images,
+                    'seasons': getResult[0].seasons,
                     'monitored': true,
                     'seasonFolder': true,
-                    'rootFolderPath': show.rootPath || this._settings.rootPath
+                    'rootFolderPath': show.rootPath || this._settings.rootPath,
+                    'addOptions': { 'searchForMissingEpisodes': true }
                 };
                 const result = await this._api.post('series', data);
-                console.log(result);
                 if (result.title == undefined || result.title == null) throw new Error('Failed to add');
+                this.cache = false;
                 return true;
             }
         }
         catch (err) {
+            console.error(err);
             if (err.message == "NotFound") {
+                console.log('searching');
                 this.searchShow(show.tvdbId);
                 return true;
             }

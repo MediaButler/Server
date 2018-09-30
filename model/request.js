@@ -12,6 +12,10 @@ var RequestSchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
+    target: {
+        type: String,
+        required: true
+    },
     tvdbId: String,
     imdbId: String,
     musicBrainzId: String,

@@ -1,13 +1,12 @@
 
 const Request = require('../model/request');
-const services = require('./services');
 const notificationService = require('../service/notificationService');
+const settingsService = require('./settingsService');
 
 module.exports = class requestService {
-    constructor(settings, sonarrService, radarrService, startup = false) {
-        this.settings = settings;
-        this.sonarrService = sonarrService;
-        this.radarrService = radarrService;
+    constructor(settings, plugins, startup = false) {
+        this.settings = new settingsService().getSettings();
+        this.plugins = plugins;
         if (startup) this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
     }
 
@@ -32,10 +31,23 @@ module.exports = class requestService {
         this._approveTimer = setTimeout((() => { this.autoApprove(); }), (60 * 60) * 1000);
     }
 
+    async autoDelete() {
+        console.log('checking for filled');
+        const filled = await Request.find({ status: 3 });
+        if (filled.length > 0) {
+            filled.forEach((request) => {
+                request.status = 4;
+                request.save();
+            });
+        }
+        clearTimeout(this._filledTimer);
+        this._filledTimer = setTimeout(() => { this.autoDelete(); }, (15 * 60) * 1000);
+    }
+
 
     async getRequests() {
         try {
-            const r = await Request.find({});
+            const r = await Request.find({ status: { $lt: 4 }});
             if (!r) throw new Error('No Results');
             return r;
         } catch (err) { throw err; }
@@ -65,26 +77,39 @@ module.exports = class requestService {
         try {
             const r = await this.getRequest(id);
             if (!r) throw new Error('No Results');
+            const targets = {};
+            if (!this.settings.requests.targets) this.settings.requests.targets = [
+                { "type": "tv", "target": "sonarr" },
+                { "type": "movie", "target": "radarr" },
+                { "type": "tv4k", "target": "sonarr4k" },
+                { "type": "movie4k", "target": "radarr4k" },
+                { "type": "movies3d", "target": "radarr3d" }];
+            this.settings.requests.targets.map((x) => { targets[x.type] = x; });
+            const service = this.plugins.get(r.target);
+
             switch (r.type) {
-                case "movie":
+                case 'movie':
                     try {
                         const mv = {
                             imdbId: r.imdbId,
-                            profile: (oProfile != 'null') ? this.settings.radarr.defaultProfile : oProfile,
-                            rootPath: (oRoot != 'null') ? this.settings.radarr.defaultRoot : oRoot
+                            profile: (oProfile != 'null') ? service.settings.defaultProfile : oProfile,
+                            rootPath: (oRoot != 'null') ? service.settings.defaultRoot : oRoot
                         };
-                        this.radarrService.addMovie(mv);
+                        if (!service.enabled) throw new Error('Plugin is not Enabled');
+                        else console.log('api enabled');
+                        const a = await service.service.addMovie(mv);
                         r.status = 1;
                     } catch (err) { throw err; }
                     break;
-                case "tv":
+                case 'tv':
                     try {
                         const show = {
                             tvdbId: r.tvdbId,
-                            profile: (oProfile != 'null') ? this.settings.sonarr.defaultProfile : oProfile,
-                            rootPath: (oRoot != 'null') ? this.settings.sonarr.defaultRoot : oRoot
+                            profile: (oProfile != 'null') ? service.settings.defaultProfile : oProfile,
+                            rootPath: (oRoot != 'null') ? service.settings.defaultRoot : oRoot
                         };
-                        this.sonarrService.addShow(show);
+                        if (!service.enabled) throw new Error('Plugin is not Enabled');
+                        const a = await service.service.addShow(show);
                         r.status = 1;
                     } catch (err) { throw err; }
                     break;
@@ -107,6 +132,6 @@ module.exports = class requestService {
     }
 
     async addAutoApprove(username, types = []) {
-        
+
     }
 }

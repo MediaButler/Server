@@ -14,12 +14,21 @@ module.exports = class radarrService {
             if (radarrUrl.protocol == 'http:') port = 80;
         }
         this._api = new SonarrAPI({ hostname: radarrUrl.hostname, apiKey: settings.apikey, port: port || radarrUrl.port, urlBase: radarrUrl.path, ssl: Boolean((radarrUrl.protocol == 'https:')) });
+        this._cacheTimer = setTimeout((() => { this.purgeCacheTimer(); }), (60 * 60) * 1000);
+    }
+
+    async purgeCacheTimer() {
+        this.cache = false;
+        clearTimeout(this._cacheTimer);
+        this._cacheTimer = setTimeout((() => { this.purgeCacheTimer(); }), (120 * 60) * 1000);
     }
 
     async checkSettings() {
         try {
             const a = await this.getProfile(this._settings.defaultProfile);
             const b = await this.getRootPath(this._settings.defaultRoot);
+            if (!a) throw Error('Profile Not Found');
+            if (!b) throw Error('Rootpath Not Found')
             return (a && b);
         } catch (err) { throw err; }
     }
@@ -58,6 +67,20 @@ module.exports = class radarrService {
         catch (err) { throw err; }
     }
 
+    async getHistory() {
+        try {
+            const history = await this._api.get('history', { page: 1, pageSize: 15, sortKey: 'date', sortDir: 'desc' });
+            return history;
+        } catch (err) { throw err; }
+    }
+
+    async getSystemStatus() {
+        try {
+            const status = await this._api.get('system/status', {});
+            return status;
+        } catch (err) { throw err; }
+    }
+
     async getProfile(name) {
         try {
             const allProfiles = await this._api.get('profile');
@@ -75,7 +98,7 @@ module.exports = class radarrService {
             if (typeof(allPaths) == 'object') {
                 return allPaths;
             } else {
-                let pathMap = Array(allPaths.length);
+                let pathMap = Array();
                 allPaths.map((x) => pathMap[x.path] = x);
                 return pathMap[path];
             }
@@ -86,7 +109,7 @@ module.exports = class radarrService {
         try {
             let qry;
             if (filter.imdbId) qry = `imdb:${filter.imdbId}`;
-            if (filter.name) qry = filter.name;
+            else if (filter.name) qry = filter.name;
             if (!qry) throw new Error('No query');
             const result = await this._api.get('movie/lookup', { 'term': `${qry}` })
             if (result.length === 0) throw new Error('No results for query');
@@ -97,8 +120,11 @@ module.exports = class radarrService {
 
     async getMovies() {
         try {
-            const result = await this._api.get('movie', {})
-            if (result.length === 0) throw new Error('No results for query');
+            let result = [];
+            if (!this.cache) result = await this._api.get('movie', {})
+            else result = this.cache;
+            if (result.length === 0) throw new Error('No results');
+            this.cache = result;
             return result;
         }
         catch (err) { throw err; }
@@ -106,7 +132,7 @@ module.exports = class radarrService {
 
     async getMovieByimdbId(id) {
         try {
-            const allMovies = await this.Movies();
+            const allMovies = await this.getMovies();
             const movieMap = Array(allMovies.length);
             allMovies.map((x) => movieMap[x.imdbId] = x);
             return movieMap[id];
@@ -125,6 +151,7 @@ module.exports = class radarrService {
 
     async addMovie(movie) {
         try {
+            console.log(movie);
             if (!movie.imdbId) throw new Error('imdbId not set');
             if (!movie.profile && !movie.profileId) throw new Error('Profile not set');
             if (!movie.rootPath) throw new Error('Root path not set');
@@ -144,11 +171,12 @@ module.exports = class radarrService {
                 'images': getResult.images,
                 'monitored': true,
                 'rootFolderPath': movie.rootPath || this._settings.rootPath,
-                'year': getResult.year
+                'year': getResult.year,
+                'addOptions': { searchForMovie: true }
             };
-            console.log(data);
             const result = await this._api.post('movie', data)
             if (result.title == undefined || result.title == null) throw new Error('Failed to add');
+            this.cache = false;
             return true;
         }
         catch (err) { 
