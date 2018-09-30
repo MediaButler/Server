@@ -5,7 +5,6 @@ install:
 docker:
   before_script:
   - docker info
-build_image:
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
     - docker push vertig0ne/mediabutler-api:latest
