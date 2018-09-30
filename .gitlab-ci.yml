@@ -14,11 +14,14 @@ build_docker:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
+    - docker build -t vertig0ne/mediabutler-api:1.0.${CI_PIPELINE_ID}
     - docker push vertig0ne/mediabutler-api:latest
+    - docker push vertig0ne/mediabutler-api:1.0.${CI_PIPELINE_ID}
 build_npm:
   image: node:4.2.2
   stage: build_npm
   script:
     - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm version 1.0.${CI_PIPELINE_ID}
     - npm publish
