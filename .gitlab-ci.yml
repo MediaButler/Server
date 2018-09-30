@@ -2,25 +2,42 @@ variables:
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
 stages:
-  - build_npm
-  - build_docker
+  - build
+  - test
+  - deploy
 services:
   - docker:dind
 build_docker:
   image: docker:stable
-  stage: build_docker
+  stage: build
   before_script:
   - docker info
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
-    - docker build -t vertig0ne/mediabutler-api:1.0.${CI_PIPELINE_ID}
     - docker push vertig0ne/mediabutler-api:latest
-    - docker push vertig0ne/mediabutler-api:1.0.${CI_PIPELINE_ID}
 build_npm:
   image: node:4.2.2
-  stage: build_npm
+  stage: build
   script:
     - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - npm run ci-publish || true
+test_docker:
+  stage: test
+  script:
+    - echo "Should have tested Docker"
+test_npm:
+  stage: test
+  script:
+    - echo "Should have run npm test"
+deploy_npm:
+  stage: deploy
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm run ci-publish || true
+deploy_docker:
+  stage: deploy
+  before_script:
+    - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
+  script:
+    - docker push vertig0ne/mediabutler-api:latest
