@@ -1,4 +1,3 @@
-image: docker:stable
 variables:
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
@@ -7,13 +6,15 @@ stages:
   - build_docker
 services:
   - docker:dind
-before_script:
-  - docker info
 build_docker:
+  image: docker:stable
   stage: build_docker
+  before_script:
+  - docker info
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
 build_npm:
+  image: node:4.2.2
   stage: build_npm
   script:
     - npm install
