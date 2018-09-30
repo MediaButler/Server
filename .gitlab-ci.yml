@@ -20,8 +20,9 @@ build_docker:
 build_npm:
   image: node:4.2.2
   stage: build_npm
+  before_script:
+    - npm version 1.0.${CI_PIPELINE_ID}
   script:
     - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - npm version 1.0.${CI_PIPELINE_ID}
-    - npm publish
+    - npm run ci-publish || true
