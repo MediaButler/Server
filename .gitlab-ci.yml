@@ -11,8 +11,10 @@ build_docker:
   stage: build_docker
   before_script:
   - docker info
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
   script:
     - docker build -t vertig0ne/mediabutler-api:latest .
+    - docker push vertig0ne/mediabutler-api:latest
 build_npm:
   image: node:4.2.2
   stage: build_npm
