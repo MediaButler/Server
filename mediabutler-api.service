@@ -1,12 +1,13 @@
 [Unit]
-Description=MediaButler API Server
+Description=MediaButler Server
 Documentation=https://github.com/Mediabutler/MediaButler
 After=network.target
 
 [Service]
-EnvironmentFile=/opt/mediabutler-api/.env
+EnvironmentFile=/opt/mediabutler/.env
 Type=simple
-ExecStart=/usr/bin/node /opt/mediabutler-api/server.js
+WorkingDirectory=/opt/mediabutler/
+ExecStart=/usr/bin/node /opt/mediabutler/server.js
 Restart=on-failure
 
 [Install]

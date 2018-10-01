@@ -6,17 +6,17 @@ networks:
     general:
         driver: bridge
 services:
-    mediabutler-api:
-        container_name: "mediabutler-api"
-        image: vertig0ne/mediabutler-api:latest
-        hostname: mediabutler-api
+    mediabutler:
+        container_name: "mediabutler"
+        image: mediabutler/server:latest
+        hostname: mediabutler
         environment:
             - "URL=https://example.com/mediabutler/"
             - "DB_URL=mongodb://mongo:27017/mediabutler"
             - "PLEX_MACHINE_ID=PLEX_MACHINE_ID_HERE"
             - "PLEX_URL=http://192.168.1.100:32400/"
         volumes:
-            - ${HOME}/docker/mediabutler/api:/config:rw
+            - ${HOME}/docker/mediabutler:/config:rw
         networks:
             - general
             - backend
@@ -35,20 +35,7 @@ services:
             - MONGO_LOG_DIR=/dev/null
             - MONGO_URL=mongodb://mongo:27017/
         volumes:
-            - ${HOME}/docker/mediabutler/mongodb:/data/db:rw
+            - ${HOME}/docker/mongodb:/data/db:rw
         networks:
             - backend
         command: mongod --smallfiles --bind_ip_all
-    influx:
-        image: influxdb:latest
-        container_name: influx
-        hostname: influx
-        envrionment:
-            - SOMETHTING=here
-        ports:
-            - 8086:8086
-        volumes:
-            - ${HOME}/docker/mediabutler/influxdb:/var/lib/influxdb
-        networks:
-            - backend
-        command: influxdb

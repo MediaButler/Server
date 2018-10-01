@@ -76,7 +76,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, MB-Client-Identifier');
     res.append('Access-Control-Allow-Credentials', 'true');
-    if ('OPTIONS' === req.method) res.send(200);
+    if ('OPTIONS' === req.method) res.sendStatus(200);
     else next();
 });
 
@@ -86,7 +86,7 @@ app.use(passport.initialize());
 app.set('json spaces', 2);
 app.set('base', '/mediabutler/');
 app.enable("trust proxy");
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 }));
   
 const plugins = new Map();
 
