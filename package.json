@@ -2,7 +2,25 @@
   "name": "mediabutler-server",
   "version": "1.0.30",
   "description": "MediaButler Server",
+  "homepage": "https://mediabutler.io",
   "main": "server.js",
+  "keywords": [
+    "plex",
+    "sonarr",
+    "radarr",
+    "tautulli",
+    "request",
+    "tvshow",
+    "movies"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://lab.mediabutler.io/MediaButler/API"
+  },
+  "readme": "docs/README.md",
+  "bugs": {
+    "url": "https://github.com/MediaButler/Issues/issues"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "ci-publish": "ci-publish"
