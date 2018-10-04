@@ -13,7 +13,6 @@ const iterator = (a, n) => {
     };
 };
 
-
 module.exports = class tvPlugin extends basePlugin {
     constructor(app) {
         const info = {

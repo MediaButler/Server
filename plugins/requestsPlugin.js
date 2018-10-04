@@ -232,15 +232,17 @@ module.exports = class requestsPlugin extends basePlugin {
         });
 
         router.delete('/:id', async (req, res) => {
-            if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
             const r = await this.requestService.getRequest(req.params.id);
+            let canDelete = false;
+            if (r.username == req.user.username) canDelete = true;
+            if (req.user.owner) canDelete = true;
+            if (!canDelete) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
             if (!r) return res.status(400).send({ name: 'BadRequest', message: 'Request does not exist' });
             const d = await this.requestService.delRequest(req.params.id, true);
             res.status(200).send({ name: 'OK', message: 'Deleted' });
             console.log(`${new Date().toTimeString()} ${req.user.username} deleted request for ${r.title}`);
             if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'delete' });
         });
-
 
         router.get('/autoapprove/:username', async (req, res) => {
             if (!req.user.owner) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
