@@ -113,7 +113,7 @@ module.exports = class radarrService {
             if (!qry) throw new Error('No query');
             const result = await this._api.get('movie/lookup', { 'term': `${qry}` })
             if (result.length === 0) throw new Error('No results for query');
-            return result[0];
+            return result;
         }
         catch (err) { throw err; }
     }

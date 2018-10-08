@@ -5,6 +5,7 @@ const requestService = require('../service/requestService');
 const notificationService = require('../service/notificationService');
 const TVDB = require('node-tvdb');
 const imdb = require('imdb-api');
+const axios = require('axios');
 const Request = require('../model/request');
 
 module.exports = class requestsPlugin extends basePlugin {
@@ -158,7 +159,7 @@ module.exports = class requestsPlugin extends basePlugin {
             const t = req.body;
             let r;
             const now = new Date();
-            const requestsByUser = await Request.find({ username: req.user.username, dateAdded: { $gt: Math.floor(now.setDate(now.getDate() - 7) / 1000) }}).exec();
+            const requestsByUser = await Request.find({ username: req.user.username, dateAdded: { $gt: Math.floor(now.setDate(now.getDate() - 7) / 1000) } }).exec();
             console.log(requestsByUser.length);
             if (requestsByUser.length > 20) return res.status(400).send({ name: 'BadRequest', message: 'Too many requests' });
             switch (t.type) {
@@ -185,8 +186,13 @@ module.exports = class requestsPlugin extends basePlugin {
                     if (t.googleBooksId == '') return res.status(400).send({ name: 'Bad Request', message: 'Book Requests require googleBooksId' });
                     break;
                 case 'music':
-                    return res.status(500).send({ name: 'Not Implemented', message: 'Request category not implemented yet.' })
                     if (t.musicBrainzId == '') return res.status(400).send({ name: 'Bad Request', message: 'Music Requests require musicBrainzId' });
+                    try {
+                        const musicBrainzGet = await axios({ method: 'GET', url: `http://musicbrainz.org/ws/2/artist/${t.musicBrainzId}?inc=aliases&fmt=json` });
+                        if (musicBrainzGet.data.name != t.title) return res.status(400).send({ name: 'Bad Request', message: 'Artist name does not match ID' });
+                        const aa = await Request.find({ musicBrainzId: t.musicBrainzId }).exec();
+                        if (aa.length > 0) return res.status(400).send({ name: 'Bad Request', message: 'Request already exists' });
+                    } catch (err) { console.error(err); return res.status(400).send({ name: 'Bad Request', message: 'Artist by musicBrainzId does not exist.' }); }
                     break;
                 case 'comic':
                     return res.status(500).send({ name: 'Not Implemented', message: 'Request category not implemented yet.' })
@@ -218,6 +224,9 @@ module.exports = class requestsPlugin extends basePlugin {
                     break;
                 case 'movie':
                     hasItem = await providerPlugin.hasItem(t.imdbId);
+                    break;
+                case 'music':
+                    hasItem = await providerPlugin.hasItem(t.musicBrainzId);
                     break;
                 default:
                     throw new RangeError('Unexpected `type`');
@@ -398,8 +407,6 @@ module.exports = class requestsPlugin extends basePlugin {
             }
         });
         return router;
-
-
     }
 
     async hook() {

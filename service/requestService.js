@@ -83,7 +83,8 @@ module.exports = class requestService {
                 { "type": "movie", "target": "radarr" },
                 { "type": "tv4k", "target": "sonarr4k" },
                 { "type": "movie4k", "target": "radarr4k" },
-                { "type": "movies3d", "target": "radarr3d" }];
+                { "type": "movies3d", "target": "radarr3d" },
+                { "type": "music", "target": "lidarr"}];
             this.settings.requests.targets.map((x) => { targets[x.type] = x; });
             const service = this.plugins.get(r.target);
 
@@ -113,7 +114,18 @@ module.exports = class requestService {
                         r.status = 1;
                     } catch (err) { throw err; }
                     break;
-
+                case 'music': 
+                    try {
+                        const artist = {
+                            musicBrainzId: r.musicBrainzId,
+                            profile: (oProfile != 'null') ? service.settings.defaultProfile : oProfile,
+                            rootPath: (oRoot != 'null') ? service.settings.defaultRoot : oRoot
+                        }
+                        if (!service.enabled) throw new Error('Plugin is not Enabled');
+                        const a = await service.service.addArtist(artist);
+                        r.status = 1;
+                    } catch (err) { throw err; }
+                    break;
                 default:
                     throw new Error('Could not determine type to approve');
             }
