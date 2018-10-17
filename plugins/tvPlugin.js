@@ -1,7 +1,6 @@
 const express = require('express');
 const basePlugin = require('./base');
 const TVDB = require('node-tvdb');
-const tvdb = new TVDB('88D2ED25A2539ECE');
 
 const iterator = (a, n) => {
     let current = 0, l = a.length;
@@ -10,8 +9,8 @@ const iterator = (a, n) => {
         const part = a.slice(current, end);
         current = end < l ? end : 0;
         return part;
-    };
-};
+    }
+}
 
 module.exports = class tvPlugin extends basePlugin {
     constructor(app) {
@@ -30,6 +29,7 @@ module.exports = class tvPlugin extends basePlugin {
         router.get('/', async (req, res) => {
             try {
                 if (!req.query.query) throw new Error('No Query provided');
+                const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getSeriesByName(req.query.query);
                 if (!req.query.page) req.query.page = 1;
                 else req.query.page = parseInt(req.query.page);
@@ -52,6 +52,7 @@ module.exports = class tvPlugin extends basePlugin {
         router.get('/:id/actors', async (req, res) => {
             try {
                 console.log(req.params.id);
+                const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getActors(req.params.id);
                 return res.status(200).send(data);
             } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
@@ -59,6 +60,7 @@ module.exports = class tvPlugin extends basePlugin {
         router.get('/:id/episodes', async (req, res) => {
             try {
                 console.log(req.params.id);
+                const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getEpisodesBySeriesId(req.params.id);
                 return res.status(200).send(data);
             } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
@@ -66,12 +68,16 @@ module.exports = class tvPlugin extends basePlugin {
         router.get('/:id/images', async (req, res) => {
             try {
                 console.log(req.params.id);
+                const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getSeriesPosters(req.params.id);
                 return res.status(200).send(data);
-            } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
+            } catch (err) { 
+                return res.status(400).send({ name: err.name, message: err.message }); 
+            }
         });
         router.get('/:id', async (req, res) => {
             try {
+                const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getSeriesById(req.params.id);
                 return res.status(200).send(data);
             } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
