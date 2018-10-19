@@ -11,37 +11,48 @@ Ticks are currently supported. Others are planned support.
 - [X] Plex
 - [X] Sonarr (+ Varients: 4K)
 - [X] Radarr (+ Varients: 4K + 3D)
-- [ ] Lidarr
+- [X] Lidarr
 - [X] Tautulli
 
+
 ## Features
+
 
  - Implements a full request system allow your users to request new content to be added.
  - Implements a playback rules chain, which will allow limitations given to your users. Stopping streams which break the rules in their tracks.
 
+
 ## Give me some examples of these "Front-Ends"
+
 
 Discord bot - Have a bot on your Discord Server which allows your users to perform actions on the API
 Organizr Plugin - Plugin to help add and manage requests on the API
 Prometheus - (WIP) Self-Hosted Web Interface for the MediaButer API
 
+
 ## Installation
+
 
 You will need:
  - Node.js (Tested with v9 but should work with anything >v6)
  - NPM (Tested with v5.6.0/v6.0.1 but should work with lower)
  - MongoDb
 
+
  ### NPM Installation
+
 
      npm i -g mediabutler-api
      mediabutler # It will fail to startup properly
      nano ${HOME}/.mediabutler/settings.json
      mediabutler
 
+
 ### Docker Installation
 
+
 #### Native Docker
+
 
     docker create \ 
         --name=mongo
@@ -51,7 +62,10 @@ You will need:
         -v ${HOME}/docker/mediabutler:/config:rw
         -p 9876:9876
 
+
 #### Docker Compose
+
+
     ---
     version: '2'
     networks:
@@ -91,7 +105,9 @@ You will need:
                 - mb
             command: mongod --smallfiles --bind_ip_all
 
+
 ## Thanks
+
 
 This project couldn't have been completed without a ton of blood sweat and tears, nor without the support from the magical community that surrounds Plex. We would like to give thanks to these people especially for putting up with us:
 

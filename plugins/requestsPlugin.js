@@ -27,7 +27,6 @@ module.exports = class requestsPlugin extends basePlugin {
 
             setTimeout(() => {
                 notificationService.on('sonarr', async (data) => {
-                    console.log(`sonarr ${data.eventType}`);
                     if (data.eventType == 'Download') {
                         const r = await this.requestService.getRequests();
                         const request = r.find((x) => x.tvdbId == data.series.tvdbId);
@@ -43,7 +42,6 @@ module.exports = class requestsPlugin extends basePlugin {
                     }
                 });
                 notificationService.on('sonarr4k', async (data) => {
-                    console.log(`sonarr4k ${data.eventType}`);
                     if (data.eventType == 'Download') {
                         const r = await this.requestService.getRequests();
                         const request = r.find((x) => x.tvdbId == data.series.tvdbId);
@@ -60,7 +58,6 @@ module.exports = class requestsPlugin extends basePlugin {
                     }
                 });
                 notificationService.on('radarr', async (data) => {
-                    console.log(`radarr ${data.eventType}`);
                     if (data.eventType == 'Download') {
                         const r = await this.requestService.getRequests();
                         const request = r.find((x) => x.imdbId == data.remoteMovie.imdbId);
@@ -72,7 +69,6 @@ module.exports = class requestsPlugin extends basePlugin {
                     }
                 });
                 notificationService.on('radarr4k', async (data) => {
-                    console.log(`radarr4k ${data.eventType}`);
                     if (data.eventType == 'Download') {
                         const r = await this.requestService.getRequests();
                         const request = r.find((x) => x.imdbId == data.remoteMovie.imdbId);
@@ -84,7 +80,6 @@ module.exports = class requestsPlugin extends basePlugin {
                     }
                 });
                 notificationService.on('radarr3d', async (data) => {
-                    console.log(`radarr3d ${data.eventType}`);
                     if (data.eventType == 'Download') {
                         const r = await this.requestService.getRequests();
                         const request = r.find((x) => x.imdbId == data.remoteMovie.imdbId);

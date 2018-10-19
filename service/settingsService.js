@@ -15,6 +15,10 @@ module.exports = class settingsService {
         return this.settings;
     }
 
+    getRoot() {
+        return path.join(this.filePath, '../');
+    }
+
     _saveSettings(settings) {
         fs.writeFileSync(this.filePath, JSON.stringify(settings, null, 2), () => {
             this.settings = settings;

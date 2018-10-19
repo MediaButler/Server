@@ -28,6 +28,8 @@ const path = require('path');
 const services = require('./service/services');
 const settings = services.settings;
 const plexService = require('./service/plexService');
+const expressWinston = require('express-winston');
+const winston = require('winston'); 
 const databaseOptions = {
     autoIndex: false, reconnectTries: 30, reconnectInterval: 500,
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true
@@ -66,11 +68,21 @@ passport.use(new JWTStrategy({
     }).catch((err) => { return cb(null, false, 'Unable to validate user'); });
 }));
 
+app.use(expressWinston.logger({
+    transports: [
+        new winston.transports.Console({
+            json: true,
+            colorize: true
+    })
+    ]
+}));
+
 app.use(compression());
 
 app.use((err, req, res, next) => {
     return res.status(500).send(err);
 });
+
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
@@ -182,8 +194,17 @@ const notifyService = io
                 console.log(`User ${user.username} disconnected. Now has ${nService.sockets[user.username].length} connections`);
             });
         }).catch((err) => { socket.emit('unauthorized'); socket.disconnect(); });
-    });
+});
 
+app.use(expressWinston.errorLogger({
+    transports: [
+        new winston.transports.Console({
+            json: true,
+            colorize: true
+        })
+        ]
+}));
+  
 const nService = require('./service/notificationService');
 server.listen(port, host, () => {
     console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
