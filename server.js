@@ -13,6 +13,7 @@ const port = process.env.PORT || 9876;
 const mongoose = require('mongoose');
 const express = require('express');
 const compression = require('compression')
+const _ = require('lodash');
 const app = express();
 const rateLimit = require('express-rate-limit');
 const server = require('http').createServer(app);
@@ -68,13 +69,31 @@ passport.use(new JWTStrategy({
     }).catch((err) => { return cb(null, false, 'Unable to validate user'); });
 }));
 
+const redacted = '[REDACTED]'
+const requestFilter = (req, propName) => {
+  if (propName === 'headers') {
+    return _
+      .chain(req)
+      .get(propName)
+      .cloneDeep()
+      .assign(_.pick({
+        'authorization': redacted,
+        'cookie': redacted
+      }, _.keys(req[propName])))
+      .value()
+  }
+  return req[propName]
+}
+
+
 app.use(expressWinston.logger({
     transports: [
         new winston.transports.Console({
             json: true,
             colorize: true
     })
-    ]
+    ],
+    requestFilter
 }));
 
 app.use(compression());
