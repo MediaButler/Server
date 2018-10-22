@@ -37,6 +37,39 @@ module.exports = class plexPlugin extends basePlugin {
                 else return r;
             } catch (err) { return res.status(400).send({ name: err.name, message: err.message }); }
         });
+        router.get('/audio/:ratingKey', async (req, res) => {
+            this.settings.token = req.user.token;
+            const plex = new plexService(this.settings);
+            const p = await plex.getMetadata(req.params.ratingKey);
+            const a = await plex.getPart(p.MediaContainer.Metadata[0].Media[0].Part[0].key);
+            res.status(200).send(a);
+        });
+        router.get('/image/:ratingKey', async (req, res) => {
+            this.settings.token = req.user.token;
+            const plex = new plexService(this.settings);
+            const p = await plex.getMetadata(req.params.ratingKey);
+            const a = await plex.getPart(p.MediaContainer.Metadata[0].thumb);
+            res.status(200).send(a);
+        });
+        router.get('/search/audio', async (req, res) => {
+            this.settings.token = req.user.token;
+            const plex = new plexService(this.settings);
+            const p = await plex.searchAudioLibraries(req.query.query);
+            const r = [];
+            p.MediaContainer.Metadata.forEach((item) => {
+                const a = {
+                    artist: item.grandparentTitle,
+                    title: item.title,
+                    url: `/plex/audio/${item.ratingKey}`,
+                    album: item.parentTitle,
+                    duration: item.duration,
+                    image: `/plex/image/${item.ratingKey}`,
+                    year: item.year,
+                }
+                r.push(a);
+            });
+            res.status(200).send(r);
+        });
         router.get('/history', async (req, res) => {
             try {
                 const settings = services.settings;

@@ -82,7 +82,7 @@ module.exports = class plexService {
 
     async getMetadata(ratingKey) {
         try {
-            const res = await this._api.query(`/library/metadata/${ratingKey}/children`);
+            const res = await this._api.query(`/library/metadata/${ratingKey}`);
             return res;
         } catch (err) { throw err; }
     }
@@ -94,13 +94,26 @@ module.exports = class plexService {
         } catch (err) { throw err; }
     }
 
-    async searchLibraries(query) {
+    async searchAudioLibraries(query) {
         try {
-            const res = await this._api.query(`/search?query=${encodeURIComponent(query)}`);
+            const res = await this._api.query(`/search?type=10&query=${query}`);
             return res;
         } catch (err) { throw err; }
     }
 
+    async getThumb(key) {
+        try {
+            const res = await this._api.query(key);
+            return res;
+        } catch (err) { throw err; }
+    }
+
+    async getPart(key) {
+        try {
+            const res = await this._api.query(key);
+            return res;
+        } catch (err) { throw err; }
+    }
     audioPlaylists() {
         // Return all playlists
     }
