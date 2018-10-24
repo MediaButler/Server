@@ -27,7 +27,7 @@ module.exports = class radarrService {
             const a = await this.getProfile(this._settings.defaultProfile);
             const b = await this.getRootPath(this._settings.defaultRoot);
             if (!a) throw Error('Profile Not Found');
-            if (!b) throw Error('Rootpath Not Found')
+            if (!b) throw Error('Rootpath Not Found');
             return (a && b);
         } catch (err) { throw err; }
     }
