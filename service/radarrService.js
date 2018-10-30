@@ -163,14 +163,14 @@ module.exports = class radarrService {
 
             const getResult = await this.lookupMovie({ imdbId: movie.imdbId, limit: 1 });
             const data = {
-                'tmdbId': getResult.tmdbId,
-                'title': getResult.title,
+                'tmdbId': getResult[0].tmdbId,
+                'title': getResult[0].title,
                 'qualityProfileId': movie.profileId,
-                'titleSlug': getResult.titleSlug,
-                'images': getResult.images,
+                'titleSlug': getResult[0].titleSlug,
+                'images': getResult[0].images,
                 'monitored': true,
                 'rootFolderPath': movie.rootPath || this._settings.rootPath,
-                'year': getResult.year,
+                'year': getResult[0].year,
                 'addOptions': { searchForMovie: true }
             };
             const result = await this._post('movie', data)

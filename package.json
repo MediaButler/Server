@@ -1,6 +1,6 @@
 {
   "name": "mediabutler-server",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "description": "MediaButler Server",
   "homepage": "https://mediabutler.io",
   "main": "server.js",
