@@ -36,6 +36,7 @@ const databaseOptions = {
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true
 }
 const publicKey = fs.readFileSync(path.join(__dirname, 'key.pub'));
+const natUpnp = require('nat-upnp');
 
 const connectDatabase = () => {
     console.log('Attempting to connect to database')
@@ -228,6 +229,17 @@ const nService = require('./service/notificationService');
 server.listen(port, host, () => {
     console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
     nService.agent = notifyService;
+    const client = natUpnp.createClient();
+    client.portUnmapping({ public: 9876 });
+    client.portMapping({
+        public: 9876,
+        private: 9876,
+        ttl: 10
+      }, function(err) {
+        // Will be called once finished
+        if (err) console.error(err);
+        else console.log('port mapping done');
+      });
 });
 
 process.on('beforeExit', async (code) => {

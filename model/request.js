@@ -22,7 +22,7 @@ const RequestSchema = new mongoose.Schema({
     goodReadsId: String,
     comicVineId: String,
     dateAdded: {
-        type: Number,
+        type: Date,
         default: Date.now()
     },
     username: {
