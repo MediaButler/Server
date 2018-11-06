@@ -68,7 +68,12 @@ module.exports = class tautulliPlugin extends basePlugin {
             }
         });
         router.get('/history', async (req, res) => {
-
+            try {
+                const r = await this.tautulliService.getHistory(req.params.username, 15);
+                return res.status(200).send(r);
+            } catch (err) {
+                return res.status(500).send({ name: err.name, message: err.message });
+            }
         });
         return router;
     }

@@ -25,18 +25,18 @@ Ticks are currently supported. Others are planned support.
 ## Give me some examples of these "Front-Ends"
 
 
-Discord bot - Have a bot on your Discord Server which allows your users to perform actions on the API
-Organizr Plugin - Plugin to help add and manage requests on the API
-Prometheus - (WIP) Self-Hosted Web Interface for the MediaButer API
+[MediaButler WebUI](https://beta.mediabutler.io) - Web application for you and your users 
+[Discord bot](./DISCORD.md) - Have a bot on your Discord Server which allows your users to perform actions on the API
+[Organizr v2 Plugin](https://github.com/MediaButler/organizr-plugin) - Plugin to help add and manage requests on the API
 
 
 ## Installation
 
 
 You will need:
- - Node.js (Tested with v9 but should work with anything >v6)
- - NPM (Tested with v5.6.0/v6.0.1 but should work with lower)
- - MongoDb
+ - [Node.js](https://nodejs.org/) (Tested with v9 but should work with anything >v6)
+ - [NPM](https://www.npmjs.com/) (Tested with v5.6.0/v6.0.1 but should work with lower)
+ - [MongoDb](https://www.mongodb.com/)
 
 
  ### NPM Installation
@@ -54,13 +54,20 @@ You will need:
 #### Native Docker
 
 
-    docker create \ 
+    docker run -d \ 
         --name=mongo
+        mongo:latest mongod --smallfiles --bind_ip_all
         
+
     docker create \
         --name=mediabutler
+        --link mongo:mongo
+        -e PLEX_URL=http://127.0.0.1:32400/
+        -e DB_URL=mongodb://mongo:27017/mediabutler
         -v ${HOME}/docker/mediabutler:/config:rw
         -p 9876:9876
+        mediabutler/server:latest
+    docker start mediabutler
 
 
 #### Docker Compose
@@ -73,9 +80,9 @@ You will need:
         driver: bridge
     services:
         mediabutler-api:
-            container_name: "mediabutler-api"
-            image: vertig0ne/mediabutler-api:latest
-            hostname: mediabutler-api
+            container_name: "mediabutler"
+            image: mediabutler/server:latest
+            hostname: mediabutler
             environment:
                 - "URL=https://example.com/mediabutler/"
                 - "DB_URL=mongodb://mongo:27017/mediabutler"

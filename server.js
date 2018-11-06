@@ -30,7 +30,7 @@ const services = require('./service/services');
 const settings = services.settings;
 const plexService = require('./service/plexService');
 const expressWinston = require('express-winston');
-const winston = require('winston'); 
+const winston = require('winston');
 const databaseOptions = {
     autoIndex: false, reconnectTries: 30, reconnectInterval: 500,
     poolSize: 10, bufferMaxEntries: 0, useNewUrlParser: true
@@ -55,7 +55,8 @@ passport.use(new JWTStrategy({
     issuer: 'MediaButler',
     ignoreExpiration: true,
 }, (jwtPayload, cb) => {
-    if (jwtPayload.sub != settings.plex.machineId) return cb(new Error('Something fishy with token'));
+    if (settings.debugMode == true) console.log(`Ident check for ${jwtPayload.sub} - ${settings.plex.machineId}`);
+    if (jwtPayload.sub != settings.plex.machineId) return cb(null, false, 'Token provided is not for this installation');
     const user = { username: jwtPayload.username, ident: jwtPayload.sub, token: jwtPayload.token, owner: jwtPayload.owner };
     const set = settings.plex;
     set.token = user.token;
@@ -72,30 +73,31 @@ passport.use(new JWTStrategy({
 
 const redacted = '[REDACTED]'
 const requestFilter = (req, propName) => {
-  if (propName === 'headers') {
-    return _
-      .chain(req)
-      .get(propName)
-      .cloneDeep()
-      .assign(_.pick({
-        'authorization': redacted,
-        'cookie': redacted
-      }, _.keys(req[propName])))
-      .value()
-  }
-  return req[propName]
+    if (propName === 'headers') {
+        return _
+            .chain(req)
+            .get(propName)
+            .cloneDeep()
+            .assign(_.pick({
+                'authorization': redacted,
+                'cookie': redacted
+            }, _.keys(req[propName])))
+            .value()
+    }
+    return req[propName]
 }
 
-
-app.use(expressWinston.logger({
-    transports: [
-        new winston.transports.Console({
-            json: true,
-            colorize: true
-    })
-    ],
-    requestFilter
-}));
+if (settings.debugMode == true) {
+    app.use(expressWinston.logger({
+        transports: [
+            new winston.transports.Console({
+                json: true,
+                colorize: true
+            })
+        ],
+        requestFilter
+    }));
+}
 
 app.use(compression());
 
@@ -119,7 +121,7 @@ app.set('json spaces', 2);
 app.set('base', '/mediabutler/');
 app.enable("trust proxy");
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 }));
-  
+
 const plugins = new Map();
 
 const asyncForEach = async (array, callback) => {
@@ -169,7 +171,7 @@ setTimeout(() => {
 }, 3000);
 
 app.get('/', (req, res) => {
-    console.log(req); 
+    console.log(req);
     res.send('Hello World.');
 });
 
@@ -214,7 +216,7 @@ const notifyService = io
                 console.log(`User ${user.username} disconnected. Now has ${nService.sockets[user.username].length} connections`);
             });
         }).catch((err) => { socket.emit('unauthorized'); socket.disconnect(); });
-});
+    });
 
 app.use(expressWinston.errorLogger({
     transports: [
@@ -222,24 +224,24 @@ app.use(expressWinston.errorLogger({
             json: true,
             colorize: true
         })
-        ]
+    ]
 }));
-  
+
 const nService = require('./service/notificationService');
 server.listen(port, host, () => {
     console.log(`MediaButler API Server v1.0 -  http://${host}:${port}`);
     nService.agent = notifyService;
+    console.log('Attempting to map UPnP port 9876');
     const client = natUpnp.createClient();
     client.portUnmapping({ public: 9876 });
     client.portMapping({
         public: 9876,
         private: 9876,
         ttl: 10
-      }, function(err) {
-        // Will be called once finished
-        if (err) console.error(err);
+    }, (err) => {
+        if (err) console.log('unable to map port');
         else console.log('port mapping done');
-      });
+    });
 });
 
 process.on('beforeExit', async (code) => {

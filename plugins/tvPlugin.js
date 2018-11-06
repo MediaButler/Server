@@ -51,7 +51,6 @@ module.exports = class tvPlugin extends basePlugin {
         });
         router.get('/:id/actors', async (req, res) => {
             try {
-                console.log(req.params.id);
                 const tvdb = new TVDB('88D2ED25A2539ECE');
                 const data = await tvdb.getActors(req.params.id);
                 return res.status(200).send(data);
