@@ -13,7 +13,7 @@ build_docker:
   before_script:
   - docker info
   script:
-    - docker build -t mediabutler/server:latest .
+    - docker build -t mediabutler/server:${CI_COMMIT_REF_NAME} .
 build_npm:
   image: node:4.2.2
   stage: build
@@ -35,10 +35,21 @@ deploy_npm:
     - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - npm run ci-publish || true
-deploy_docker:
+  only:
+    - master
+deploy_docker_int:
   stage: deploy
   before_script:
-    - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
+    - docker login -u "gitlab-ci-token" -p $CI_JOB_TOKEN reg.lab.mediabutler.io
+  script:
+    - docker build -t reg.lab.mediabutler.io/mediabutler/api:${CI_COMMIT_REF_NAME} .
+    - docker push reg.lab.mediabutler.io/mediabutler/api:${CI_COMMIT_REF_NAME}
+deploy_docker_ext:
+  stage: deploy
+  before_script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
   script:
     - docker build -t mediabutler/server:latest .
     - docker push mediabutler/server:latest
+  only: 
+    - master

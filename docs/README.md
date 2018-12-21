@@ -4,7 +4,7 @@
 
 MediaButler is aimed as your personal media companion, providing a unified experience for several applications that you may be using. Do you have a Plex Server in your network? Then MediaButler is precisely for you, featuring a full experience for you and your users. Security conscious so private information stays private. The API Server serves as the hub for everything. Open Sourced to allow you/others to implement features which can simplify and automate processes to help make life easier.
 
-## Supported Integrations
+## Supported Integrations
 
 Ticks are currently supported. Others are planned support.
 
@@ -14,24 +14,18 @@ Ticks are currently supported. Others are planned support.
 - [X] Lidarr
 - [X] Tautulli
 
-
 ## Features
-
 
  - Implements a full request system allow your users to request new content to be added.
  - Implements a playback rules chain, which will allow limitations given to your users. Stopping streams which break the rules in their tracks.
 
+## Give me some examples of these "Front-Ends"
 
-## Give me some examples of these "Front-Ends"
-
-
-[MediaButler WebUI](https://beta.mediabutler.io) - Web application for you and your users 
-[Discord bot](./DISCORD.md) - Have a bot on your Discord Server which allows your users to perform actions on the API
-[Organizr v2 Plugin](https://github.com/MediaButler/organizr-plugin) - Plugin to help add and manage requests on the API
-
+ - [MediaButler WebUI](https://beta.mediabutler.io) - Web application for you and your users 
+ - [Discord bot](./DISCORD.md) - Have a bot on your Discord Server which allows your users to perform actions on the API
+ - [Organizr v2 Plugin](https://github.com/MediaButler/organizr-plugin) - Plugin to help add and manage requests on the API
 
 ## Installation
-
 
 You will need:
  - [Node.js](https://nodejs.org/) (Tested with v9 but should work with anything >v6)
@@ -41,8 +35,7 @@ You will need:
 
  ### NPM Installation
 
-
-     npm i -g mediabutler-api
+     npm i -g mediabutler-server
      mediabutler # It will fail to startup properly
      nano ${HOME}/.mediabutler/settings.json
      mediabutler
@@ -50,28 +43,25 @@ You will need:
 
 ### Docker Installation
 
-
 #### Native Docker
 
-
     docker run -d \ 
-        --name=mongo
+        --name=mongo \
         mongo:latest mongod --smallfiles --bind_ip_all
         
+Please note, due to the way docker works the `--bind_ip_all` will not physically bind to all network interfaces, it's just so mongo listenes on all interfaces that appears to the docker internally. You may not need this flag, however in our testing. This was the simplist solution.
 
     docker create \
-        --name=mediabutler
-        --link mongo:mongo
-        -e PLEX_URL=http://127.0.0.1:32400/
-        -e DB_URL=mongodb://mongo:27017/mediabutler
-        -v ${HOME}/docker/mediabutler:/config:rw
-        -p 9876:9876
+        --name=mediabutler \
+        --link mongo:mongo \
+        -e PLEX_URL=http://192.168.1.100:32400/ \
+        -e DB_URL=mongodb://mongo:27017/mediabutler \
+        -v ${HOME}/docker/mediabutler:/config:rw \
+        -p 9876:9876 \
         mediabutler/server:latest
     docker start mediabutler
 
-
 #### Docker Compose
-
 
     ---
     version: '2'
@@ -112,9 +102,7 @@ You will need:
                 - mb
             command: mongod --smallfiles --bind_ip_all
 
-
 ## Thanks
-
 
 This project couldn't have been completed without a ton of blood sweat and tears, nor without the support from the magical community that surrounds Plex. We would like to give thanks to these people especially for putting up with us:
 
