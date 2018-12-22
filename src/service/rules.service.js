@@ -60,7 +60,7 @@ module.exports = class rulesService {
 		let shouldKillStream = false;
 		let killStreamReason = false;
 
-		if (user.rules.length > 0) {
+		if (user && user.rules.length > 0) {
 			for (let i = 0; i < user.rules.length; i++) {
 				const rule = await Rule.findOne({ ruleId: user.rules[i] }).exec();
 				const condition = eval(`${rule.condition}`);
