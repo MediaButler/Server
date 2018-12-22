@@ -108,12 +108,10 @@ passport.use(new JWTStrategy({
 		}
 		User.find({ username: payload.username }).limit(1).then((userList) => {
 			let user = false;
-			if (userList.length == 0) {
-				user = User.create({ username: payload.username, owner: payload.owner });
-			} else {
-				user = userList[0];
-			}
-			if (payload.owner && !user.permissions.includes('ADMIN')) {
+			if (userList.length == 0) user = User.create({ username: payload.username, owner: payload.owner });
+			else user = userList[0];
+			
+			if (payload.owner && user && user.permissions && !user.permissions.includes('ADMIN')) {
 				user.permissions.push('ADMIN');
 				user.save();
 			}
