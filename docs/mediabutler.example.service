@@ -1,6 +1,6 @@
 [Unit]
 Description=MediaButler Server
-Documentation=https://github.com/Mediabutler/MediaButler
+Documentation=https://github.com/Mediabutler/Server
 After=network.target
 
 [Service]

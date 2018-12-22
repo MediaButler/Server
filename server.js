@@ -9,6 +9,8 @@ if (process.env.NODE_ENV != 'test') console.log('\n' // eslint-disable-line no-c
 	+ '██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║██████╔╝╚██████╔╝   ██║   ███████╗███████╗██║  ██║ \n'
 	+ '╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝ \n');
 
+const ip = require('ip').address('public');
+const host = process.env.HOST || ip;
 const express = require('express');
 const mongoose = require('mongoose');
 const compression = require('compression');
@@ -209,6 +211,13 @@ if (process.env.NODE_ENV != 'test') {
 	}, (err) => {
 		if (err) console.log('unable to map port');
 		else { console.log('port mapping done'); }
+	});
+}
+if (!settings.plex.machineId || settings.plex.machineId == undefined || settings.plex.machineId == 'notSetCorrectly') {
+	const ps = new plexService(settings.plex);
+	ps.getIdentity().then((machine) => {
+		settings.plex.machineId = machine.MediaContainer.machineIdentifier;
+		settingsService._saveSettings(settings);
 	});
 }
 
