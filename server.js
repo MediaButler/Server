@@ -13,12 +13,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const compression = require('compression');
 const cors = require('cors');
-const _ = require('lodash');
 const rateLimit = require('express-rate-limit');
 const http = require('http');
 const bodyParser = require('body-parser');
-const winston = require('winston');
-const expressWinston = require('express-winston');
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
@@ -28,6 +25,7 @@ const ioJwtAuth = require('socketio-jwt');
 const natUpnp = require('nat-upnp');
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const plexService = require('./src/service/plex.service');
 const notificationService = require('./src/service/notification.service');
@@ -59,21 +57,6 @@ const asyncForEach = async (array, callback) => {
 	}
 };
 
-const requestFilter = (req, propName) => {
-	if (propName === 'headers') {
-		return _
-			.chain(req)
-			.get(propName)
-			.cloneDeep()
-			.assign(_.pick({
-				'authorization': '[REDACTED]',
-				'cookie': '[REDACTED]'
-			}, _.keys(req[propName])))
-			.value();
-	}
-	return req[propName];
-};
-
 const connectDatabase = (dbUri) => {
 	console.log('Attempting to connect to database');
 	const databaseOptions = {
@@ -95,17 +78,15 @@ const connectDefaultDatabase = () => {
 	}
 };
 
-if (settings.debugMode == true) {
-	app.use(expressWinston.logger({
-		transports: [
-			new winston.transports.Console({
-				json: true,
-				colorize: true
-			})
-		],
-		requestFilter
-	}));
-}
+const versionCommand = (req, res, next) => {
+	const v = {
+		apiVersion: '1.1',
+		systemOS: os.platform(),
+		uptime: os.uptime(),
+		url: (settings.urlOverride) ? settings.urlOverride : `http://${host}:${port}/`,
+	};
+	res.status(200).send(v);
+};
 
 passport.use(new JWTStrategy({
 	jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
@@ -130,8 +111,8 @@ passport.use(new JWTStrategy({
 			} else {
 				user = userList[0];
 			}
-			if (payload.owner && !user.permissions.includes('ADMIN')) { 
-				user.permissions.push('ADMIN'); 
+			if (payload.owner && !user.permissions.includes('ADMIN')) {
+				user.permissions.push('ADMIN');
 				user.save();
 			}
 			user.token = payload.token;
@@ -149,9 +130,7 @@ app.get('/', (req, res) => {
 	res.send('Hello World');
 });
 
-app.get('/version', (req, res) => {
-
-});
+app.get('/version', versionCommand);
 
 const controllers = new Map();
 const dir = fs.readdirSync(path.join(__dirname, 'src', 'routes'));
