@@ -7,6 +7,8 @@ const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
 const NotImplementedError = require('../errors/notimplemented.error');
 const BadRequestError = require('../errors/badrequest.error');
+const sonarrService = require('../service/sonarr.service');
+const radarrService = require('../service/radarr.service');
 
 const settings = settingsService.getSettings('requests');
 const service = new requestService(settings);
@@ -26,8 +28,8 @@ const _tvNotification = (source) => {
 			const r = await service.getRequests();
 			const request = r.find((x) => x.tvdbId == data.series.tvdbId);
 			if (request) {
-				const service = await this._plugins.get('sonarr');
-				const series = await service.service.getShowByTvdbId(data.series.tvdbId);
+				const ss = new sonarrService(settingsService.getSettings(source));
+				const series = await ss.getShowByTvdbId(data.series.tvdbId);
 				if (series && series.episodeCount == series.episodeFileCount) request.status = 3;
 				else request.status = 2;
 				if (request.status == 3) notificationService.emit('request', { who: 'System', for: request.username, request, title: request.title, type: 'filled' });
@@ -117,7 +119,6 @@ module.exports = {
 			break;
 		default:
 			return next(new BadRequestError('Could not determine request type'));
-			break;
 		}
 
 		r = new Request(t);

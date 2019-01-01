@@ -25,7 +25,7 @@ let trakt = new Trakt(traktSettings);
 try {
 	notificationService.on('tautulli', async (data) => {
 		const user = await User.findOne({ username: data.username }).exec();
-		if (!user || !user.trakt) { console.log('no trakt user connected'); return; }
+		if (!user || !user.trakt || !user.trakt.access_token) { console.log('no trakt user connected'); return; }
 		const trakt = new Trakt(traktSettings);
 		const i = await trakt.import_token(user.trakt);
 		let search = false;

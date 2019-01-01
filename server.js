@@ -97,12 +97,11 @@ passport.use(new JWTStrategy({
 	ignoreExpiration: true,
 }, (payload, next) => {
 	if (payload.sub != settings.plex.machineId) next(new Error('Token provided is not for this installation'), false, 'Subscriber does not match machineId');
-	const set = settings.plex;
+	const set = settingsService.getSettings('plex');
 	set.token = payload.token;
 	const ps = new plexService(set);
 	ps.check().then(() => {
-		if (payload.owner && !settings.plex.token) {
-			settings.plex.token = payload.token;
+		if (payload.owner) {
 			settingsService._saveSettings(settings);
 			plexController.adminService = ps;
 		}
@@ -110,7 +109,7 @@ passport.use(new JWTStrategy({
 			let user = false;
 			if (userList.length == 0) user = User.create({ username: payload.username, owner: payload.owner });
 			else user = userList[0];
-			
+
 			if (payload.owner && user && user.permissions && !user.permissions.includes('ADMIN')) {
 				user.permissions.push('ADMIN');
 				user.save();
@@ -163,24 +162,23 @@ const notifyService = ioServer
 		secret: publicKey,
 		timeout: 15000 // 15 seconds to send the authentication message
 	})).on('authenticated', (socket) => {
-		const user = socket.decoded_token;
-		if (user.sub != process.env.PLEX_MACHINE_ID) { socket.emit('unauthorized'); socket.disconnect(); }
-		const set = settings.plex;
-		set.token = user.token;
+		const payload = socket.decoded_token;
+		if (payload.sub != settings.plex.machineId) { socket.emit('unauthorized'); socket.disconnect(); }
+		const set = settingsService.getSettings('plex');
+		set.token = payload.token;
 		const ps = new plexService(set);
 		ps.check().then(() => {
-			if (user.owner && !settings.plex.token) {
-				settings.plex.token = user.token;
+			if (payload.owner) {
 				settingsService._saveSettings(settings);
 				plexController.adminService = ps;
 			}
-			if (!notificationService.sockets[user.username]) notificationService.sockets[user.username] = [socket];
-			else notificationService.sockets[user.username].push(socket);
-			console.log(`User ${user.username} connected and authenticated with ${notificationService.sockets[user.username].length} connections`);
+			if (!notificationService.sockets[payload.username]) notificationService.sockets[payload.username] = [socket];
+			else notificationService.sockets[payload.username].push(socket);
+			console.log(`User ${payload.username} connected and authenticated with ${notificationService.sockets[payload.username].length} connections`);
 			socket.once('disconnect', () => {
-				const idx = notificationService.sockets[user.username].indexOf(socket);
-				notificationService.sockets[user.username].splice(idx, 1);
-				console.log(`User ${user.username} disconnected. Now has ${notificationService.sockets[user.username].length} connections`);
+				const idx = notificationService.sockets[payload.username].indexOf(socket);
+				notificationService.sockets[payload.username].splice(idx, 1);
+				console.log(`User ${payload.username} disconnected. Now has ${notificationService.sockets[payload.username].length} connections`);
 			});
 		}).catch((err) => { socket.emit('unauthorized'); socket.disconnect(); }); // eslint-disable-line no-unused-vars
 	});
