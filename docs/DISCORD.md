@@ -34,6 +34,10 @@ There are several specific features of the bot including:
 
  You can invite the bot to your server with the following link:
 
+    https://discordapp.com/api/oauth2/authorize?client_id=379412536618909706&permissions=8&scope=bot
+
+ You can also run the BETA version of the bot from the following link:
+
     https://discordapp.com/api/oauth2/authorize?client_id=354733331717554179&permissions=8&scope=bot
 
 
