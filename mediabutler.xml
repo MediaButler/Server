@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container>
+  <Name>MediaButler</Name>
+  <TemplateURL>https://raw.githubusercontent.com/MediaButler/Server/master/mediabutler.xml</TemplateURL>
+  <Description>Your personal media butler</Description>
+  <Registry>https://registry.hub.docker.com/u/mediabutler/server/</Registry>
+  <Repository>mediabutler/server</Repository>
+  <Project>https://github.com/MediaButler/Server</Project>
+  <BindTime>true</BindTime>
+  <Privileged>false</Privileged>
+  <Environment/>
+  <Networking>
+    <Mode>bridge</Mode>
+    <Publish>
+      <Port>
+        <HostPort>9876</HostPort>
+        <ContainerPort>9876</ContainerPort>
+        <Protocol>tcp</Protocol>
+      </Port>
+    </Publish>
+  </Networking>
+  <Data>
+    <Volume>
+      <HostDir>/mnt/cache/appdata/mediabutler</HostDir>
+      <ContainerDir>/config</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+  </Data>
+    <Environment>
+    <Variable>
+      <Value>http://127.0.0.1:32400/</Value>
+      <Name>PLEX_URL</Name>
+    </Variable>
+    <Variable>
+      <Value>mongodb://127.0.0.1:27017/mediabutler</Value>
+      <Name>DB_URL</Name>
+    </Variable>
+  </Environment>
+  <Version>1.1</Version>
+  <WebUI>http://[IP]:[PORT:9876]/</WebUI>
+  <Icon>https://github.com/vertig0ne/MediaButler/blob/v1/mb.png?raw=true</Icon>
+  <ExtraParams></ExtraParams>
+</Container>
