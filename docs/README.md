@@ -1,5 +1,10 @@
 # MediaButler API Server
 
+[![](https://img.shields.io/discord/379374148436230144.svg)](https://discord.gg/nH9t5sm)
+[![](https://img.shields.io/docker/pulls/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
+[![](https://images.microbadger.com/badges/image/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
+[![](https://img.shields.io/npm/v/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
+
 ## What is it?
 
 MediaButler is aimed as your personal media companion, providing a unified experience for several applications that you may be using. Do you have a Plex Server in your network? Then MediaButler is precisely for you, featuring a full experience for you and your users. Security conscious so private information stays private. The API Server serves as the hub for everything. Open Sourced to allow you/others to implement features which can simplify and automate processes to help make life easier.
@@ -101,6 +106,10 @@ Please note, due to the way docker works the `--bind_ip_all` will not physically
             networks:
                 - mb
             command: mongod --smallfiles --bind_ip_all
+
+## Further Support
+
+If you require further support, please feel free to drop by our [Discord Server](https://discord.gg/nH9t5sm)
 
 ## Thanks
 

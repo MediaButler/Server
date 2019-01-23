@@ -3,6 +3,7 @@ const tautulliController = require('../controller/tautulli.controller');
 
 module.exports = {
 	'name': 'tautulli',
+	'permissions': ['TAU_ADM'],
 	'main': () => {
 		const app = express();
 		app.get('/activity', tautulliController.getActivity);

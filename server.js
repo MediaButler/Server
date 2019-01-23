@@ -53,12 +53,6 @@ app.enable('trust proxy');
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 }));
 app.use(passport.initialize());
 
-const asyncForEach = async (array, callback) => {
-	for (let index = 0; index < array.length; index++) {
-		await callback(array[index], index, array);
-	}
-};
-
 const connectDatabase = (dbUri) => {
 	console.log('Attempting to connect to database');
 	const databaseOptions = {
@@ -81,13 +75,17 @@ const connectDefaultDatabase = () => {
 };
 
 const versionCommand = (req, res, next) => {
-	const v = {
-		apiVersion: '1.1',
-		systemOS: os.platform(),
-		uptime: os.uptime(),
-		url: (settings.urlOverride) ? settings.urlOverride : `http://${host}:${port}/`,
-	};
-	res.status(200).send(v);
+	try {
+		const v = {
+			apiVersion: '1.1',
+			systemOS: os.platform(),
+			uptime: os.uptime(),
+			url: (settings.urlOverride) ? settings.urlOverride : `http://${host}:${port}/`,
+			endpoints: Array.from(controllers.keys()),
+			permissions: availablePermissions,
+		};
+		res.status(200).send(v);
+	} catch (err) { next(err); }
 };
 
 passport.use(new JWTStrategy({
@@ -131,6 +129,7 @@ app.get('/', (req, res) => {
 
 app.get('/version', versionCommand);
 
+let availablePermissions = [];
 const controllers = new Map();
 const dir = fs.readdirSync(path.join(__dirname, 'src', 'routes'));
 if (!dir) { console.log('Unable to load routes'); process.exit(1); }
@@ -139,6 +138,7 @@ dir.forEach((file) => {
 	const routesFile = require(path.join(__dirname, 'src', 'routes', file));
 	try {
 		console.log(routesFile.name);
+		if (routesFile.permissions) availablePermissions = availablePermissions.concat(routesFile.permissions);
 		app.use(`/${routesFile.name}/`, passport.authenticate('jwt', { session: false }), routesFile.main());
 		if (routesFile.configure) {
 			app.use(`/configure/${routesFile.name}/`, passport.authenticate('jwt', { session: false }), routesFile.configure());

@@ -31,6 +31,12 @@ module.exports = class lidarrService {
 		return await this._get('notification');
 	}
 
+	async deleteWebhook(id) {
+		try {
+			return await this._delete(`notification/${id}`);
+		} catch (err) { throw err; }
+	}
+
 	async addWebhookNotifier(notificationUrl) {
 		const data = {
 			'onGrab': true, 'onDownload': true, 'onAlbumDownload': false, 'onUpgrade': true, 'onRename': true, 'supportsOnGrab': true, 'supportsOnDownload': true, 'supportsOnAlbumDownload': false,

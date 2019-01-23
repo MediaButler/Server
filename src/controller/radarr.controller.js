@@ -13,19 +13,21 @@ try {
 		const notifMap = Array();
 		notifiers.map((x) => { notifMap[x.name] = x; });
 		if (!notifMap['MediaButler API']) {
-			const t = this.service.addWebhookNotifier(notificationUrl);
+			console.log('Connection from Radarr to MB Doesnt exist.... Adding');
+			const t = service.addWebhookNotifier(notificationUrl);
 			if (!t) throw new Error('Unable to communicate with Radarr');
 		} else {
 			const n = notifMap['MediaButler API'];
 			if (n.fields[0].value != notificationUrl) {
-				const d = this.service._api.delete(`notification/${n.id}`);
-				const t = this.service.addWebhookNotifier(notificationUrl);
-				if (!t) throw new Error('Unable to communicate with Radarr');
+				console.log('Connection from Radarr to MB is wrong.... Correcting');
+				service.deleteWebhook(n.id).then(() => {
+					const t = service.addWebhookNotifier(notificationUrl);
+					if (!t) throw new Error('Unable to communicate with Radarr');	
+				}).catch((err) => { throw err; });
 			}
 		}
 	});
 } catch (err) { console.error(err); }
-
 
 module.exports = {
 	getCalendar: async (req, res, next) => {

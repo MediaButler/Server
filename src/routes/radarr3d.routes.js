@@ -3,6 +3,7 @@ const radarrController = require('../controller/radarr3d.controller');
 
 module.exports = {
 	'name': 'radarr3d',
+	'permissions': ['R3D_ADD'],
 	'main': () => {
 		const app = express();
 		app.get('/calendar', radarrController.getCalendar);

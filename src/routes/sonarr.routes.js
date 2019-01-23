@@ -3,6 +3,7 @@ const sonarrController = require('../controller/sonarr.controller');
 
 module.exports = {
 	'name': 'sonarr',
+	'permissions': ['SON_ADD'],
 	'main': () => {
 		const app = express();
 		app.route('/').get(sonarrController.getShows);

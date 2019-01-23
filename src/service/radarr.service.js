@@ -27,14 +27,26 @@ module.exports = class radarrService {
 		return await this._get('notification');
 	}
 
+	async deleteWebhook(id) {
+		try {
+			return await this._delete(`notification/${id}`);
+		} catch (err) { throw err; }
+	}
+
 	async addWebhookNotifier(notificationUrl) {
-		const data = {'onGrab':true,'onDownload':true,'onUpgrade':true,'onRename':true,'supportsOnGrab':true,'supportsOnDownload':true,'supportsOnUpgrade':true,'supportsOnRename':true,
-			'tags':[],'name':'MediaButler API','fields':[{'order':0,'name':'Url','label':'URL','type':'url','advanced':false,'value': notificationUrl},
-				{'order':1,'name':'Method','label':'Method','helpText':'Which HTTP method to use submit to the Webservice','value':2,'type':'select','advanced':false,'selectOptions':[{'value':2,'name':'POST'},
-					{'value':1,'name':'PUT'}]},{'order':2,'name':'Username','label':'Username','type':'textbox','advanced':false},{'order':3,'name':'Password','label':'Password','type':'password','advanced':false}],
-			'implementationName':'Webhook','implementation':'Webhook','configContract':'WebhookSettings','infoLink':'https://github.com/Radarr/Radarr/wiki/Supported-Notifications#webhook','presets':[]};
-		const r = await this._post('notification', data);
-		return r;
+		try {
+			const data = {
+				'onGrab': true, 'onDownload': true, 'onUpgrade': true, 'onRename': true, 'supportsOnGrab': true, 'supportsOnDownload': true, 'supportsOnUpgrade': true, 'supportsOnRename': true,
+				'tags': [], 'name': 'MediaButler API', 'fields': [{ 'order': 0, 'name': 'Url', 'label': 'URL', 'type': 'url', 'advanced': false, 'value': notificationUrl },
+					{
+						'order': 1, 'name': 'Method', 'label': 'Method', 'helpText': 'Which HTTP method to use submit to the Webservice', 'value': 2, 'type': 'select', 'advanced': false, 'selectOptions': [{ 'value': 2, 'name': 'POST' },
+							{ 'value': 1, 'name': 'PUT' }]
+					}, { 'order': 2, 'name': 'Username', 'label': 'Username', 'type': 'textbox', 'advanced': false }, { 'order': 3, 'name': 'Password', 'label': 'Password', 'type': 'password', 'advanced': false }],
+				'implementationName': 'Webhook', 'implementation': 'Webhook', 'configContract': 'WebhookSettings', 'infoLink': 'https://github.com/Radarr/Radarr/wiki/Supported-Notifications#webhook', 'presets': []
+			};
+			const r = await this._post('notification', data);
+			return r.data;
+		} catch (err) { console.error(err); throw err; }
 	}
 
 	async getCalendar() {
@@ -85,7 +97,7 @@ module.exports = class radarrService {
 		try {
 			const allPaths = await this._get('rootfolder');
 			let pathMap;
-			if (typeof(allPaths) == 'object') {
+			if (typeof (allPaths) == 'object') {
 				return allPaths;
 			} else {
 				pathMap = Array();
@@ -166,12 +178,12 @@ module.exports = class radarrService {
 			if (result.title == undefined || result.title == null) throw new Error('Failed to add');
 			return true;
 		}
-		catch (err) { 
+		catch (err) {
 			if (err.message == 'NotFound') {
 				this.searchMovie(movie.imdbId);
 				return true;
 			}
-			throw err; 
+			throw err;
 		}
 	}
 
@@ -183,14 +195,28 @@ module.exports = class radarrService {
 					params += `${key}=${args[key]}&`;
 				}
 			}
-			const req = await this._api({ method: 'GET', url: `${this._settings.url}api/${command}?${params}`, headers: { 'x-api-key': this._settings.apikey } });
+			const req = await this._api({ method: 'GET', url: `${this._settings.url}/api/${command}?${params}`, headers: { 'x-api-key': this._settings.apikey } });
 			return req.data;
 		} catch (err) { throw err; }
 	}
 
 	async _post(command, data) {
 		try {
-			const req = await this._api({ method: 'POST', url: `${this._settings.url}api/${command}`, data, headers: { 'x-api-key': this._settings.apikey } });
+			const req = await this._api({ method: 'POST', url: `${this._settings.url}/api/${command}`, data, headers: { 'x-api-key': this._settings.apikey } });
+			return req.data;
+		} catch (err) { throw err; }
+	}
+
+	async _put(command, data) {
+		try {
+			const req = await this._api({ method: 'PUT', url: `${this._settings.url}/api/${command}`, data, headers: { 'x-api-key': this._settings.apikey } });
+			return req.data;
+		} catch (err) { throw err; }
+	}
+
+	async _delete(command) {
+		try {
+			const req = await this._api({ method: 'DELETE', url: `${this._settings.url}/api/${command}`, headers: { 'x-api-key': this._settings.apikey } });
 			return req.data;
 		} catch (err) { throw err; }
 	}
