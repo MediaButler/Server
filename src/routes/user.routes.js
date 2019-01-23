@@ -3,13 +3,13 @@ const userController = require('../controller/user.controller');
 
 module.exports = {
 	'name': 'user',
+	'permissions': ['ADMIN'],
 	'main': () => {
-        const app = express();
-        app.get('/', userController.getAllUser);
+		const app = express();
+		app.get('/', userController.getAllUser);
 		app.get('/:username/', userController.getUser);
-        app.post('/:username/', userController.postUser);
-        app.put('/:username/', userController.putUser);
-        app.delete('/:username/', userController.deleteUser);
+		app.put('/:username/', userController.putUser);
+		app.delete('/:username/', userController.deleteUser);
 		return app;
 	}
 };

@@ -51,16 +51,14 @@ module.exports = {
 	},
 	getHistory: async (req, res, next) => {
 		try {
-			const r = await service.getHistory(req.query.username, 15);
+			const r = await service.getHistory(req.user.username, 15);
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getLibrary: async (req, res, next) => {
 		try {
 			const r = await service.getLibraryStats();
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getConfigure: async (req, res, next) => {
@@ -78,7 +76,6 @@ module.exports = {
 				settings
 			};
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	testConfigure: async (req, res, next) => {
@@ -91,7 +88,6 @@ module.exports = {
 			const r = await t.checkSettings();
 			if (r) {
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else { next(new Error('Unable to connect')); }
 		} catch (err) { next(new Error('Unable to connect')); }
 	},
@@ -107,7 +103,6 @@ module.exports = {
 				const t = await saveSettings(tempSettings);
 				settings = tempSettings;
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else { next(new Error('Settings error')); }
 		} catch (err) { next(new Error('Unable to connect')); }
 	},

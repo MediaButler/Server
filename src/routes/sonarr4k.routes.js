@@ -3,6 +3,7 @@ const sonarrController = require('../controller/sonarr4k.controller');
 
 module.exports = {
 	'name': 'sonarr4k',
+	'permissions': ['S4K_ADD'],
 	'main': () => {
 		const app = express();
 		app.get('/calendar', sonarrController.getCalendar);

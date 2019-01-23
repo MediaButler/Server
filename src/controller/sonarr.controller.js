@@ -13,14 +13,17 @@ try {
 		const notifMap = Array();
 		notifiers.map((x) => { notifMap[x.name] = x; });
 		if (!notifMap['MediaButler API']) {
+			console.log('Connection from Sonarr to MB Doesnt exist.... Adding');
 			const t = service.addWebhookNotifier(notificationUrl);
 			if (!t) throw new Error('Unable to communicate with Sonarr');
 		} else {
 			const n = notifMap['MediaButler API'];
 			if (n.fields[0].value != notificationUrl) {
-				const d = service._api.delete(`notification/${n.id}`);
-				const t = service.addWebhookNotifier(notificationUrl);
-				if (!t) throw new Error('Unable to communicate with Sonarr');
+				console.log('Connection from Sonarr to MB is wrong.... Correcting');
+				service.deleteWebhook(n.id).then(() => {
+					const t = service.addWebhookNotifier(notificationUrl);
+					if (!t) throw new Error('Unable to communicate with Sonarr');	
+				}).catch((err) => { throw err; });
 			}
 		}
 	});

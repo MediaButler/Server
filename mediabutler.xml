@@ -28,11 +28,11 @@
   </Data>
     <Environment>
     <Variable>
-      <Value>http://127.0.0.1:32400/</Value>
+      <Value>http://[IP]:32400/</Value>
       <Name>PLEX_URL</Name>
     </Variable>
     <Variable>
-      <Value>mongodb://127.0.0.1:27017/mediabutler</Value>
+      <Value>mongodb://[IP]:27017/mediabutler</Value>
       <Name>DB_URL</Name>
     </Variable>
   </Environment>

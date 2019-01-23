@@ -3,6 +3,7 @@ const requestController = require('../controller/request.controller');
 
 module.exports = {
 	'name': 'requests',
+	'permissions': ['REQ_DELETE', 'REQ_APPROVE'],
 	'main': () => {
 		const app = express();
 		app.get('/autoapprove', requestController.getAutoApprove);

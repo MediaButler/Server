@@ -67,4 +67,4 @@ module.exports = {
 			next();
 		} catch (err) { next(err); }
 	}
-}
+};

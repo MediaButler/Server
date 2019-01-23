@@ -41,8 +41,8 @@ module.exports = {
 			const plex = new plexService(settings);
 			const p = await plex.getMetadata(req.params.ratingKey);
 			const a = await plex.getPart(p.MediaContainer.Metadata[0].Media[0].Part[0].key);
-			res.status(200).send(a);
-			next();
+			if (a) res.status(200).send(a);
+			else res.status(404).send();
 		} catch (err) { next(err); }
 	},
 	getImageByKey: async (req, res, next) => {
@@ -51,8 +51,8 @@ module.exports = {
 			const plex = new plexService(settings);
 			const p = await plex.getMetadata(req.params.ratingKey);
 			const a = await plex.getPart(p.MediaContainer.Metadata[0].thumb);
-			res.status(200).send(a);
-			next();
+			if (a) res.status(200).send(a);
+			else res.status(404).send();
 		} catch (err) { next(err); }
 	},
 	searchAudio: async (req, res, next) => {
@@ -62,19 +62,21 @@ module.exports = {
 			const plex = new plexService(settings);
 			const p = await plex.searchAudioLibraries(req.query.query);
 			const r = [];
-			p.MediaContainer.Metadata.forEach((item) => {
-				const a = {
-					artist: item.grandparentTitle,
-					title: item.title,
-					url: `/plex/audio/${item.ratingKey}`,
-					album: item.parentTitle,
-					duration: item.duration,
-					image: `/plex/image/${item.ratingKey}`,
-					year: item.year,
-				};
-				r.push(a);
-			});
-			res.status(200).send(r);
+			if (Boolean(p.MediaContainer.Metadata)) {
+				p.MediaContainer.Metadata.forEach((item) => {
+					const a = {
+						artist: item.grandparentTitle,
+						title: item.title,
+						url: `/plex/audio/${item.ratingKey}`,
+						album: item.parentTitle,
+						duration: item.duration,
+						image: `/plex/image/${item.ratingKey}`,
+						year: item.year,
+					};
+					r.push(a);
+				});
+				res.status(200).send(r);
+			} else res.status(404).send();
 		} catch (err) { next(err); }
 	},
 	getHistory: async (req, res, next) => {
@@ -117,4 +119,4 @@ module.exports = {
 			next();
 		} catch (err) { next(err); }
 	}
-}
+};

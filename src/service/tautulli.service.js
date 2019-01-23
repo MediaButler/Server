@@ -45,14 +45,13 @@ module.exports = class tautulliService {
 		catch (err) { throw err; }
 	}
 
-	async getHistory(user = null, limit = null) {
+	async getHistory(user = null, limit = 3) {
 		try {
-			if (limit == null) limit = 3;
+			console.log(user);
 			const params = {
 				user,
 				'length': limit
 			};
-			console.log(params);
 			const r = await this._api('get_history', params);
 			return r;
 		}
@@ -128,7 +127,7 @@ module.exports = class tautulliService {
 
 	async addScriptNotifier(notificationUrl) {
 		try {
-			const sendObj = await fs.readFileSync(path.join(__dirname, '../', 'tautulli.txt'), 'utf8');
+			const sendObj = await fs.readFileSync(path.join(__dirname, '../', 'config', 'tautulli.txt'), 'utf8');
 			const before = await this.getNotifiers();
 			const beforeMap = new Array(before.data.length);
 			before.data.map((x) => { beforeMap[x.id] = x; });

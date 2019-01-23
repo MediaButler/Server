@@ -3,6 +3,7 @@ const radarrController = require('../controller/radarr4k.controller');
 
 module.exports = {
 	'name': 'radarr4k',
+	'permissions': ['R4K_ADD'],
 	'main': () => {
 		const app = express();
 		app.get('/calendar', radarrController.getCalendar);
