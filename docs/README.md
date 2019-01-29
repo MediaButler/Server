@@ -1,7 +1,10 @@
 # MediaButler API Server
 
 [![](https://img.shields.io/discord/379374148436230144.svg)](https://discord.gg/nH9t5sm)
+[![](https://img.shields.io/beerpay/MediaButler/Server.svg)](https://beerpay.io/MediaButler/Server)
+![](https://img.shields.io/gitlab/pipeline/MediaButler/API.svg?gitlab_url=https%3A%2F%2Flab.mediabutler.io)
 [![](https://img.shields.io/docker/pulls/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
+[![](https://img.shields.io/npm/dt/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
 [![](https://images.microbadger.com/badges/image/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
 [![](https://img.shields.io/npm/v/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
 

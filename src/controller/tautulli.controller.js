@@ -51,7 +51,11 @@ module.exports = {
 	},
 	getHistory: async (req, res, next) => {
 		try {
-			const r = await service.getHistory(req.user.username, 15);
+			let user = req.user.username;
+			let limit = 20;
+			if (req.query.user) user = req.query.user;
+			if (req.query.limit) limit = parseInt(req.query.limit);
+			const r = await service.getHistory(user, limit);
 			res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
