@@ -34,7 +34,7 @@ deploy_npm:
   script:
     - npm install
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - npm run ci-publish || true
+    - npm publish || true
   only:
     - master
 deploy_docker_int:

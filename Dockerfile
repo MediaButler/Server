@@ -8,7 +8,7 @@ ENV PLEX_URL notSetCorrectly
 COPY ./ /app/
 
 RUN apk add --no-cache build-base \
-        libssl1.0 \
+        openssl-dev \
         curl \
         git \
         nodejs-npm \
