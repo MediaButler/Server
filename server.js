@@ -77,10 +77,10 @@ const connectDefaultDatabase = () => {
 const versionCommand = (req, res, next) => {
 	try {
 		const v = {
-			apiVersion: '1.1',
+			apiVersion: require('./package.json').version,
 			systemOS: os.platform(),
 			uptime: os.uptime(),
-			url: (settings.urlOverride) ? settings.urlOverride : `http://${host}:${port}/`,
+			url: (settings.urlOverride) ? settings.urlOverride : `https://${host}:${port}/`,
 			endpoints: Array.from(controllers.keys()),
 			permissions: availablePermissions,
 		};
@@ -193,7 +193,7 @@ process.on('exit', (code) => {
 
 app.server = server.listen(port);
 
-console.log(`MediaButler API Server v1.0 -  http://127.0.0.1:${port}`);
+console.log(`MediaButler API Server v1.0 -  http://${ip}:${port}`);
 if (process.env.NODE_ENV != 'test') connectDefaultDatabase();
 notificationService.agent = notifyService;
 if (process.env.NODE_ENV != 'test') {

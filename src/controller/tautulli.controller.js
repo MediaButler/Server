@@ -46,7 +46,6 @@ module.exports = {
 				});
 			}
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getHistory: async (req, res, next) => {

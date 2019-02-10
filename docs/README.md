@@ -7,6 +7,7 @@
 [![](https://img.shields.io/npm/dt/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
 [![](https://images.microbadger.com/badges/image/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
 [![](https://img.shields.io/npm/v/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
+[![](https://img.shields.io/snyk/vulnerabilities/npm/mediabutler-server.svg?style=flat)](https://snyk.io/vuln/search?q=mediabutler-server&type=npm)
 
 ## What is it?
 

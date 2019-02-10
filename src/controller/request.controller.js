@@ -157,15 +157,8 @@ module.exports = {
 		} else { return next(new BadRequestError('Item Exists')); }
 	},
 	approveRequest: async (req, res, next) => {
-		const approvedList = settings.allowApprove;
 		const originalRequest = await service.getRequest(req.params.id);
-		let t = false;
-		if (req.user.owner) t = true;
-		if (!t) {
-			for (let i = 0; i < approvedList.length; i++) {
-				if (approvedList[i].username == req.user.username && approvedList[i].types.indexOf(originalRequest.type > -1)) t = true;
-			}
-		}
+		if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes(`REQ_APPROVE_${originalRequest.type.toUpperCase()}`)) return next(new Error('Unauthorized'));
 		try {
 			if (!t) { res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' }); }
 			const profile = (req.body.overrideProfile) ? req.body.overrideProfile : null;
@@ -187,94 +180,8 @@ module.exports = {
 		res.status(200).send({ name: 'OK', message: 'Deleted' });
 		if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'delete' });
 	},
-	getAutoApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		res.status(200).send(settings.autoApprove);
-	},
-	postAutoApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array(this.settings.autoApprove.length);
-		this.settings.autoApprove.map((x) => { approveMap[x.username] = x; });
-		if (approveMap[req.body.username]) next(new BadRequestError('Username already exists'));
-		const newAutoApprove = { username: req.body.username, types: req.body.types.split(',') };
-		this.settings.autoApprove.push(newAutoApprove);
-		const settings = settingsService.settings;
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send(newAutoApprove);
-	},
-	putAutoApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array(this.settings.autoApprove.length);
-		this.settings.autoApprove.map((x) => { approveMap[x.username] = x; });
-		const idx = this.settings.autoApprove.indexOf(approveMap[req.params.username]);
-		const alltypes = new Array();
-		alltypes.push(approveMap[req.params.username].types);
-		alltypes.push(req.body.types.split(','));
-		const newAutoApprove = { username: req.params.username, types: alltypes };
-		this.settings.autoApprove.splice(idx, 1);
-		this.settings.autoApprove.push(newAutoApprove);
-		const settings = settingsService.getSettings();
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send(newAutoApprove);
-	},
-	deleteAutoApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array();
-		this.settings.autoApprove.map((x) => { approveMap[x.username] = x; });
-		const idx = this.settings.autoApprove.indexOf(approveMap[req.params.username]);
-		this.settings.autoApprove.splice(idx, 1);
-		const settings = settingsService.settings;
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send({ name: 'OK', message: 'Deleted' });
-	},
-	getAllowApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		res.status(200).send(settings.allowApprove);
-	},
-	postAllowApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array();
-		this.settings.allowApprove.map((x) => { approveMap[x.username] = x; });
-		if (approveMap[req.body.username]) next(new BadRequestError('Username already exists'));
-		const newApprove = { username: req.body.username, types: req.body.types.split(',') };
-		this.settings.allowApprove.push(newApprove);
-		const settings = settingsService.settings;
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send(newApprove);
-	},
-	putAllowApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array();
-		this.settings.allowApprove.map((x) => { approveMap[x.username] = x; });
-		const idx = this.settings.allowApprove.indexOf(approveMap[req.params.username]);
-		const alltypes = new Array();
-		alltypes.push(approveMap[req.params.username].types);
-		alltypes.push(req.body.types.split(','));
-		const newApprove = { username: req.params.username, types: alltypes };
-		this.settings.allowApprove.splice(idx, 1);
-		this.settings.allowApprove.push(newApprove);
-		const settings = settingsService.settings;
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send(newApprove);
-	},
-	deleteAllowApprove: async (req, res, next) => {
-		if (!req.user.owner) next(new Error('Unauthorized'));
-		const approveMap = new Array();
-		this.settings.allowApprove.map((x) => { approveMap[x.username] = x; });
-		const idx = this.settings.allowApprove.indexOf(approveMap[req.params.username]);
-		this.settings.allowApprove.splice(idx, 1);
-		const settings = settingsService.settings;
-		settings.requests = this.settings;
-		settingsService._saveSettings(settings);
-		res.status(200).send({ name: 'OK', message: 'Deleted' });
-	},
 	getConfigure: async (req, res, next) => {
-		if (!req.user.owner) throw new Error('Unauthorized');
+		if (!req.user.permissions.includes('ADMIN')) throw new Error('Unauthorized');
 		const data = {
 			schema: [],
 			settings: {}

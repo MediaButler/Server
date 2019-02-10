@@ -32,7 +32,6 @@ module.exports = {
 				results: result,
 			};
 			res.status(200).send(output);
-			next();
 		} catch (err) { next(err); }
 	},
 	getShowById: async (req, res, next) => {
@@ -40,7 +39,6 @@ module.exports = {
 			const tvdb = new TVDB('88D2ED25A2539ECE');
 			const data = await tvdb.getSeriesById(req.params.id);
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	getActorsById: async (req, res, next) => {
@@ -48,7 +46,6 @@ module.exports = {
 			const tvdb = new TVDB('88D2ED25A2539ECE');
 			const data = await tvdb.getActors(req.params.id);
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	getEpisodesById: async (req, res, next) => {
@@ -56,7 +53,6 @@ module.exports = {
 			const tvdb = new TVDB('88D2ED25A2539ECE');
 			const data = await tvdb.getEpisodesBySeriesId(req.params.id);
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	getImagesById: async (req, res, next) => {
@@ -64,7 +60,6 @@ module.exports = {
 			const tvdb = new TVDB('88D2ED25A2539ECE');
 			const data = await tvdb.getSeriesPosters(req.params.id);
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	}
 };
