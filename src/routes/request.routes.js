@@ -3,17 +3,9 @@ const requestController = require('../controller/request.controller');
 
 module.exports = {
 	'name': 'requests',
-	'permissions': ['REQ_DELETE', 'REQ_APPROVE'],
+	'permissions': ['REQ_DELETE', 'REQ_EDIT', 'REQ_APPROVE_TV', 'REQ_APPROVE_MOVIE', 'REQ_APPROVE_ARTIST', 'REQ_AUTO_TV', 'REQ_AUTO_MOVIE', 'REQ_AUTO_ARTIST'],
 	'main': () => {
 		const app = express();
-		app.get('/autoapprove', requestController.getAutoApprove);
-		app.post('/autoapprove', requestController.postAutoApprove);
-		app.put('/autoapprove', requestController.putAutoApprove);
-		app.delete('/autoapprove', requestController.deleteAutoApprove);
-		app.get('/allowapprove', requestController.getAllowApprove);
-		app.put('/allowapprove', requestController.putAllowApprove);
-		app.post('/allowapprove', requestController.postAllowApprove);
-		app.delete('/allowapprove', requestController.deleteAllowApprove);
 		app.delete('/:id', requestController.deleteRequest);
 		app.get('/:id', requestController.getRequest);
 		app.post('/:id', requestController.approveRequest);

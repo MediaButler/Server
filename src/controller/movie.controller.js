@@ -13,14 +13,12 @@ module.exports = {
 			data.pageSize = 10;
 			if (data.totalresults) { data.totalResults = data.totalresults; delete data.totalresults; }
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	getMovieById: async (req, res, next) => {
 		try {
 			const data = await imdb.get({ id: req.params.id }, { apiKey: '5af02350' });
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	}
 }

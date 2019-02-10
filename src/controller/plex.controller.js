@@ -107,7 +107,6 @@ module.exports = {
 			result.count_video = result.video.length;
 			result.count_audio = result.audio.length;
 			res.status(200).send(result);
-			next();
 		} catch (err) { next(err); }
 	},
 	postHistory: async (req, res, next) => {
@@ -116,7 +115,6 @@ module.exports = {
 			const plex = new plexService(settings);
 			_processHistory(plex, req.body);
 			res.status(200).send({ name: 'OK', message: 'Process started. This may take a while.' });
-			next();
 		} catch (err) { next(err); }
 	}
 };

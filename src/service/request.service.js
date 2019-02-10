@@ -8,9 +8,8 @@ const settingsService = require('./settings.service');
 const User = require('../model/user');
 
 module.exports = class requestService {
-	constructor(settings, plugins, startup = false) {
+	constructor(settings, startup = false) {
 		this.settings = settingsService.getSettings('request');
-		this.plugins = plugins;
 		if (startup) this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
 	}
 
@@ -22,7 +21,7 @@ module.exports = class requestService {
 				const userResult = await User.find({ username: request.username }).limit(1);
 				if (userResult > 0) {
 					const user = userResult[0];
-					const permission = `REQ_AUTOAPPROVE_${r.type.toUpperCase()}`;
+					const permission = `REQ_AUTO_${r.type.toUpperCase()}`;
 					if (user.permissions.has(permission)) {
 						this.approveRequest(request.id);
 						if (notificationService) notificationService.emit('request', { id: request.id, who: 'System', for: request.username, title: request.title, mediaType: request.type, type: 'approve' });

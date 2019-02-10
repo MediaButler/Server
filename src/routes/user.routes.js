@@ -7,6 +7,7 @@ module.exports = {
 	'main': () => {
 		const app = express();
 		app.get('/', userController.getAllUser);
+		app.get('/@me', userController.getMyUser);
 		app.get('/:username/', userController.getUser);
 		app.put('/:username/', userController.putUser);
 		app.delete('/:username/', userController.deleteUser);
