@@ -62,11 +62,9 @@ module.exports = class radarrService {
 
 	async getQueue() {
 		try {
-			const result = await this._get('queue', {});
-			if (result.length === 0) throw new Error('No results');
+			const result = await this._get('queue', { 'sort_by': 'timeleft', 'order': 'asc' });
 			return result;
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async getHistory() {
@@ -89,8 +87,7 @@ module.exports = class radarrService {
 			let profileMap = Array(allProfiles.length);
 			allProfiles.map((x) => profileMap[x.name.toString()] = x);
 			return profileMap[name];
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async getRootPath(path) {
@@ -116,8 +113,7 @@ module.exports = class radarrService {
 			const result = await this._get('movie/lookup', { 'term': `${qry}` });
 			if (result.length === 0) throw new Error('No results for query');
 			return result;
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async getMovies() {
@@ -128,8 +124,7 @@ module.exports = class radarrService {
 			if (result.length === 0) throw new Error('No results');
 			this.cache = result;
 			return result;
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async getMovieByimdbId(id) {
@@ -138,16 +133,14 @@ module.exports = class radarrService {
 			const movieMap = Array(allMovies.length);
 			allMovies.map((x) => movieMap[x.imdbId] = x);
 			return movieMap[id];
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async searchMovie(imdbId) {
 		try {
 			const result = await this._post('command', { name: 'MoviesSearch', movieIds: [parseInt(imdbId)] });
 			return result;
-		}
-		catch (err) { throw err; }
+		} catch (err) { throw err; }
 	}
 
 	async addMovie(movie) {
@@ -177,8 +170,7 @@ module.exports = class radarrService {
 			const result = await this._post('movie', data);
 			if (result.title == undefined || result.title == null) throw new Error('Failed to add');
 			return true;
-		}
-		catch (err) {
+		} catch (err) {
 			if (err.message == 'NotFound') {
 				this.searchMovie(movie.imdbId);
 				return true;

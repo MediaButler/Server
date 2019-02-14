@@ -160,7 +160,6 @@ module.exports = {
 		const originalRequest = await service.getRequest(req.params.id);
 		if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes(`REQ_APPROVE_${originalRequest.type.toUpperCase()}`)) return next(new Error('Unauthorized'));
 		try {
-			if (!t) { res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' }); }
 			const profile = (req.body.overrideProfile) ? req.body.overrideProfile : null;
 			const root = (req.body.overrideRoot) ? req.body.overrideRoot : null;
 			const r = await service.approveRequest(req.params.id, profile, root);

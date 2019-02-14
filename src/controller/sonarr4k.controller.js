@@ -22,7 +22,7 @@ try {
 				console.log('Connection from Sonarr to MB is wrong.... Correcting');
 				service.deleteWebhook(n.id).then(() => {
 					const t = service.addWebhookNotifier(notificationUrl);
-					if (!t) throw new Error('Unable to communicate with Sonarr');	
+					if (!t) throw new Error('Unable to communicate with Sonarr');
 				}).catch((err) => { throw err; });
 			}
 		}
@@ -35,52 +35,32 @@ module.exports = {
 			const service = new sonarrService(settings);
 			const r = await service.getCalendar();
 			console.log(r);
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getHistory: async (req, res, next) => {
 		try {
 			const service = new sonarrService(settings);
 			const r = await service.getHistory();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getStatus: async (req, res, next) => {
 		try {
 			const service = new sonarrService(settings);
 			const r = await service.getSystemStatus();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getShowLookup: async (req, res, next) => {
 		try {
 			const service = new sonarrService(settings);
 			const r = await service.lookupShow({ name: req.query.query });
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getSearchEpisode: async (req, res, next) => {
@@ -93,13 +73,8 @@ module.exports = {
 		try {
 			const service = new sonarrService(settings);
 			const r = await service.getQueue();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	postQueue: async (req, res, next) => {
@@ -111,21 +86,15 @@ module.exports = {
 			const r = await service.getShow(req.params.id);
 			if (!r) next(new Error('No Results Found'));
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getShows: async (req, res, next) => {
 		try {
 			const service = new sonarrService(settings);
 			const r = await service.getShows();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
-		} catch (err) { next(err); }
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
+			} catch (err) { next(err); }
 	},
 	getConfigure: async (req, res, next) => {
 		try {
@@ -150,7 +119,6 @@ module.exports = {
 				settings
 			};
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	testConfigure: async (req, res, next) => {
@@ -163,10 +131,8 @@ module.exports = {
 			const tempSettings = { url: req.body.url, apikey: req.body.apikey, defaultProfile: req.body.defaultProfile, defaultRoot: req.body.defaultRoot };
 			const t = new sonarrService(tempSettings);
 			const r = await t.checkSettings();
-			if (r) {
-				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
-			} else next(new Error('Unable to connect'));
+			if (r) res.status(200).send({ message: 'success', settings: tempSettings });
+			else next(new Error('Unable to connect'));
 		} catch (err) { next(new Error('Unable to connect')); }
 	},
 	saveConfigure: async (req, res, next) => {
@@ -180,10 +146,11 @@ module.exports = {
 			const t = new sonarrService(tempSettings);
 			const r = await t.checkSettings();
 			if (r) {
-				const t = await saveSettings(tempSettings);
+				const allSettings = settingsService.getSettings();
+				allSettings['radarr'] = tempSettings;
+				const t = settingsService._saveSettings(allSettings);
 				settings = tempSettings;
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }
 	},

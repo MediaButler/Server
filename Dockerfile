@@ -2,7 +2,6 @@ FROM alpine:latest
 LABEL maintainer="MediaButler"
 
 ENV DB_URL=mongodb://mongodb:21017
-ENV PLEX_MACHINE_ID notSetCorrectly
 ENV PLEX_URL notSetCorrectly
 
 COPY ./ /app/
