@@ -34,52 +34,32 @@ module.exports = {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.getCalendar();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { return res.status(500).send({ name: err.name, message: err.message }); }
 	},
 	getHistory: async (req, res, next) => {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.getHistory();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getStatus: async (req, res, next) => {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.getSystemStatus();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getArtistLookup: async (req, res, next) => {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.lookupArtist({ name: req.query.query });
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getSearchAlbum: async (req, res, next) => {
@@ -92,13 +72,8 @@ module.exports = {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.getQueue();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	postQueue: async (req, res, next) => {
@@ -110,20 +85,14 @@ module.exports = {
 			const r = await service.getArtist(req.params.id);
 			if (!r) { next(new Error('No Results Found')); }
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getArtists: async (req, res, next) => {
 		try {
 			const service = new lidarrService(settings);
 			const r = await service.getArtists();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getConfigure: async (req, res, next) => {
@@ -149,7 +118,6 @@ module.exports = {
 				settings
 			};
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	testConfigure: async (req, res, next) => {
@@ -162,10 +130,7 @@ module.exports = {
 			const tempSettings = { url: req.body.url, apikey: req.body.apikey, defaultProfile: req.body.defaultProfile, defaultRoot: req.body.defaultRoot };
 			const t = new lidarrService(tempSettings);
 			const r = await t.checkSettings();
-			if (r) {
-				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
-			}
+			if (r) res.status(200).send({ message: 'success', settings: tempSettings });
 			else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }
 	},
@@ -183,18 +148,15 @@ module.exports = {
 				settingsService.settings.lidarr = tempSettings;
 				settingsService._saveSettings(settingsService.settings);
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else {
 				res.status(400).send({ name: 'error', message: 'Unable to connect' });
-				next();
 			}
 		} catch (err) { next(err); }
 	},
 	hookLidarr: async (req, res, next) => {
 		try {
 			notificationService.emit('sonarr', req.body);
-			res.status(200).send('OK');
-			next();
+			res.status(204);
 		} catch (err) { next(err); }
 	},
 	hasItem: async (mbId) => {

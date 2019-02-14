@@ -34,53 +34,32 @@ module.exports = {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.getCalendar();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getHistory: async (req, res, next) => {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.getHistory();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			}
-			else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getStatus: async (req, res, next) => {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.getSystemStatus();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getMovieLookup: async (req, res, next) => {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.lookupMovie({ name: req.query.query });
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getSearchEpisode: async (req, res, next) => {
@@ -93,14 +72,8 @@ module.exports = {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.getQueue();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			}
-			else {
-				res.status(200).send(r);
-				next();
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	postQueue: async (req, res, next) => {
@@ -112,21 +85,14 @@ module.exports = {
 			const r = await service.getMovie(req.params.id);
 			if (!r) next(new Error('No Results Found'));
 			res.status(200).send(r);
-			next();
 		} catch (err) { next(err); }
 	},
 	getMovies: async (req, res, next) => {
 		try {
 			const service = new radarrService(settings);
 			const r = await service.getMovies();
-			if (!r) {
-				res.status(200).send([]);
-				next();
-			} else {
-				res.status(200).send(r);
-				next();
-			}
-		} catch (err) { next(res); }
+			res.status(200).send(r);
+		} catch (err) { next(err); }
 	},
 	getConfigure: async (req, res, next) => {
 		try {
@@ -151,7 +117,6 @@ module.exports = {
 				settings
 			};
 			res.status(200).send(data);
-			next();
 		} catch (err) { next(err); }
 	},
 	testConfigure: async (req, res, next) => {
@@ -166,7 +131,6 @@ module.exports = {
 			const r = await t.checkSettings();
 			if (r) {
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }
 	},
@@ -181,10 +145,11 @@ module.exports = {
 			const t = new radarrService(tempSettings);
 			const r = await t.checkSettings();
 			if (r) {
-				const t = _saveSettings(tempSettings);
+				const allSettings = settingsService.getSettings();
+				allSettings['radarr'] = tempSettings;
+				const t = settingsService._saveSettings(allSettings);
 				settings = tempSettings;
 				res.status(200).send({ message: 'success', settings: tempSettings });
-				next();
 			} else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }
 	},
@@ -192,7 +157,6 @@ module.exports = {
 		try {
 			notificationService.emit('radarr', req.body);
 			res.status(200).send('OK');
-			next();
 		} catch (err) { next(err); }
 	},
 	hasItem: async (imdbId) => {

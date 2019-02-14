@@ -10,7 +10,7 @@ module.exports = {
 		app.get('/search/audio', plexController.searchAudio);
 		app.get('/history', plexController.getHistory);
 		app.post('/history', plexController.postHistory);
-		app.get('/', (req, res, next) => { res.send('Hooooo'); next(); });
+		app.get('/', (req, res, next) => { res.send('Hooooo'); });
 		return app;
 	}
 };
