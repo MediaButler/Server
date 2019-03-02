@@ -55,6 +55,20 @@ module.exports = {
 			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
+	getProfiles: async (req, res, next) => {
+		try {
+			const service = new sonarrService(settings);
+			const r = await service.getProfiles();
+			res.status(200).send(r);
+		} catch (err) { next(err); }
+	},
+	getRoots: async (req, res, next) => {
+		try {
+			const service = new sonarrService(settings);
+			const r = await service.getRootPaths();
+			res.status(200).send(r);
+		} catch (err) { next(err); }
+	},
 	getShowLookup: async (req, res, next) => {
 		try {
 			const service = new sonarrService(settings);

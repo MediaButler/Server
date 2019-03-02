@@ -14,6 +14,8 @@ module.exports = {
 		app.post('/search', radarrController.postSearchEpisode);
 		app.get('/queue', radarrController.getQueue);
 		app.post('/queue', radarrController.postQueue);
+		app.get('/profile', radarrController.getProfiles);
+		app.get('/rootpath', radarrController.getRoots);
 		app.get('/:id', radarrController.getMovieId);
 		app.get('/', radarrController.getMovies);
 		return app;

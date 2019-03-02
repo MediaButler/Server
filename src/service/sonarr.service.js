@@ -115,11 +115,7 @@ module.exports = class sonarrService {
 
 	async getShows() {
 		try {
-			let result = [];
-			if (!this.cache) result = await this._get('series', {});
-			else result = this.cache;
-			if (result.length === 0) throw new Error('No results');
-			this.cache = result;
+			let result = await this._get('series', {}) || [];
 			return result;
 		}
 		catch (err) { throw err; }
@@ -136,7 +132,7 @@ module.exports = class sonarrService {
 
 	async getShowByTvdbId(id) {
 		try {
-			const allShows = await this.getShows();
+			const allShows = await this.getShows() || [];
 			const showsMap = Array(allShows.length);
 			allShows.map((x) => showsMap[x.tvdbId] = x);
 			return showsMap[id];
@@ -168,18 +164,32 @@ module.exports = class sonarrService {
 		catch (err) { throw err; }
 	}
 
+	async getProfiles() {
+		try {
+			const req = await this._get('profile') || [];
+			return req;
+		} catch (err) { throw err; }
+	}
+
 	async getProfile(name) {
 		try {
-			const allProfiles = await this._get('profile');
+			const allProfiles = await this.getProfiles();
 			let profileMap = Array(allProfiles.length);
 			allProfiles.map((x) => profileMap[x.name] = x);
 			return profileMap[name];
 		} catch (err) { throw err; }
 	}
 
+	async getRootPaths() {
+		try {
+			const allPaths = await this._get('rootfolder') || [];
+			return allPaths;
+		} catch (err) { throw err; }
+	}
+
 	async getRootPath(path) {
 		try {
-			const allPaths = await this._get('rootfolder');
+			const allPaths = await this.getRootPaths();
 			let pathMap;
 			if (typeof (allPaths) == 'object') {
 				return allPaths;
@@ -190,7 +200,6 @@ module.exports = class sonarrService {
 			}
 		} catch (err) { throw err; }
 	}
-
 
 	async addShow(show) {
 		try {
@@ -250,7 +259,6 @@ module.exports = class sonarrService {
 					params += `${key}=${args[key]}&`;
 				}
 			}
-			console.log(command);
 			const req = await this._api({ method: 'GET', url: `${this._settings.url}/api/${command}?${params}`, headers: { 'x-api-key': this._settings.apikey } });
 			return req.data;
 		} catch (err) { console.error('_get', err); throw err; }

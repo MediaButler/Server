@@ -4,7 +4,7 @@ const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
 const NotImplementedError = require('../errors/notimplemented.error');
 const host = require('ip').address('public');
-const settings = settingsService.getSettings('lidarr');
+const settings = settingsService.getSettings('lidarr') || {};
 
 try {
 	const service = new lidarrService(settings);

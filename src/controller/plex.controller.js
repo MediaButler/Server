@@ -79,6 +79,15 @@ module.exports = {
 			} else res.status(404).send();
 		} catch (err) { next(err); }
 	},
+	search: async (req, res, next) => {
+		try {
+			console.log(req.user);
+			settings.token = req.user.token;
+			const plex = new plexService(settings);
+			const p = await plex.searchLibraries(req.query.query);
+			console.log(p);
+		} catch (err) { next(err); }
+	},
 	getHistory: async (req, res, next) => {
 		try {
 			settings.token = req.user.token;

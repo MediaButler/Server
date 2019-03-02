@@ -5,7 +5,7 @@ const process = require('process');
 const host = require('ip').address('public');
 
 
-const settings = settingsService.getSettings('tautulli');
+let settings = settingsService.getSettings('tautulli');
 let service;
 try {
 	service = new tautulliService(settings);
@@ -103,9 +103,11 @@ module.exports = {
 			const t = new tautulliService(tempSettings);
 			const r = await t.checkSettings();
 			if (r) {
-				const t = await saveSettings(tempSettings);
+				const os = settingsService.getSettings();
+				os.tautulli = tempSettings
+				settingsService._saveSettings(os);
 				settings = tempSettings;
-				res.status(200).send({ message: 'success', settings: tempSettings });
+				res.status(200).send({ message: 'success', settings: settings });
 			} else { next(new Error('Settings error')); }
 		} catch (err) { next(new Error('Unable to connect')); }
 	},

@@ -29,6 +29,7 @@ const natUpnp = require('nat-upnp');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const package = require('./package.json');
 const plexService = require('./src/service/plex.service');
 const notificationService = require('./src/service/notification.service');
 const settingsService = require('./src/service/settings.service');
@@ -193,7 +194,7 @@ process.on('exit', (code) => {
 
 app.server = server.listen(port);
 
-console.log(`MediaButler API Server v1.0 -  http://${ip}:${port}`);
+console.log(`MediaButler API Server v${package.version} -  http://${ip}:${port}/`);
 if (process.env.NODE_ENV != 'test') connectDefaultDatabase();
 notificationService.agent = notifyService;
 if (process.env.NODE_ENV != 'test') {

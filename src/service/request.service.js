@@ -76,7 +76,7 @@ module.exports = class requestService {
 
 	}
 
-	async approveRequest(id, oProfile = null, oRoot = null) {
+	async approveRequest(id) {
 		try {
 			const settings = settingsService.getSettings('requests');
 			const r = await this.getRequest(id);
@@ -97,8 +97,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const mv = {
 						imdbId: r.imdbId,
-						profile: (oProfile != 'null') ? settings.defaultProfile : oProfile,
-						rootPath: (oRoot != 'null') ? settings.defaultRoot : oRoot
+						profile: (!r.profile) ? settings.defaultProfile : r.profile,
+						rootPath: (!r.rootPath) ? settings.defaultRoot : r.rootPath
 					};
 					const service = new radarrService(settings);
 					await service.addMovie(mv);
@@ -110,8 +110,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const show = {
 						tvdbId: r.tvdbId,
-						profile: (oProfile != 'null') ? settings.defaultProfile : oProfile,
-						rootPath: (oRoot != 'null') ? settings.defaultRoot : oRoot
+						profile: (!r.profile) ? settings.defaultProfile : r.profile,
+						rootPath: (r.rootPath != 'null') ? settings.defaultRoot : r.rootPath
 					};
 					const service = new sonarrService(settings);
 					const a = await service.addShow(show);
@@ -123,8 +123,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const artist = {
 						musicBrainzId: r.musicBrainzId,
-						profile: (oProfile != 'null') ? settings.defaultProfile : oProfile,
-						rootPath: (oRoot != 'null') ? settings.defaultRoot : oRoot
+						profile: (!r.profile) ? settings.defaultProfile : r.profile,
+						rootPath: (!r.rootPath) ? settings.defaultRoot : r.rootPath
 					};
 					const service = new lidarrService(settings);
 					const a = await service.addArtist(artist);

@@ -9,6 +9,7 @@ module.exports = {
 		app.delete('/:id', requestController.deleteRequest);
 		app.get('/:id', requestController.getRequest);
 		app.post('/:id', requestController.approveRequest);
+		app.put('/:id', requestController.putRequest);
 		app.get('/', requestController.getRequests);
 		app.post('/', requestController.postRequest);
 		return app;

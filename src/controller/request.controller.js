@@ -57,11 +57,8 @@ module.exports = {
 	getRequests: async (req, res, next) => {
 		try {
 			const r = await service.getRequests();
-			if (!r) {
-				res.status(200).send([]);
-			} else {
-				res.status(200).send(r);
-			}
+			if (!r) res.status(200).send([]);
+			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
 	getRequestsByStatus: async (req, res, next) => {
@@ -81,6 +78,14 @@ module.exports = {
 			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
+	putRequest: async (req, res, next) => {
+		try {
+			const id = req.params.id
+			const t = req.body;
+			const r = await Request.findByIdAndUpdate(id, t);
+			res.status(200).send(r);
+		} catch (err) { next(err); }
+	},
 	postRequest: async (req, res, next) => {
 		const tvdb = new TVDB('88D2ED25A2539ECE');
 		const t = req.body;
@@ -90,35 +95,35 @@ module.exports = {
 		console.log(requestsByUser.length);
 		if (requestsByUser.length > 20) return next(new BadRequestError('Too many requests'));
 		switch (t.type) {
-		case 'tv':
-			if (t.tvdbId == '') return next(new BadRequestError('TV Requests require tvdbId'));
-			try {
-				const tvdbGet = await tvdb.getSeriesById(t.tvdbId);
-				if (tvdbGet.seriesName != t.title) return next(new BadRequestError('Show title does not match ID'));
-				const aa = await Request.find({ tvdbId: t.tvdbId }).exec();
-				if (aa.length > 0) return next(new BadRequestError('Request already exists'));
-			} catch (err) { return next(new BadRequestError('Show by tvdbId does not exist')); }
-			break;
-		case 'movie':
-			if (t.imdbId == '') return next(new BadRequestError('Movie Requests require imdbId'));
-			try {
-				const imdbGet = await imdb.get({ id: t.imdbId }, { apiKey: '5af02350' });
-				if (imdbGet.title != t.title) return next(new BadRequestError('Movie title does not match ID'));
-				const aa = await Request.find({ imdbId: t.imdbId }).exec();
-				if (aa.length > 0) return next(new BadRequestError('Request already exists'));
-			} catch (err) { return next(new BadRequestError('Movie by imdbId does not exist')); }
-			break;
-		case 'music':
-			if (t.musicBrainzId == '') return next(new BadRequestError('Music Requests require musicBrainzId'));
-			try {
-				const musicBrainzGet = await axios({ method: 'GET', url: `http://musicbrainz.org/ws/2/artist/${t.musicBrainzId}?inc=aliases&fmt=json` });
-				if (musicBrainzGet.data.name != t.title) next(new BadRequestError('Artist name does not match ID'));
-				const aa = await Request.find({ musicBrainzId: t.musicBrainzId }).exec();
-				if (aa.length > 0) return next(new BadRequestError('Request already exists'));
-			} catch (err) { return next(new BadRequestError('Artist by musicBrainzId does not exist')); }
-			break;
-		default:
-			return next(new BadRequestError('Could not determine request type'));
+			case 'tv':
+				if (t.tvdbId == '') return next(new BadRequestError('TV Requests require tvdbId'));
+				try {
+					const tvdbGet = await tvdb.getSeriesById(t.tvdbId);
+					if (tvdbGet.seriesName != t.title) return next(new BadRequestError('Show title does not match ID'));
+					const aa = await Request.find({ tvdbId: t.tvdbId }).exec();
+					if (aa.length > 0) return next(new BadRequestError('Request already exists'));
+				} catch (err) { return next(new BadRequestError('Show by tvdbId does not exist')); }
+				break;
+			case 'movie':
+				if (t.imdbId == '') return next(new BadRequestError('Movie Requests require imdbId'));
+				try {
+					const imdbGet = await imdb.get({ id: t.imdbId }, { apiKey: '5af02350' });
+					if (imdbGet.title != t.title) return next(new BadRequestError('Movie title does not match ID'));
+					const aa = await Request.find({ imdbId: t.imdbId }).exec();
+					if (aa.length > 0) return next(new BadRequestError('Request already exists'));
+				} catch (err) { return next(new BadRequestError('Movie by imdbId does not exist')); }
+				break;
+			case 'music':
+				if (t.musicBrainzId == '') return next(new BadRequestError('Music Requests require musicBrainzId'));
+				try {
+					const musicBrainzGet = await axios({ method: 'GET', url: `http://musicbrainz.org/ws/2/artist/${t.musicBrainzId}?inc=aliases&fmt=json` });
+					if (musicBrainzGet.data.name != t.title) next(new BadRequestError('Artist name does not match ID'));
+					const aa = await Request.find({ musicBrainzId: t.musicBrainzId }).exec();
+					if (aa.length > 0) return next(new BadRequestError('Request already exists'));
+				} catch (err) { return next(new BadRequestError('Artist by musicBrainzId does not exist')); }
+				break;
+			default:
+				return next(new BadRequestError('Could not determine request type'));
 		}
 
 		r = new Request(t);
@@ -136,17 +141,17 @@ module.exports = {
 		let hasItem = false;
 
 		switch (t.type) {
-		case 'tv':
-			hasItem = await plugin.hasItem(t.tvdbId);
-			break;
-		case 'movie':
-			hasItem = await plugin.hasItem(t.imdbId);
-			break;
-		case 'music':
-			hasItem = await plugin.hasItem(t.musicBrainzId);
-			break;
-		default:
-			throw new RangeError('Unexpected `type`');
+			case 'tv':
+				hasItem = await plugin.hasItem(t.tvdbId);
+				break;
+			case 'movie':
+				hasItem = await plugin.hasItem(t.imdbId);
+				break;
+			case 'music':
+				hasItem = await plugin.hasItem(t.musicBrainzId);
+				break;
+			default:
+				throw new RangeError('Unexpected `type`');
 		}
 
 		if (!hasItem) {
@@ -160,8 +165,6 @@ module.exports = {
 		const originalRequest = await service.getRequest(req.params.id);
 		if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes(`REQ_APPROVE_${originalRequest.type.toUpperCase()}`)) return next(new Error('Unauthorized'));
 		try {
-			const profile = (req.body.overrideProfile) ? req.body.overrideProfile : null;
-			const root = (req.body.overrideRoot) ? req.body.overrideRoot : null;
 			const r = await service.approveRequest(req.params.id, profile, root);
 			if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'approve' });
 			console.log(`${new Date()} ${req.user.username} approved ${originalRequest.username}'s request for ${originalRequest.title}`);
