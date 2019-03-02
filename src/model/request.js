@@ -21,6 +21,8 @@ const RequestSchema = new mongoose.Schema({
 	musicBrainzId: String,
 	goodReadsId: String,
 	comicVineId: String,
+	rootPath: String,
+	profile: String,
 	dateAdded: {
 		type: Date,
 		default: Date.now()

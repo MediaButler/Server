@@ -81,6 +81,13 @@ module.exports = class radarrService {
 		} catch (err) { throw err; }
 	}
 
+	async getProfiles() {
+		try {
+			const req = await this._get('profile') || [];
+			return req;
+		} catch (err) { throw err; }
+	}
+
 	async getProfile(name) {
 		try {
 			const allProfiles = await this._get('profile');
@@ -104,25 +111,27 @@ module.exports = class radarrService {
 		} catch (err) { throw err; }
 	}
 
+	async getRootPaths() {
+		try {
+			const allPaths = await this._get('rootfolder') || [];
+			return allPaths;
+		} catch (err) { throw err; }
+	}
+
 	async lookupMovie(filter) {
 		try {
 			let qry;
 			if (filter.imdbId) qry = `imdb:${filter.imdbId}`;
 			else if (filter.name) qry = filter.name;
 			if (!qry) throw new Error('No query');
-			const result = await this._get('movie/lookup', { 'term': `${qry}` });
-			if (result.length === 0) throw new Error('No results for query');
+			const result = await this._get('movie/lookup', { 'term': `${qry}` }) || [];
 			return result;
 		} catch (err) { throw err; }
 	}
 
 	async getMovies() {
 		try {
-			let result = [];
-			if (!this.cache) result = await this._get('movie', {});
-			else result = this.cache;
-			if (result.length === 0) throw new Error('No results');
-			this.cache = result;
+			const result = await this._get('movie', {}) || [];
 			return result;
 		} catch (err) { throw err; }
 	}

@@ -14,6 +14,8 @@ module.exports = {
 		app.post('/search', sonarrController.postSearchEpisode);
 		app.get('/queue', sonarrController.getQueue);
 		app.post('/queue', sonarrController.postQueue);
+		app.get('/profile', sonarrController.getProfiles);
+		app.get('/rootpath', sonarrController.getRoots);
 		app.get('/:id', sonarrController.getShowId);
 		app.get('/', sonarrController.getShows);
 		return app;

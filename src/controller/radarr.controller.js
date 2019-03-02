@@ -54,6 +54,20 @@ module.exports = {
 			else res.status(200).send(r);
 		} catch (err) { next(err); }
 	},
+	getProfiles: async (req, res, next) => {
+		try {
+			const service = new radarrService(settings);
+			const r = await service.getProfiles();
+			res.status(200).send(r);
+		} catch (err) { next(err); }
+	},
+	getRoots: async (req, res, next) => {
+		try {
+			const service = new radarrService(settings);
+			const r = await service.getRootPaths();
+			res.status(200).send(r);
+		} catch (err) { next(err); }
+	},
 	getMovieLookup: async (req, res, next) => {
 		try {
 			const service = new radarrService(settings);

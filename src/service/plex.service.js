@@ -101,6 +101,13 @@ module.exports = class plexService {
 		} catch (err) { throw err; }
 	}
 
+	async searchLibraries(query) {
+		try {
+			const res = await this._api.query(`/search?&query=${query}`);
+			return res;
+		} catch (err) { throw err; }
+	}
+
 	async getThumb(key) {
 		try {
 			const res = await this._api.query(key);
