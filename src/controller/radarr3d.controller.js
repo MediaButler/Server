@@ -1,3 +1,4 @@
+const debug = require('debug')('mediabutler:radarr3dController');
 const radarrService = require('../service/radarr.service');
 const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
@@ -5,8 +6,9 @@ const NotImplementedError = require('../errors/notimplemented.error');
 const process = require('process');
 const host = require('ip').address('public');
 
-const settings = settingsService.getSettings('radarr3d');
-try {
+let settings = settingsService.getSettings('radarr3d') || false;
+
+const setupNotifier = () => {
 	const service = new radarrService(settings);
 	service.getNotifiers().then((notifiers) => {
 		const notificationUrl = (settingsService.settings.urlOverride) ? `${settingsService.settings.urlOverride}hooks/radarr3d/` : `http://${host}:${process.env.PORT || 9876}/hooks/radarr3d/`;
@@ -27,7 +29,14 @@ try {
 			}
 		}
 	});
-} catch (err) { console.error(err); }
+}
+
+try {
+	setupNotifier();
+} catch (err) { 
+	console.log('Unable to load Radarr3D module. Possibly due to misconfiguration of settings. Enable debug logging for true output'); 
+	debug(err);
+ }
 
 module.exports = {
 	getCalendar: async (req, res, next) => {
@@ -164,6 +173,7 @@ module.exports = {
 				allSettings['radarr3d'] = tempSettings;
 				const t = settingsService._saveSettings(allSettings);
 				settings = tempSettings;
+				setupNotifier();
 				res.status(200).send({ message: 'success', settings: tempSettings });
 			} else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }

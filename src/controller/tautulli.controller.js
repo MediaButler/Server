@@ -1,3 +1,4 @@
+const debug = require('debug')('mediabutler:tautulliController');
 const tautulliService = require('../service/tautulli.service');
 const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
@@ -5,9 +6,10 @@ const process = require('process');
 const host = require('ip').address('public');
 
 
-let settings = settingsService.getSettings('tautulli');
+let settings = settingsService.getSettings('tautulli') || false;
 let service;
-try {
+
+const setupNotifier = () => {
 	service = new tautulliService(settings);
 	service.getNotifiers().then((notifiers) => {
 		const notifMap = new Array();
@@ -24,7 +26,14 @@ try {
 			});
 		}
 	});
-} catch (err) { console.error(err); }
+}
+
+try {
+	setupNotifier();
+} catch (err) { 
+	console.log('Unable to load Tautulli module. Possibly due to misconfiguration of settings. Enable debug logging for true output'); 
+	debug(err);
+}
 
 
 module.exports = {
@@ -107,6 +116,7 @@ module.exports = {
 				os.tautulli = tempSettings
 				settingsService._saveSettings(os);
 				settings = tempSettings;
+				setupNotifier();
 				res.status(200).send({ message: 'success', settings: settings });
 			} else { next(new Error('Settings error')); }
 		} catch (err) { next(new Error('Unable to connect')); }

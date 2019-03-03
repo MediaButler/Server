@@ -1,3 +1,4 @@
+const debug = require('debug')('mediabutler:sonarrController');
 const sonarrService = require('../service/sonarr.service');
 const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
@@ -5,8 +6,9 @@ const NotImplementedError = require('../errors/notimplemented.error');
 const process = require('process');
 const host = require('ip').address('public');
 
-const settings = settingsService.getSettings('sonarr');
-try {
+let settings = settingsService.getSettings('sonarr') || false;
+
+const setupNotifier = () => {
 	const service = new sonarrService(settings);
 	service.getNotifiers().then((notifiers) => {
 		const notificationUrl = (settingsService.settings.urlOverride) ? `${settingsService.settings.urlOverride}hooks/sonarr/` : `http://${host}:${process.env.PORT || 9876}/hooks/sonarr/`;
@@ -27,7 +29,14 @@ try {
 			}
 		}
 	});
-} catch (err) { console.error(err); }
+}
+
+try {
+	setupNotifier();
+} catch (err) { 
+	console.log('Unable to load Sonarr module. Possibly due to misconfiguration of settings. Enable debug logging for true output'); 
+	debug(err);
+ }
 
 module.exports = {
 	getCalendar: async (req, res, next) => {
@@ -164,7 +173,8 @@ module.exports = {
 				allSettings['sonarr'] = tempSettings;
 				const t = settingsService._saveSettings(allSettings);
 				settings = tempSettings;
-				res.status(200).send({ message: 'success', settings: tempSettings });
+				setupNotifier();
+				res.status(200).send({ message: 'success', settings });
 			} else next(new Error('Unable to connect'));
 		} catch (err) { next(err); }
 	},

@@ -1,38 +1,6 @@
 {
-    "requests": {
-        "targets": [
-            { "type": "tv", "target": "sonarr" },
-            { "type": "movie", "target": "radarr" },
-            { "type": "tv4k", "target": "sonarr4k" },
-            { "type": "movie4k", "target": "radarr4k" },
-            { "type": "movies3d", "target": "radarr3d" }
-        ],
-        "autoApprove": [],
-        "allowApprove": []
-    },
-    "tautulli": {
-        "url": false,
-        "apikey": false
-    },
-    "sonarr": {
-        "url": false,
-        "apikey": false,
-        "defaultProfile": false,
-        "defaultRoot": false
-    },
-    "radarr": {
-        "url": false,
-        "apikey": false,
-        "defaultProfile": false,
-        "defaultRoot": false
-    },
-    "organizr": {
-        "url": false,
-        "apikey": false
-    },
     "plex": {
         "url": false
     },
-    "database": false,
-    "debugMode": false
+    "database": false
 }

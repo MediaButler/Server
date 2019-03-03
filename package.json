@@ -1,6 +1,6 @@
 {
   "name": "mediabutler-server",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "MediaButler Server",
   "homepage": "https://mediabutler.io",
   "main": "server.js",
@@ -38,10 +38,13 @@
     "btoa": "^1.2.1",
     "compression": "^1.7.3",
     "cors": "^2.8.5",
+    "cryptiles": ">=4.1.2",
+    "debug": "^4.1.1",
     "express": "^4.16.4",
     "express-rate-limit": "^3.2.0",
     "express-session": "^1.15.6",
     "express-winston": "^3.0.0",
+    "hoek": ">=5.0.3",
     "imdb-api": "^4.0.2",
     "ip": "^1.1.5",
     "is-docker": "^1.1.0",
@@ -64,9 +67,7 @@
     "uuid": "^3.3.2",
     "winston": "^3.1.0",
     "winston-express": "^0.1.1",
-    "ws": "^6.0.0",
-    "cryptiles": ">=4.1.2",
-    "hoek": ">=5.0.3"
+    "ws": "^6.0.0"
   },
   "devDependencies": {}
 }
