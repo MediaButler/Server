@@ -78,15 +78,6 @@ module.exports = class requestService {
 			const settings = settingsService.getSettings('requests');
 			const r = await this.getRequest(id);
 			if (!r) throw new Error('No Results');
-			const targets = {};
-			if (!settings.targets) settings.targets = [
-				{ 'type': 'tv', 'target': 'sonarr' },
-				{ 'type': 'movie', 'target': 'radarr' },
-				{ 'type': 'tv4k', 'target': 'sonarr4k' },
-				{ 'type': 'movie4k', 'target': 'radarr4k' },
-				{ 'type': 'movies3d', 'target': 'radarr3d' },
-				{ 'type': 'music', 'target': 'lidarr' }];
-			settings.targets.map((x) => { targets[x.type] = x; });
 
 			switch (r.type) {
 			case 'movie':
