@@ -134,11 +134,9 @@ let availablePermissions = [];
 const controllers = new Map();
 const dir = fs.readdirSync(path.join(__dirname, 'src', 'routes'));
 if (!dir) { console.log('Unable to load routes'); process.exit(1); }
-console.log('loading routes');
 dir.forEach((file) => {
 	const routesFile = require(path.join(__dirname, 'src', 'routes', file));
 	try {
-		console.log(routesFile.name);
 		if (routesFile.permissions) availablePermissions = availablePermissions.concat(routesFile.permissions);
 		app.use(`/${routesFile.name}/`, passport.authenticate('jwt', { session: false }), routesFile.main());
 		if (routesFile.configure) {
@@ -149,7 +147,7 @@ dir.forEach((file) => {
 		}
 		controllers.set(routesFile.name, routesFile);
 	} catch (err) {
-		console.log(`Unable to load ${routesFile.name}. There was an error.`);
+		console.error(err);
 	}
 });
 

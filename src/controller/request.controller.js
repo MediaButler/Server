@@ -165,7 +165,7 @@ module.exports = {
 		const originalRequest = await service.getRequest(req.params.id);
 		if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes(`REQ_APPROVE_${originalRequest.type.toUpperCase()}`)) return next(new Error('Unauthorized'));
 		try {
-			const r = await service.approveRequest(req.params.id, profile, root);
+			const r = await service.approveRequest(req.params.id);
 			if (notificationService) notificationService.emit('request', { who: req.user.username, for: r.username, request: r, title: r.title, type: 'approve' });
 			console.log(`${new Date()} ${req.user.username} approved ${originalRequest.username}'s request for ${originalRequest.title}`);
 			res.status(200).send(r);

@@ -8,13 +8,11 @@ const settingsService = require('./settings.service');
 const User = require('../model/user');
 
 module.exports = class requestService {
-	constructor(settings, startup = false) {
+	constructor(settings) {
 		this.settings = settingsService.getSettings('request');
-		if (startup) this._approveTimer = setTimeout((() => { this.autoApprove(); }), 60 * 1000);
 	}
 
 	async autoApprove() {
-		console.log('checking for approvals');
 		const pending = await this.getPendingRequests();
 		if (pending.length > 0) {
 			pending.forEach(async (request) => {
@@ -31,11 +29,10 @@ module.exports = class requestService {
 			});
 		}
 		clearTimeout(this._approveTimer);
-		this._approveTimer = setTimeout((() => { this.autoApprove(); }), (60 * 60) * 1000);
+		this._approveTimer = setTimeout((() => { this.autoApprove(); }), (5 * 60) * 1000);
 	}
 
 	async autoDelete() {
-		console.log('checking for filled');
 		const filled = await Request.find({ status: 3 });
 		if (filled.length > 0) {
 			filled.forEach((request) => {
@@ -97,8 +94,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const mv = {
 						imdbId: r.imdbId,
-						profile: (!r.profile) ? settings.defaultProfile : r.profile,
-						rootPath: (!r.rootPath) ? settings.defaultRoot : r.rootPath
+						profile: r.profile || settings.defaultProfile,
+						rootPath: r.rootPath || settings.defaultRoot
 					};
 					const service = new radarrService(settings);
 					await service.addMovie(mv);
@@ -110,8 +107,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const show = {
 						tvdbId: r.tvdbId,
-						profile: (!r.profile) ? settings.defaultProfile : r.profile,
-						rootPath: (r.rootPath != 'null') ? settings.defaultRoot : r.rootPath
+						profile: r.profile || settings.defaultProfile,
+						rootPath: r.rootPath || settings.defaultRoot
 					};
 					const service = new sonarrService(settings);
 					const a = await service.addShow(show);
@@ -123,8 +120,8 @@ module.exports = class requestService {
 					const settings = settingsService.getSettings(r.target);
 					const artist = {
 						musicBrainzId: r.musicBrainzId,
-						profile: (!r.profile) ? settings.defaultProfile : r.profile,
-						rootPath: (!r.rootPath) ? settings.defaultRoot : r.rootPath
+						profile: r.profile || settings.defaultProfile,
+						rootPath: r.rootPath || settings.defaultRoot
 					};
 					const service = new lidarrService(settings);
 					const a = await service.addArtist(artist);

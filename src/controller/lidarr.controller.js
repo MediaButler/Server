@@ -1,10 +1,11 @@
+const debug = require('debug')('mediabutler:lidarrController');
 const process = require('process');
 const lidarrService = require('../service/lidarr.service');
 const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
 const NotImplementedError = require('../errors/notimplemented.error');
 const host = require('ip').address('public');
-const settings = settingsService.getSettings('lidarr') || {};
+let settings = settingsService.getSettings('lidarr') || false;
 
 try {
 	const service = new lidarrService(settings);
@@ -27,7 +28,10 @@ try {
 			}
 		}
 	});
-} catch (err) { console.error(err); }
+} catch (err) { 
+	console.log('Unable to load Lidarr module. Possibly due to misconfiguration of settings. Enable debug logging for true output'); 
+	debug(err);
+}
 
 module.exports = {
 	getCalendar: async (req, res, next) => {

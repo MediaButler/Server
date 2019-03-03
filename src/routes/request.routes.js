@@ -3,7 +3,7 @@ const requestController = require('../controller/request.controller');
 
 module.exports = {
 	'name': 'requests',
-	'permissions': ['REQ_DELETE', 'REQ_EDIT', 'REQ_APPROVE_TV', 'REQ_APPROVE_MOVIE', 'REQ_APPROVE_ARTIST', 'REQ_AUTO_TV', 'REQ_AUTO_MOVIE', 'REQ_AUTO_ARTIST'],
+	'permissions': ['REQ_DELETE', 'REQ_EDIT', 'REQ_APPROVE_TV', 'REQ_APPROVE_MOVIE', 'REQ_APPROVE_ARTIST', 'REQ_AUTO_TV', 'REQ_AUTO_MOVIE', 'REQ_AUTO_ARTIST', 'REQ_LIMIT_EXEMPT'],
 	'main': () => {
 		const app = express();
 		app.delete('/:id', requestController.deleteRequest);
