@@ -131,8 +131,15 @@ module.exports = {
 		r.username = req.user.username;
 		r.status = 0;
 
+		const targets = [
+			{ 'type': 'tv', 'target': 'sonarr' },
+			{ 'type': 'movie', 'target': 'radarr' },
+			{ 'type': 'tv4k', 'target': 'sonarr4k' },
+			{ 'type': 'movie4k', 'target': 'radarr4k' },
+			{ 'type': 'movies3d', 'target': 'radarr3d' },
+			{ 'type': 'music', 'target': 'lidarr' }];
 		const targetMap = {};
-		settings.targets.map((x) => { targetMap[x.type] = x; });
+		targets.map((x) => { targetMap[x.type] = x; });
 		if (!t.target) t.target = targetMap[t.type].target;
 		r.target = t.target;
 
