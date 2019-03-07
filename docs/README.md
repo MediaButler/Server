@@ -1,7 +1,6 @@
 # MediaButler API Server
 
 [![](https://img.shields.io/discord/379374148436230144.svg)](https://discord.gg/nH9t5sm)
-[![](https://img.shields.io/beerpay/MediaButler/Server.svg)](https://beerpay.io/MediaButler/Server)
 ![](https://img.shields.io/gitlab/pipeline/MediaButler/API.svg?gitlab_url=https%3A%2F%2Flab.mediabutler.io)
 [![](https://img.shields.io/docker/pulls/mediabutler/server.svg)](https://hub.docker.com/r/mediabutler/server)
 [![](https://img.shields.io/npm/dt/mediabutler-server.svg)](https://www.npmjs.com/package/mediabutler-server)
@@ -38,78 +37,32 @@ Ticks are currently supported. Others are planned support.
 
 You will need:
  - [Node.js](https://nodejs.org/) (Tested with v9 but should work with anything >v6)
- - [NPM](https://www.npmjs.com/) (Tested with v5.6.0/v6.0.1 but should work with lower)
+ - [NPM](https://www.npmjs.com/) (Usually installed with Node.js)
  - [MongoDb](https://www.mongodb.com/)
 
+### Linux
 
- ### NPM Installation
+    npm i -g mediabutler-server pm2
+    PLEX_URL=http://192.168.1.101:32400/ DB_URL=mongodb://127.0.0.1:27017/mediabutler pm2 start mediabutler
 
-     npm i -g mediabutler-server
-     mediabutler # It will fail to startup properly
-     nano ${HOME}/.mediabutler/settings.json
-     mediabutler
+### Windows
 
+    npm i -g mediabutler-server pm2
+    setx PLEX_URL http://192.168.1.101:32400/
+    setx DB_URL mongodb://127.0.0.1:27017/mediabutler
+    pm2 start mediabutler
 
-### Docker Installation
+### macOS
 
-#### Native Docker
+To install on macOS you will likely need to install the [Homebrew](https://brew.sh/) package to install some dependancies (macOS uses outdated versions of some applications).
+   
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew install bash gnu-sed node jq
+    // Follow Linux instructions from here
 
-    docker run -d \ 
-        --name=mongo \
-        mongo:latest mongod --smallfiles --bind_ip_all
-        
-Please note, due to the way docker works the `--bind_ip_all` will not physically bind to all network interfaces, it's just so mongo listenes on all interfaces that appears to the docker internally. You may not need this flag, however in our testing. This was the simplist solution.
+### Docker
 
-    docker create \
-        --name=mediabutler \
-        --link mongo:mongo \
-        -e PLEX_URL=http://192.168.1.100:32400/ \
-        -e DB_URL=mongodb://mongo:27017/mediabutler \
-        -v ${HOME}/docker/mediabutler:/config:rw \
-        -p 9876:9876 \
-        mediabutler/server:latest
-    docker start mediabutler
-
-#### Docker Compose
-
-    ---
-    version: '2'
-    networks:
-      mb:
-        driver: bridge
-    services:
-        mediabutler-api:
-            container_name: "mediabutler"
-            image: mediabutler/server:latest
-            hostname: mediabutler
-            environment:
-                - "URL=https://example.com/mediabutler/"
-                - "DB_URL=mongodb://mongo:27017/mediabutler"
-                - "PLEX_MACHINE_ID=PLEX_MACHINE_ID_HERE"
-                - "PLEX_URL=http://192.168.1.101:32400/"
-            volumes:
-                - ${HOME}/docker/mediabutler:/config:rw
-            networks:
-                - mb
-            ports:
-                - 9876:9876
-            links:
-                - mongo
-            depends_on:
-                - mongo
-        mongo:
-            image: mongo:latest
-            container_name: "mongo"
-            hostname: mongo
-            environment:
-                - MONGO_DATA_DIR=/data/db
-                - MONGO_LOG_DIR=/dev/null
-                - MONGO_URL=mongodb://mongo:27017/
-            volumes:
-                - ${HOME}/docker/mediabutler/db:/data/db:rw
-            networks:
-                - mb
-            command: mongod --smallfiles --bind_ip_all
+Docker Installation support can be found [In the docs](./DOCKER.md) or [At Dockerhub](https://hub.docker.com/r/mediabutler/server)
 
 ## Further Support
 

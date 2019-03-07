@@ -25,6 +25,7 @@ module.exports = {
 		app.get('/', sonarrController.getConfigure);
 		app.put('/', sonarrController.testConfigure);
 		app.post('/', sonarrController.saveConfigure);
+		app.delete('/', sonarrController.deleteConfigure);
 		return app;
 	},
 	'hooks': () => {

@@ -25,6 +25,7 @@ module.exports = {
 		app.get('/', radarrController.getConfigure);
 		app.put('/', radarrController.testConfigure);
 		app.post('/', radarrController.saveConfigure);
+		app.delete('/', radarrController.deleteConfigure);
 		return app;
 	},
 	'hooks': () => {
