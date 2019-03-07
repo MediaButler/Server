@@ -1,8 +1,8 @@
 {
   "name": "mediabutler-server",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "MediaButler Server",
-  "homepage": "https://mediabutler.io",
+  "homepage": "https://mediabutler.io/",
   "main": "server.js",
   "keywords": [
     "plex",
@@ -29,7 +29,7 @@
     "mediabutler": "server.js"
   },
   "author": "MediaButler",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "axios": "^0.18.0",
     "axios-cache-adapter": "^2.1.1",

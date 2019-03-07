@@ -16,6 +16,7 @@ module.exports = {
 		app.get('/', tautulliController.getConfigure);
 		app.put('/', tautulliController.testConfigure);
 		app.post('/', tautulliController.saveConfigure);
+		app.delete('/', tautulliController.deleteConfigure);
 		return app;
 	},
 	'hooks': () => {

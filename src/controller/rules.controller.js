@@ -1,3 +1,4 @@
+const debug = require('debug')('mediabutler:rulesController');
 const rulesService = require('../service/rules.service');
 const service = new rulesService();
 
@@ -7,19 +8,27 @@ try {
 
 module.exports = {
 	getRules: async (req, res, next) => {
+		const dbg = debug.extend('getRules');
 		try {
+			dbg('Checking user permissions');
 			if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes('RULE_EDIT')) return next(new Error('Unauthorized'));
+			dbg('Getting Rules');
 			const rules = await service.getAllRules();
+			dbg('Finished');
 			res.send(rules);
-		} catch (err) { next(err); }
+		} catch (err) { dbg(err); next(err); }
 	},
 	postRules: async (req, res, next) => {
+		const dbg = debug.extend('postRules');
 		try {
+			dbg('Checking user permissions');
 			if (!req.user.permissions.includes('ADMIN') && !req.user.permissions.includes('RULE_EDIT')) return next(new Error('Unauthorized'));
 			const { ruleId, username } = req.body;
+			dbg('Adding Rule');
 			const user = await service.addRule(username, ruleId);
+			dbg('Finished');
 			res.send(user.rules);
-		} catch (err) { next(err); }
+		} catch (err) { dbg(err); next(err); }
 	},
 	putRules: async (req, res, next) => {
 		// update rule

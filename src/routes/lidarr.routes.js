@@ -22,6 +22,7 @@ module.exports = {
 		app.get('/', lidarrController.getConfigure);
 		app.put('/', lidarrController.testConfigure);
 		app.post('/', lidarrController.saveConfigure);
+		app.delete('/', lidarrController.deleteConfigure);
 		return app;
 	},
 	'hooks': () => {

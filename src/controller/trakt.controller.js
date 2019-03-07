@@ -1,3 +1,4 @@
+const debug = require('debug')('mediabutler:traktController')
 const Trakt = require('trakt.tv');
 const User = require('../model/user');
 const notificationService = require('../service/notification.service');
@@ -25,7 +26,8 @@ let trakt = new Trakt(traktSettings);
 try {
 	notificationService.on('tautulli', async (data) => {
 		const user = await User.findOne({ username: data.username }).exec();
-		if (!user || !user.trakt || !user.trakt.access_token) { console.log('no trakt user connected'); return; }
+		if (!user || !user.trakt || !user.trakt.access_token) return;
+
 		const trakt = new Trakt(traktSettings);
 		const i = await trakt.import_token(user.trakt);
 		let search = false;
@@ -49,25 +51,25 @@ try {
 		switch (data.action) {
 		case 'play':
 			trakt.scrobble.start(scrobbleData);
-			console.log('trakt play');
+			debug(`${user.username} play`)
 			break;
 		case 'pause':
 			trakt.scrobble.pause(scrobbleData);
-			console.log('trakt pause');
+			debug(`${user.username} pause`)
 			break;
 		case 'resume':
 			trakt.scrobble.start(scrobbleData);
-			console.log('trakt resume');
+			debug(`${user.username} resume`)
 			break;
 		case 'stop':
 			trakt.scrobble.stop(scrobbleData);
-			console.log('trakt stop');
+			debug(`${user.username} stop`)
 			break;
 		default:
 			return;
 		}
 	});
-} catch (err) { console.error(err); }
+} catch (err) { debug(err); console.error(err); }
 
 module.exports = {
 	getUrl: async (req, res, next) => {

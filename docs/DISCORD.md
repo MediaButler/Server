@@ -32,16 +32,23 @@ There are several specific features of the bot including:
 
  Due to how Discord is as a service and to keep setup minimalistic for you. We run the bot in the cloud for you. All you have to do is invite it to your Discord server and the fun can begin.
 
+
+!! AT THE TIME OF WRITING THE BETA BOT IS CURRENTLY THE ONE YOU WANT TO BE INVITING FOR OPTIMUM EXPERIENCE. !!
+
+
  You can invite the bot to your server with the following link:
 
-    https://discordapp.com/api/oauth2/authorize?client_id=379412536618909706&permissions=8&scope=bot
+    https://discordapp.com/api/oauth2/authorize?client_id=379412536618909706&permissions=1446509648&scope=bot
 
  You can also run the BETA version of the bot from the following link:
 
-    https://discordapp.com/api/oauth2/authorize?client_id=354733331717554179&permissions=8&scope=bot
+    https://discordapp.com/api/oauth2/authorize?client_id=354733331717554179&permissions=1446509648&scope=bot
 
 
-Please Note: While the URL will request the bot have administrative permissions, this may not be totally necessary. It is mostly just the `Manage Messages` permission that the bot requires as sometimes if it asks you to post sensitive information. The bot will remove the sensitive information to prevent others from seeing it but knows the information itself. The bot can also create channels in some instances.
+The list of permissions the bot requires are as follows:
+
+    Manage Roles, Manage Channels, Change Nickname, Manage Emojis, Read Messages, Send TTS Messages, Embed Links, Read Message History, Use External Emojis, Attach Files, Mention @everyone, Add Reactions, Voice View Channel, Voice Connect, Voice Speak, Use Voice Activity
+
 
 #### Logging in
 
