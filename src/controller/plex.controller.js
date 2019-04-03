@@ -3,7 +3,7 @@ const plexService = require('../service/plex.service');
 const settingsService = require('../service/settings.service');
 const settings = settingsService.getSettings('plex');
 
-const _processHistory = async (plexService, data) => {
+const _processHistory = async (service, data) => {
 	const dbg = debug.extend('processHistory');
 	if (Array.isArray(data.video)) {
 		dbg('Data provided is an array of videos');
@@ -11,8 +11,8 @@ const _processHistory = async (plexService, data) => {
 			let t;
 			if (video.type == 'episode') {
 				dbg('Video is an episode');
-				t = await plexService.searchLibraries(video.showName);
-				const episodes = await plexService.getDirectory(t.MediaContainer.Metadata[0].ratingKey);
+				t = await service.searchLibraries(video.showName);
+				const episodes = await service.getDirectory(t.MediaContainer.Metadata[0].ratingKey);
 				dbg('Have episode information');
 				if (Array.isArray(episodes.MediaContainer.Metadata)) {
 					dbg('Episdode information looks appears intact');
@@ -45,12 +45,9 @@ module.exports = {
 	getAudioByKey: async (req, res, next) => {
 		const dbg = debug.extend('getAudioByKey');
 		try {
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			dbg('Connected to Plex');
-			const p = await plex.getMetadata(req.params.ratingKey);
+			const p = await req.plex.getMetadata(req.params.ratingKey);
 			dbg(`Got Metadata for ${req.params.ratingKey}`);
-			const a = await plex.getPart(p.MediaContainer.Metadata[0].Media[0].Part[0].key);
+			const a = await req.plex.getPart(p.MediaContainer.Metadata[0].Media[0].Part[0].key);
 			dbg('Got Audio out of Metadata.. Finished');
 			if (a) res.status(200).send(a);
 			else res.status(404).send();
@@ -59,12 +56,9 @@ module.exports = {
 	getImageByKey: async (req, res, next) => {
 		const dbg = debug.extend('getImageByKey');
 		try {
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			dbg('Connected to Plex');
-			const p = await plex.getMetadata(req.params.ratingKey);
+			const p = await req.plex.getMetadata(req.params.ratingKey);
 			dbg(`Got Metadata for ${req.params.ratingKey}`);
-			const a = await plex.getPart(p.MediaContainer.Metadata[0].thumb);
+			const a = await req.plex.getPart(p.MediaContainer.Metadata[0].thumb);
 			dbg('Got Thumbnail out of Metadata.. Finished');
 			if (a) res.status(200).send(a);
 			else res.status(404).send();
@@ -73,13 +67,10 @@ module.exports = {
 	searchAudio: async (req, res, next) => {
 		const dbg = debug.extend('searchAudio');
 		try {
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			dbg('Connected to Plex');
-			const p = await plex.searchAudioLibraries(req.query.query);
+			const p = await req.plex.searchAudioLibraries(req.query.query);
 			dbg('Performed Search');
 			const r = [];
-			if (Boolean(p.MediaContainer.Metadata)) {
+			if (p.MediaContainer.Metadata) {
 				dbg('Has reults');
 				p.MediaContainer.Metadata.forEach((item) => {
 					dbg(`Adding ${item.grandparentTitle} - ${item.title} to output`);
@@ -103,19 +94,14 @@ module.exports = {
 		const dbg = debug.extend('search');
 		try {
 			dbg('Command incomplete');
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			const p = await plex.searchLibraries(req.query.query);
-			dbg(p);
+			const p = await req.plex.searchLibraries(req.query.query);
+			res.status(200).send(p.MediaContainer);
 		} catch (err) { dbg(err); next(err); }
 	},
 	getHistory: async (req, res, next) => {
 		const dbg = debug.extend('getHistory');
 		try {
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			dbg('Connected to Plex');
-			const r = await plex.getHistory();
+			const r = await req.plex.getHistory();
 			dbg('Got History');
 			if (!r) throw new Error('No Results Found');
 			const result = { video: [], audio: [] };
@@ -151,10 +137,7 @@ module.exports = {
 	postHistory: async (req, res, next) => {
 		const dbg = debug.extend('postHistory');
 		try {
-			settings.token = req.user.token;
-			const plex = new plexService(settings);
-			dbg('Connected to Plex');
-			_processHistory(plex, req.body);
+			_processHistory(req.plex, req.body);
 			dbg('Finished');
 			res.status(200).send({ name: 'OK', message: 'Process started. This may take a while.' });
 		} catch (err) { dbg(err); next(err); }

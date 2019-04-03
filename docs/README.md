@@ -29,8 +29,10 @@ Ticks are currently supported. Others are planned support.
 
 ## Give me some examples of these "Front-Ends"
 
- - [MediaButler WebUI](https://beta.mediabutler.io) - Web application for you and your users 
+ - [Linux CLI](https://github.com/MediaButler/CLI-Linux) - Command line interface for Linux
+ - [Windows CLI](https://github.com/MediaButler/CLI-Windows) - Windows command line interface
  - [Discord bot](./DISCORD.md) - Have a bot on your Discord Server which allows your users to perform actions on the API
+ - [MediaButler WebUI](https://beta.mediabutler.io) - Web application for you and your users
  - [Organizr v2 Plugin](https://github.com/MediaButler/organizr-plugin) - Plugin to help add and manage requests on the API
 
 ## Installation
@@ -40,33 +42,11 @@ You will need:
  - [NPM](https://www.npmjs.com/) (Usually installed with Node.js)
  - [MongoDb](https://www.mongodb.com/)
 
-### Linux
-
-    npm i -g mediabutler-server pm2
-    PLEX_URL=http://192.168.1.101:32400/ DB_URL=mongodb://127.0.0.1:27017/mediabutler pm2 start mediabutler
-
-### Windows
-
-    npm i -g mediabutler-server pm2
-    setx PLEX_URL http://192.168.1.101:32400/
-    setx DB_URL mongodb://127.0.0.1:27017/mediabutler
-    pm2 start mediabutler
-
-### macOS
-
-To install on macOS you will likely need to install the [Homebrew](https://brew.sh/) package to install some dependancies (macOS uses outdated versions of some applications).
-   
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    brew install bash gnu-sed node jq
-    // Follow Linux instructions from here
-
-### Docker
-
-Docker Installation support can be found [In the docs](./DOCKER.md) or [At Dockerhub](https://hub.docker.com/r/mediabutler/server)
+You will find installation guides on [our Wiki](https://github.com/MediaButler/Wiki/wiki)
 
 ## Further Support
 
-If you require further support, please feel free to drop by our [Discord Server](https://discord.gg/nH9t5sm)
+If you require further support, you can check [our Wiki](https://github.com/MediaButler/Wiki/wiki) or drop by our [Discord Server](https://discord.gg/nH9t5sm)
 
 ## Thanks
 

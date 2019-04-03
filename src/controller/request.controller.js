@@ -11,7 +11,7 @@ const BadRequestError = require('../errors/badrequest.error');
 const sonarrService = require('../service/sonarr.service');
 const radarrService = require('../service/radarr.service');
 
-const settings = settingsService.getSettings('requests');
+let settings = settingsService.getSettings('requests') || { limitDays: 7, limitAmount: 20 };
 const service = new requestService(settings);
 service._approveTimer = setTimeout((() => { service.autoApprove(); }), 60 * 1000);
 service._filledTimer = setTimeout((() => { service.autoDelete(); }), 60 * 1000);
@@ -105,7 +105,19 @@ module.exports = {
 			const id = req.params.id
 			const t = req.body;
 			dbg(`Updating request ${id}`);
-			const r = await Request.findByIdAndUpdate(id, t);
+			const r = await Request.findById(id);
+
+			let canUpdate = false;
+			if (r.username == req.user.username) canUpdate = true;
+			if (req.user.permissions.includes('ADMIN') || req.user.permissions.includes('REQ_EDIT')) canUpdate = true;
+			if (!canUpdate) return res.status(401).send({ name: 'Unauthorized', message: 'You are not authorised to perform actions on this endpoint' });
+
+			if (t.status && t.status != r.status) r.status = t.status;
+			if (t.target && t.target != r.target) r.target = t.target;
+			if (t.profile && t.profile != r.profile) r.profile = t.profile;
+			if (t.rootPath &&t.rootPath != r.rootPath) r.rootPath = t.rootPath;
+			
+			await r.save();
 			dbg('Updated');
 			res.status(200).send(r);
 		} catch (err) { dbg(err); next(err); }
@@ -116,9 +128,9 @@ module.exports = {
 		const t = req.body;
 		let r;
 		const now = new Date();
-		const requestsByUser = await Request.find({ username: req.user.username, dateAdded: { $gt: Math.floor(now.setDate(now.getDate() - 7) / 1000) } }).exec();
+		const requestsByUser = await Request.find({ username: req.user.username, dateAdded: { $gt: Math.floor(now.setDate(now.getDate() - settings.limitDays) / 1000) } }).exec();
 		dbg(`User has made ${requestsByUser.length} requests in 7 days`);
-		if (requestsByUser.length > 20) return next(new BadRequestError('Too many requests'));
+		if (requestsByUser.length > settings.limitAmount && !req.user.permissions.includes('REQ_LIMIT_EXEMPT')) return next(new BadRequestError('Too many requests'));
 		switch (t.type) {
 			case 'tv':
 				dbg('Is TV Request');
@@ -243,10 +255,65 @@ module.exports = {
 		const dbg = debug.extend('getConfigure');
 		if (!req.user.permissions.includes('ADMIN')) throw new Error('Unauthorized');
 		const data = {
-			schema: [],
-			settings: {}
+			schema: [{ name: 'limitDays', type: 'number' },
+			{ name: 'limitAmount', type: 'number' },
+			],
 		};
-		dbg('Sending Settings');
+		if (!settings) data.settings = {}
+		else data.settings = settings;
+		dbg(`Sending ${req.user.username} Settings`);
 		res.status(200).send(data);
+	},
+	testConfigure: async (req, res, next) => {
+		const dbg = debug.extend('testConfigure');
+		try {
+			if (!req.user.permissions.includes('ADMIN')) throw new Error('Unauthorized');
+			if (!req.body.limitAmount) throw new Error('`limitAmount` Not Provided');
+			if (!req.body.limitDays) throw new Error('`limitDays` Not Provided');
+			const tempSettings = { limitDays: parseInt(req.body.limitDays), limitAmount: parseInt(req.body.limitAmount) };
+			dbg(tempSettings);
+
+			if (!Number.isInteger(tempSettings.limitDays)) throw new TypeError('`limitDays` is not a number');
+			if (!Number.isInteger(tempSettings.limitAmount)) throw new TypeError('`limitAmount` is not a number');
+			res.status(200).send({ message: 'success', settings: tempSettings });
+		} catch (err) { dbg(err); next(err); }
+	},
+	saveConfigure: async (req, res, next) => {
+		const dbg = debug.extend('saveConfigure');
+		try {
+			if (!req.user.permissions.includes('ADMIN')) throw new Error('Unauthorized');
+			if (!req.body.limitAmount) throw new Error('`limitAmount` Not Provided');
+			if (!req.body.limitDays) throw new Error('`limitDays` Not Provided');
+			const tempSettings = { limitDays: parseInt(req.body.limitDays), limitAmount: parseInt(req.body.limitAmount) };
+			dbg(tempSettings);
+
+			if (!Number.isInteger(tempSettings.limitDays)) throw new TypeError('`limitDays` is not a number');
+			if (!Number.isInteger(tempSettings.limitAmount)) throw new TypeError('`limitAmount` is not a number');
+
+			dbg('Test passed... Saving');
+			const allSettings = settingsService.getSettings();
+			allSettings.requests = tempSettings;
+			await settingsService._saveSettings(allSettings);
+			settings = tempSettings;
+			res.status(200).send({ message: 'success', settings });
+		} catch (err) { dbg(err); next(err); }
+	},
+	deleteConfigure: async (req, res, next) => {
+		const dbg = debug.extend('deleteConfigure');
+		try {
+			dbg('Validating permissions');
+			if (!req.user.permissions.includes('ADMIN')) return next(new Error('Unauthorized'));
+
+			dbg('Getting settings');
+			const allSettings = settingsService.getSettings();
+
+			dbg('Deleting settings');
+			delete allSettings['requests'];
+
+			dbg('Saving settings');
+			await settingsService._saveSettings(allSettings);
+			settings = { limitDays: 7, limitAmount: 20 };
+			res.status(200).send({ message: 'success', settings });
+		} catch (err) { dbg(err); next(err); }
 	}
 };

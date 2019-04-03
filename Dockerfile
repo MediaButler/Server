@@ -1,25 +1,21 @@
-FROM alpine:latest
+ARG IMAGE_ARCH=amd64
+FROM ${IMAGE_ARCH}/alpine:3.9
 LABEL maintainer="MediaButler"
 
-ENV DB_URL=mongodb://mongodb:21017
-ENV PLEX_URL notSetCorrectly
+ENV DB_URL=mongodb://mongodb:21017/mediabutler
+ENV ENABLE_UPNP=false
 
 COPY ./ /app/
+WORKDIR /app
 
-RUN apk add --no-cache build-base \
-        openssl-dev \
-        curl \
-        git \
-        nodejs-npm \
-        su-exec \
-        python \
-        nodejs-current \
-        openssl \
-        ca-certificates \
-    && cd /app \
+RUN /sbin/apk add --no-cache openssl-dev \
+    curl \
+    nodejs-npm \
+    nodejs-current \
+    openssl \
+    ca-certificates \
     && npm install
 
 VOLUME /config
-WORKDIR /app
 EXPOSE 9876
 CMD ["npm", "start"]

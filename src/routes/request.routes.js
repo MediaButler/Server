@@ -13,5 +13,13 @@ module.exports = {
 		app.get('/', requestController.getRequests);
 		app.post('/', requestController.postRequest);
 		return app;
+	},
+	'configure': () => {
+		const app = express();
+		app.get('/', requestController.getConfigure);
+		app.put('/', requestController.testConfigure);
+		app.post('/', requestController.saveConfigure);
+		app.delete('/', requestController.deleteConfigure);
+		return app;
 	}
 };

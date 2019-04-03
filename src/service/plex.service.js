@@ -129,7 +129,7 @@ module.exports = class plexService {
 		const dbg = debug.extend('searchLibraries');
 		try {
 			dbg('Searching libraries');
-			const res = await this._api.query(`/search?&query=${query}`);
+			const res = await this._api.query(`/hubs/search?includeCollections=1&sectionId=&query=${query}`);
 			return res;
 		} catch (err) { dbg(err); throw err; }
 	}

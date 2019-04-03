@@ -1,25 +1,29 @@
 const mongoose = require('mongoose');
 const IssueSchema = new mongoose.Schema({
-    title: {
+	key: {
 		type: String,
 		required: true
-    },
-    type: { 
-		type: Number, 
-		required: true 
-    },
-	status: { 
-		type: Number, 
-		required: true 
-    },
-    comment: {
-        type: String
-    },
+	},
+	title: {
+		type: String,
+		required: true
+	},
+	type: {
+		type: Number,
+		required: true
+	},
+	status: {
+		type: Number,
+		required: true
+	},
+	comment: {
+		type: String
+	},
 	dateAdded: {
 		type: Date,
 		default: Date.now()
-    },
-    username: {
+	},
+	username: {
 		type: String,
 		required: true
 	}
