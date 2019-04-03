@@ -85,8 +85,8 @@ deploy_docker_ext_amd64:
   before_script:
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD docker.io
   script:
-    - docker build -t ${IMAGEINT}:amd64-latest .
-    - docker push ${IMAGEINT}:amd64-latest
+    - docker build -t ${IMAGEEXT}:amd64-latest .
+    - docker push ${IMAGEEXT}:amd64-latest
   only: 
     - master
 deploy_docker_ext_arm32v6:
