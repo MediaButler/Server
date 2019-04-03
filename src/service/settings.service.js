@@ -6,10 +6,10 @@ const path = require('path');
 const os = require('os');
 //const __dirname = path.resolve();
 const defaultSettings = {
-	"plex": {
-		"url": false
+	'plex': {
+		'url': false
 	},
-	"database": false
+	'database': false
 };
 
 class settingsService {

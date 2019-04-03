@@ -47,7 +47,7 @@ module.exports = class requestService {
 	async autoDelete() {
 		const dbg = debug.extend('autoDelete');
 		try {
-			dbg('Checking for filled requests');
+			dbg('Checking for filled requests to delete');
 			const filled = await Request.find({ status: 3 });
 			if (filled.length > 0) {
 				dbg('There are requests to delete');
@@ -61,6 +61,25 @@ module.exports = class requestService {
 			dbg('Resetting timer');
 			clearTimeout(this._filledTimer);
 			this._filledTimer = setTimeout(() => { this.autoDelete(); }, (15 * 60) * 1000);
+		} catch (err) { dbg(err); throw err; }
+	}
+
+	async autoFilled() {
+		const dbg = debug.extend('autoFilled');
+		try {
+			dbg('Checking for Approved requests to be filled');
+			const reqs = await Request.find({ status: { $gt: 1, $lt: 3 }});
+			if (reqs.length > 0) {
+				reqs.forEach((req) => {
+					// Load Service
+
+					// Get Id
+
+					// Check if filled
+
+					// if filled { change status, fire notification }
+				});
+			}
 		} catch (err) { dbg(err); throw err; }
 	}
 

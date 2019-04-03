@@ -15,11 +15,8 @@ module.exports = {
 	getMyUser: async (req, res, next) => {
 		const dbg = debug.extend('getMyUser');
 		try {
-			dbg('Getting user');
-			const user = await User.find({ username: req.user.username }).limit(1);
 			dbg('Sending user');
-			if (user.length == 0) next(new Error('User does not exist'));
-			else res.send(user[0]);
+			res.send(req.user);
 		} catch (err) { dbg(err); next(err); }
 	},
 	getUser: async (req, res, next) => {
@@ -59,7 +56,9 @@ module.exports = {
 	deleteUser: async (req, res, next) => {
 		const dbg = debug.extend('deleteUser');
 		try {
-
+			if (!req.user.permissions.includes('ADMIN')) next(new Error('Unauthorized'));
+			await User.findOneAndDelete({ username: req.params.username });
+			res.status(200).send({ name: 'OK', message: 'The User was deleted' });
 		} catch (err) { dbg(err); next(err); }
 	}
 };
