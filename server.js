@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const debug = require('debug')('mediabutler');
 const http = require('http');
 const mongoose = require('mongoose');
