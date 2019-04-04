@@ -6,10 +6,8 @@ const Request = require('../model/request');
 const requestService = require('../service/request.service');
 const settingsService = require('../service/settings.service');
 const notificationService = require('../service/notification.service');
-const NotImplementedError = require('../errors/notimplemented.error');
 const BadRequestError = require('../errors/badrequest.error');
 const sonarrService = require('../service/sonarr.service');
-const radarrService = require('../service/radarr.service');
 
 let settings = settingsService.getSettings('requests') || { limitDays: 7, limitAmount: 20 };
 const service = new requestService(settings);
