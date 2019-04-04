@@ -4,6 +4,7 @@ const http = require('http');
 const mongoose = require('mongoose');
 const settingsService = require('./src/service/settings.service');
 const notificationService = require('./src/service/notification.service');
+const plexService = require('./src/service/plex.service');
 const settings = settingsService.getSettings();
 const expressServer = require('./src/express-server');
 const socketServer = require('./src/socket-server');
