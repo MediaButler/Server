@@ -1,0 +1,28 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.13.5
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-450202:
+    - nat-upnp > async > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - node-tvdb > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - axios-cache-adapter > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - mongoose > async > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - express-winston > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - winston > async > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - imdb-api > request-promise-native > request-promise-core > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - plex-api > plex-api-credentials > request-promise > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - plex-api > xml2js > xmlbuilder > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
+    - plex-api > plex-api-credentials > xml2js > xmlbuilder > lodash:
+        patched: '2019-07-04T01:16:38.529Z'
