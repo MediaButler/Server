@@ -60,7 +60,7 @@
     "passport-jwt": "^4.0.0",
     "plex-api": "^5.2.1",
     "socket.io": "^2.1.1",
-    "socketio-jwt": "^4.5.0",
+    "socketio-jwt": "^4.6.0",
     "socketio-jwt-auth": "0.0.6",
     "trakt.tv": "^7.0.0",
     "trakt.tv-cached": "^3.0.1",
