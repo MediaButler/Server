@@ -64,7 +64,7 @@
     "socketio-jwt-auth": "0.0.6",
     "trakt.tv": "^7.0.0",
     "trakt.tv-cached": "^3.0.1",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "uuid": "^3.3.2",
     "winston": "^3.1.0",
     "winston-express": "^0.1.1",
