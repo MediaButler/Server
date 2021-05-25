@@ -62,7 +62,7 @@
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",
     "socketio-jwt-auth": "0.0.6",
-    "trakt.tv": "^7.0.0",
+    "trakt.tv": "^7.1.0",
     "trakt.tv-cached": "^3.0.1",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2",
