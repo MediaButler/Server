@@ -31,8 +31,8 @@
   "author": "MediaButler",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "axios": "^0.18.0",
-    "axios-cache-adapter": "^2.1.1",
+    "axios": "^0.21.3",
+    "axios-cache-adapter": "^2.5.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "btoa": "^1.2.1",
