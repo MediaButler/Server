@@ -51,7 +51,7 @@
     "json-to-form-data": "^1.0.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.11",
-    "mongoose": "^5.2.17",
+    "mongoose": "^5.7.3",
     "multer": "^1.4.0",
     "nat-upnp": "^1.1.1",
     "node-tvdb": "^4.1.0",
@@ -66,7 +66,7 @@
     "trakt.tv-cached": "^3.0.1",
     "underscore": "^1.9.1",
     "uuid": "^3.3.2",
-    "winston": "^3.1.0",
+    "winston": "^3.3.0",
     "winston-express": "^0.1.1",
     "ws": "^6.0.0"
   },
