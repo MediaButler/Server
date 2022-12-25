@@ -57,7 +57,7 @@
     "node-tvdb": "^4.1.0",
     "npm": "^6.9.0",
     "passport": "^0.4.0",
-    "passport-jwt": "^4.0.0",
+    "passport-jwt": "^4.0.1",
     "plex-api": "^5.2.1",
     "socket.io": "^2.1.1",
     "socketio-jwt": "^4.5.0",
