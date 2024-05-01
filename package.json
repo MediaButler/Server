@@ -55,7 +55,7 @@
     "multer": "^1.4.0",
     "nat-upnp": "^1.1.1",
     "node-tvdb": "^4.1.0",
-    "npm": "^6.9.0",
+    "npm": "^6.10.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "plex-api": "^5.2.1",
